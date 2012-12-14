@@ -19,17 +19,18 @@ setup(
     name = "pegasus-metrics",
     version = "0.1",
     author = "Gideon Juve",
-    author_email = "juve@isi.edu",
+    author_email = "gideon@isi.edu",
     description = "Anonymous usage metrics collection and reporting for Pegasus",
     long_description = read("README.md"),
     license = "Apache2",
-    url = "http://pegasus.isi.edu/metrics",
-    classifiers=[
+    url = "https://github.com/pegasus-isi/pegasus-metrics",
+    classifiers = [
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: Apache Software License",
     ],
     packages = ["pegasus","pegasus.metrics", "pegasus.metrics.web"],
+    include_package_data = True,
     zip_safe = False,
     install_requires = dependencies
 )
