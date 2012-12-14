@@ -32,6 +32,7 @@ setup(
     packages = ["pegasus","pegasus.metrics", "pegasus.metrics.web"],
     include_package_data = True,
     zip_safe = False,
+    scripts = ["bin/pegasus-metrics-server"],
     install_requires = dependencies
 )
 
