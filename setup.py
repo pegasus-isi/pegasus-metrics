@@ -29,7 +29,7 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: Apache Software License",
     ],
-    packages = ["pegasus","pegasus.metrics"],
+    packages = ["pegasus","pegasus.metrics", "pegasus.metrics.web"],
     zip_safe = False,
     install_requires = dependencies
 )
