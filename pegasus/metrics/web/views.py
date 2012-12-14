@@ -4,11 +4,15 @@ except ImportError:
     import simplejson as json
 import logging
 import time
-from flask import request
+from flask import request, render_template, redirect, url_for
 
 from pegasus.metrics.web import app
 
 MAX_CONTENT_LENGTH = 10*1024
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/status')
 def status():
@@ -48,10 +52,8 @@ def store_metrics():
     data["external_address"] = request.environ["REMOTE_ADDR"]
     data["timestamp"] = time.time()
     
-    import sys
-    json.dump(data, sys.stderr)
-    
     # TODO Store the data
+    #json.dump(data, sys.stderr)
     
     return "", 202
 
