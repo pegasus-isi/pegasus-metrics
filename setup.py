@@ -1,9 +1,19 @@
 import os
+import sys
 from setuptools import setup
 
 # Utility function to read the README file.
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+# The packages we depend on
+dependencies = [
+    "Flask==0.9"
+]
+
+# If old Python, then we need simplejson
+if sys.version_info < (2,6):
+    dependencies += ["simplejson>=2.6.2"]
 
 setup(
     name = "pegasus-metrics",
@@ -21,8 +31,6 @@ setup(
     ],
     packages = ["pegasus","pegasus.metrics"],
     zip_safe = False,
-    install_requires = [
-        "Flask==0.9"
-    ]
+    install_requires = dependencies
 )
 
