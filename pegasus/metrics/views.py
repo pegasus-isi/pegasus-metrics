@@ -6,7 +6,7 @@ import logging
 import time
 from flask import request, render_template, redirect, url_for
 
-from pegasus.metrics.web import app
+from pegasus.metrics import app
 
 MAX_CONTENT_LENGTH = 10*1024
 

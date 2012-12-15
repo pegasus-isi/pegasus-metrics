@@ -1,5 +1,5 @@
 #!python
-from pegasus.metrics.web import app
+from pegasus.metrics import app
 
-app.run(debug=False)
+app.run(debug=True)
 
