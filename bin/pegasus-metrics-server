@@ -1,5 +1,16 @@
 #!python
 from pegasus.metrics import app
 
-app.run(debug=True)
+DBHOST = 'localhost'
+DBUSER = 'pegasus'
+DBPASS = 'pegasus'
+DBNAME = 'pegasus_metrics'
+DEBUG = True
+
+def main():
+    app.config.from_object(__name__)
+    app.run()
+
+if __name__ == '__main__':
+    main()
 
