@@ -6,8 +6,11 @@ import logging
 import time
 from flask import request, render_template, redirect, url_for, g
 import MySQLdb as mysql
+from MySQLdb.cursors import DictCursor
 
 from pegasus.metrics import app
+
+log = logging.getLogger(__name__)
 
 MAX_CONTENT_LENGTH = 16*1024
 
@@ -16,7 +19,9 @@ def connect_db():
         host=app.config["DBHOST"],
         user=app.config["DBUSER"],
         passwd=app.config["DBPASS"],
-        db=app.config["DBNAME"])
+        db=app.config["DBNAME"],
+        cursorclass=DictCursor,
+        use_unicode=True)
 
 @app.before_request
 def before_request():
@@ -24,6 +29,8 @@ def before_request():
 
 @app.teardown_request
 def teardown_request(exception):
+    if exception is not None:
+        g.db.rollback()
     g.db.close()
 
 def store_json_data(data):
@@ -37,8 +44,8 @@ def store_json_data(data):
 def count_json_data():
     cur = g.db.cursor()
     try:
-        cur.execute("SELECT count(*) FROM json_data")
-        return cur.fetchone()[0]
+        cur.execute("SELECT count(*) as count FROM json_data")
+        return cur.fetchone()['count']
     finally:
         cur.close()
 
@@ -62,7 +69,7 @@ def store_metrics():
     try:
         type_header = request.headers["Content-Type"]
         if type_header.lower() != "application/json":
-            logging.error("Invalid Content-Type")
+            log.error("Invalid Content-Type")
             return "Invalid Content-Type", 400
     except:
         return "Invalid Content-Type", 400
@@ -82,7 +89,7 @@ def store_metrics():
             return "Invalid Content-Length", 400
         data = json.loads(raw)
     except Exception, e:
-        logging.error("Error parsing JSON object: %s", e)
+        log.error("Error parsing JSON object: %s", e)
         return "Error parsing JSON object", 400
     
     # TODO Validate required fields
@@ -99,7 +106,7 @@ def store_metrics():
     try:
         store_json_data(data)
     except Exception, e:
-        logging.error("Error storing JSON data: %s", e)
+        log.error("Error storing JSON data: %s", e)
         return "Error storing JSON data", 500
     
     return "", 202
