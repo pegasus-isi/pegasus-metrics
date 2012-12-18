@@ -109,5 +109,7 @@ def store_metrics():
         log.error("Error storing JSON data: %s", e)
         return "Error storing JSON data", 500
     
+    g.db.commit()
+    
     return "", 202
 
