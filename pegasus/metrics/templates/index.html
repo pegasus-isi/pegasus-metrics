@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
-
-<h2>Raw Data Metrics</h2>
-<table>
-    <tr><td>Number of objects stored</td><td>{{ nrows }}</td></tr>
+<h2>Metametrics</h2>
+<table class="keyvalue">
+    <tr><th>Number of raw objects</th><td class="numcol">{{ raw }}</td></tr>
+    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{ invalid }}</a></td></tr>
+    <tr><th>Number of processed objects</th><td class="numcol">{{ raw - invalid }}</td></tr>
 </table>
-
 <h2>Planner Metrics</h2>
-<table>
-    <tr><td>Workflows Planned</td><td>{{planner_stats["plans"]}}</td></tr>
-    <tr><td>Tasks Planned</td><td>{{planner_stats["tasks"]}}</td></tr>
-    <tr><td>Jobs Planned</td><td>{{planner_stats["jobs"]}}</td></tr>
-    <tr><td>Errors Reported</td><td>{{planner_errors}}</td></tr>
+<table class="keyvalue">
+    <tr><th>Workflows Planned</th><td class="numcol">{{planner_stats["plans"]}}</td></tr>
+    <tr><th>Tasks Planned</th><td class="numcol">{{planner_stats["tasks"]}}</td></tr>
+    <tr><th>Jobs Planned</th><td class="numcol">{{planner_stats["jobs"]}}</td></tr>
+    <tr><th>Errors Reported</th><td class="numcol">{{planner_errors}}</td></tr>
 </table>
 {% endblock %}
 

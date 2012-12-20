@@ -6,18 +6,15 @@ from pegasus.metrics import db
 
 log = logging.getLogger("pegasus.metrics.loader")
 
-def delete_processed_data():
-    db.delete_planner_metrics()
-    db.delete_planner_errors()
-
-def reprocess_json_data():
-    for data in db.each_json_data():
+def reprocess_raw_data():
+    for data in db.each_raw_data():
         try:
-            process_json_data(data)
+            process_raw_data(data)
         except Exception, e:
             log.exception(e)
+            db.store_invalid_data(data["id"], unicode(e))
 
-def process_json_data(data):
+def process_raw_data(data):
     client = data["client"]
     dtype = data["type"]
     if (client, dtype) == ("pegasus-plan", "metrics"):
@@ -27,7 +24,9 @@ def process_json_data(data):
         # Planner errors also contain planner metrics
         process_planner_metrics(data)
     else:
-        log.warn("Unknown client/data type: %s/%s" % (client, dtype))
+        error = "Unknown client/data type: %s/%s" % (client, dtype)
+        log.warn(error)
+        db.store_invalid_data(data["id"], error)
 
 def process_planner_metrics(data):
     # Remove the nested structure the planner sends
@@ -75,8 +74,8 @@ def main():
                    user=opts.user,
                    passwd=opts.passwd,
                    db=opts.db)
-        delete_processed_data()
-        reprocess_json_data()
+        db.delete_processed_data()
+        reprocess_raw_data()
         db.commit()
     except:
         db.rollback()

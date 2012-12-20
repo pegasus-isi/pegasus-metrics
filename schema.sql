@@ -1,13 +1,21 @@
-drop table if exists json_data;
-create table json_data (
-    id INTEGER NOT NULL AUTO_INCREMENT,
+drop table if exists raw_data;
+create table raw_data (
+    id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
     data MEDIUMTEXT NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+drop table if exists invalid_data;
+create table invalid_data (
+    id INTEGER UNSIGNED NOT NULL,
+    error MEDIUMTEXT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 drop table if exists planner_metrics;
 create table planner_metrics (
-    id INTEGER NOT NULL,
+    id INTEGER UNSIGNED NOT NULL,
     ts DOUBLE,
     remote_addr VARCHAR(15),
     version VARCHAR(10),
@@ -33,11 +41,15 @@ create table planner_metrics (
     clustered_jobs INTEGER UNSIGNED,
     reg_jobs INTEGER UNSIGNED,
     total_jobs INTEGER UNSIGNED,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 drop table if exists planner_errors;
 create table planner_errors (
-    id INTEGER NOT NULL,
-    error MEDIUMTEXT
+    id INTEGER UNSIGNED NOT NULL,
+    error MEDIUMTEXT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

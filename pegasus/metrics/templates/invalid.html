@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Invalid Data</h2>
+<table>
+    <tr><th>Error Message</th><th>Data</th></tr>
+    {% for obj in objects: %}
+        <tr><td>{{obj["error"]}}</td><td class="json">{{obj["data"]}}</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
+

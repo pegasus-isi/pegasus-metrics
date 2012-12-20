@@ -54,19 +54,19 @@ def close():
     ctx.db.close()
     del ctx.db
 
-def store_json_data(data):
+def store_raw_data(data):
     with ctx.db.cursor() as cur:
-        cur.execute("INSERT INTO json_data (data) VALUES (%s)", 
+        cur.execute("INSERT INTO raw_data (data) VALUES (%s)", 
                 [json.dumps(data)])
 
-def count_json_data():
+def count_raw_data():
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM json_data")
+        cur.execute("SELECT count(*) as count FROM raw_data")
         return cur.fetchone()['count']
 
-def each_json_data():
+def each_raw_data():
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT id, data FROM json_data")
+        cur.execute("SELECT id, data FROM raw_data")
         for row in cur:
             if row is None:
                 break
@@ -85,13 +85,25 @@ def get_planner_stats():
         cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics")
         return cur.fetchone()
 
-def delete_planner_metrics():
+def delete_processed_data():
     with ctx.db.cursor() as cur:
+        cur.execute("DELETE FROM invalid_data")
         cur.execute("DELETE FROM planner_metrics")
-
-def delete_planner_errors():
-    with ctx.db.cursor() as cur:
         cur.execute("DELETE FROM planner_errors")
+
+def get_invalid_data():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT i.error, d.data FROM invalid_data i LEFT JOIN raw_data d ON i.id=d.id")
+        return cur.fetchall()
+
+def count_invalid_data():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT count(*) as count FROM invalid_data")
+        return cur.fetchone()["count"]
+
+def store_invalid_data(id, error=None):
+    with ctx.db.cursor() as cur:
+        cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
 def store_planner_metrics(data):
     with ctx.db.cursor() as cur:

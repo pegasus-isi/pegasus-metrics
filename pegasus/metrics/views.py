@@ -2,6 +2,7 @@ try:
     import json
 except ImportError:
     import simplejson as json
+import pprint
 import logging
 import time
 from flask import request, render_template, redirect, url_for, g
@@ -28,17 +29,30 @@ def teardown_request(exception):
 
 @app.route('/')
 def index():
-    nrows = db.count_json_data()
+    raw = db.count_raw_data()
+    invalid = db.count_invalid_data()
     errors = db.count_planner_errors()
     stats = db.get_planner_stats()
-    return render_template('index.html', nrows=nrows,
+    return render_template('index.html',
+            raw=raw,
+            invalid=invalid,
             planner_errors=errors,
             planner_stats=stats)
+
+@app.route('/invalid')
+def invalid():
+    objects = db.get_invalid_data()
+    for obj in objects:
+        data = obj["data"]
+        data = json.loads(data)
+        obj["data"] = json.dumps(data, indent=4)
+    return render_template('invalid.html',
+            objects=objects)
 
 @app.route('/status')
 def status():
     # Make sure the database is reachable
-    db.count_json_data()
+    db.count_raw_data()
     
     # TODO Perform other status checks
     
@@ -89,7 +103,7 @@ def store_metrics():
     
     # Store the raw data
     try:
-        db.store_json_data(data)
+        db.store_raw_data(data)
         db.commit()
     except Exception, e:
         log.error("Error storing JSON data: %s", e)
@@ -97,7 +111,7 @@ def store_metrics():
     
     # Store the processed data
     try:
-        loader.process_json_data(data)
+        loader.process_raw_data(data)
         db.commit()
     except Exception, e:
         log.error("Error processing JSON data: %s", e)
