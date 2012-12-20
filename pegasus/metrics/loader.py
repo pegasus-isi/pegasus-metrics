@@ -35,19 +35,25 @@ def process_planner_metrics(data):
     data.update(metrics)
     
     # Change start_time and end_time into timestamps if they
-    # are using the old string format
+    # are using the old string formats
     datefmt = "%b %d, %Y %H:%M:%S %p"
     start_time = data["start_time"]
     if isinstance(start_time, basestring):
-        log.debug("Using old string format for planner start_time")
-        ts = time.mktime(time.strptime(start_time, datefmt))
-        data["start_time"] = ts
+        if start_time[0] in "0123456789":
+            data["start_time"] = float(start_time)
+        else:
+            log.debug("Using old string format for planner start_time")
+            ts = time.mktime(time.strptime(start_time, datefmt))
+            data["start_time"] = ts
     
     end_time = data["end_time"]
     if isinstance(end_time, basestring):
-        log.debug("Using old string format for planner end_time")
-        ts = time.mktime(time.strptime(end_time, datefmt))
-        data["end_time"] = ts
+        if end_time[0] in "0123456789":
+            data["end_time"] = float(end_time)
+        else:
+            log.debug("Using old string format for planner end_time")
+            ts = time.mktime(time.strptime(end_time, datefmt))
+            data["end_time"] = ts
     
     db.store_planner_metrics(data)
 
