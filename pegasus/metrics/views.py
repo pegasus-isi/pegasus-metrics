@@ -5,59 +5,35 @@ except ImportError:
 import logging
 import time
 from flask import request, render_template, redirect, url_for, g
-import MySQLdb as mysql
-from MySQLdb.cursors import DictCursor
 
-from pegasus.metrics import app
+from pegasus.metrics import app, db, ctx
 
 log = logging.getLogger(__name__)
 
 MAX_CONTENT_LENGTH = 16*1024
 
-def connect_db():
-    return mysql.connect(
-        host=app.config["DBHOST"],
-        user=app.config["DBUSER"],
-        passwd=app.config["DBPASS"],
-        db=app.config["DBNAME"],
-        cursorclass=DictCursor,
-        use_unicode=True)
-
 @app.before_request
 def before_request():
-    g.db = connect_db()
+    db.connect(host=app.config["DBHOST"],
+               user=app.config["DBUSER"],
+               passwd=app.config["DBPASS"],
+               db=app.config["DBNAME"])
 
 @app.teardown_request
 def teardown_request(exception):
     if exception is not None:
-        g.db.rollback()
-    g.db.close()
-
-def store_json_data(data):
-    cur = g.db.cursor()
-    try:
-        cur.execute("INSERT INTO json_data (data) VALUES (%s)", 
-                [json.dumps(data)])
-    finally:
-        cur.close()
-
-def count_json_data():
-    cur = g.db.cursor()
-    try:
-        cur.execute("SELECT count(*) as count FROM json_data")
-        return cur.fetchone()['count']
-    finally:
-        cur.close()
+        db.rollback()
+    db.close()
 
 @app.route('/')
 def index():
-    nrows = count_json_data()
+    nrows = db.count_json_data()
     return render_template('index.html', nrows=nrows)
 
 @app.route('/status')
 def status():
     # Make sure the database is reachable
-    count_json_data()
+    db.count_json_data()
     
     # TODO Perform other status checks
     
@@ -97,6 +73,10 @@ def store_metrics():
         return "wf_uuid missing", 400
     if "type" not in data:
         return "type missing", 400
+    if "client" not in data:
+        return "client missing", 400
+    if "version" not in data:
+        return "version missing", 400
     
     # Get the remote IP address
     data["remote_addr"] = request.environ["REMOTE_ADDR"]
@@ -104,12 +84,12 @@ def store_metrics():
     
     # Store the data
     try:
-        store_json_data(data)
+        db.store_json_data(data)
     except Exception, e:
         log.error("Error storing JSON data: %s", e)
         return "Error storing JSON data", 500
     
-    g.db.commit()
+    db.commit()
     
     return "", 202
 

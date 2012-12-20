@@ -1,5 +1,8 @@
 import sys
 import logging
+import threading
+
+ctx = threading.local()
 
 def init_logging():
     logFormat = "%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(message)s"
