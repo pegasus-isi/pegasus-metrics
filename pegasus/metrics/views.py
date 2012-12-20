@@ -6,7 +6,7 @@ import logging
 import time
 from flask import request, render_template, redirect, url_for, g
 
-from pegasus.metrics import app, db, ctx
+from pegasus.metrics import app, db, ctx, loader
 
 log = logging.getLogger(__name__)
 
@@ -83,14 +83,20 @@ def store_metrics():
     data["remote_addr"] = request.environ["REMOTE_ADDR"]
     data["ts"] = time.time()
     
-    # Store the data
+    # Store the raw data
     try:
         db.store_json_data(data)
+        db.commit()
     except Exception, e:
         log.error("Error storing JSON data: %s", e)
         return "Error storing JSON data", 500
     
-    db.commit()
+    # Store the processed data
+    try:
+        loader.process_json_data(data)
+        db.commit()
+    except Exception, e:
+        log.error("Error processing JSON data: %s", e)
     
     return "", 202
 

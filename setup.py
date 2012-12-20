@@ -34,7 +34,7 @@ setup(
     package_data = {"pegasus.metrics" : ["templates/*", "static/*"] },
     include_package_data = True,
     zip_safe = False,
-    scripts = ["bin/pegasus-metrics-server"],
+    scripts = ["bin/pegasus-metrics-server", "bin/pegasus-metrics-loader"],
     install_requires = dependencies
 )
 
