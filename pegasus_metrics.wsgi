@@ -1,4 +1,5 @@
 DBHOST = 'localhost'
+DBPORT = 3306
 DBUSER = 'pegasus'
 DBPASS = 'pegasus'
 DBNAME = 'pegasus_metrics'

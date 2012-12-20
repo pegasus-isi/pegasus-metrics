@@ -15,6 +15,7 @@ MAX_CONTENT_LENGTH = 16*1024
 @app.before_request
 def before_request():
     db.connect(host=app.config["DBHOST"],
+               port=app.config["DBPORT"],
                user=app.config["DBUSER"],
                passwd=app.config["DBPASS"],
                db=app.config["DBNAME"])

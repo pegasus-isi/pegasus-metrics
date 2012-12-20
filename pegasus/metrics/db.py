@@ -14,10 +14,24 @@ class WithCursor(DictCursor):
     def __exit__(self, type, value, traceback):
         self.close()
 
-def connect(host="localhost", user="pegasus", passwd="pegasus", db="pegasus_metrics"):
+def add_options(parser):
+    "Add database command-line options to parser"
+    parser.add_option("-H", "--host", dest="host", action="store",
+            help="Database hostname", default="localhost")
+    parser.add_option("-P", "--port", dest="port", action="store", type="int",
+            help="Database port", default=3306)
+    parser.add_option("-u", "--user", dest="user", action="store", 
+            help="Database username", default="pegasus")
+    parser.add_option("-p", "--passwd", dest="passwd", action="store",
+            help="Database password", default="pegasus")
+    parser.add_option("-D", "--db", dest="db", action="store",
+            help="Database name", default="pegasus_metrics")
+
+def connect(host="localhost", port=3306, user="pegasus", passwd="pegasus", db="pegasus_metrics"):
     if "db" in dir(ctx):
         return
     ctx.db = mysql.connect(host=host,
+                           port=port,
                            user=user,
                            passwd=passwd,
                            db=db,
