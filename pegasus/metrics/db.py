@@ -23,7 +23,7 @@ def add_options(parser):
     parser.add_option("-u", "--user", dest="user", action="store", 
             help="Database username", default="pegasus")
     parser.add_option("-p", "--passwd", dest="passwd", action="store",
-            help="Database password", default="pegasus")
+            help="Database password", default=None)
     parser.add_option("-D", "--db", dest="db", action="store",
             help="Database name", default="pegasus_metrics")
 

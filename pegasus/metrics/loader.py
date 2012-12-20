@@ -2,6 +2,7 @@ import sys
 import time
 import logging
 import optparse
+from getpass import getpass
 from pegasus.metrics import db
 
 log = logging.getLogger("pegasus.metrics.loader")
@@ -73,6 +74,9 @@ def main():
     
     if len(args) > 0:
         parser.error("Invalid argument")
+
+    if opts.passwd is None:
+        opts.passwd = getpass()
     
     try:
         db.connect(host=opts.host,

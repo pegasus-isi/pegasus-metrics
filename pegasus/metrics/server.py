@@ -1,5 +1,7 @@
+import sys
 import logging
 import optparse
+from getpass import getpass
 from pegasus.metrics import app, db
 
 log = logging.getLogger("pegasus.metrics.server")
@@ -17,6 +19,9 @@ def main():
     if len(args) > 0:
         parser.error("Invalid argument")
     
+    if opts.passwd is None:
+        opts.passwd = getpass()
+    
     app.config["DBHOST"] = opts.host
     app.config["DBPORT"] = opts.port
     app.config["DBUSER"] = opts.user
@@ -25,9 +30,15 @@ def main():
     app.config["DEBUG"] = opts.debug
     
     if opts.debug:
+        # This is required because the reloader will rerun
+        # this script, which causes it to ask for the password
+        # again, which gets really annoying when you are in
+        # development mode
+        sys.argv += ["-p", opts.passwd]
+        
+        # Set the root logging level to debug
         root = logging.getLogger("pegasus.metrics")
         root.setLevel(logging.DEBUG)
     
-    log.info("Starting server...")
     app.run()
 
