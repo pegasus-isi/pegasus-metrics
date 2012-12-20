@@ -75,6 +75,16 @@ def each_json_data():
             jsondata["id"] = row["id"]
             yield jsondata
 
+def count_planner_errors():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT count(*) as count FROM planner_errors")
+        return cur.fetchone()["count"]
+
+def get_planner_stats():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics")
+        return cur.fetchone()
+
 def delete_planner_metrics():
     with ctx.db.cursor() as cur:
         cur.execute("DELETE FROM planner_metrics")

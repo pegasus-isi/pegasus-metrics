@@ -1,6 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h2>Number of rows stored: {{ nrows }}</h2>
+<h2>Raw Data Metrics</h2>
+<table>
+    <tr><td>Number of objects stored</td><td>{{ nrows }}</td></tr>
+</table>
+
+<h2>Planner Metrics</h2>
+<table>
+    <tr><td>Workflows Planned</td><td>{{planner_stats["plans"]}}</td></tr>
+    <tr><td>Tasks Planned</td><td>{{planner_stats["tasks"]}}</td></tr>
+    <tr><td>Jobs Planned</td><td>{{planner_stats["jobs"]}}</td></tr>
+    <tr><td>Errors Reported</td><td>{{planner_errors}}</td></tr>
+</table>
 {% endblock %}
 

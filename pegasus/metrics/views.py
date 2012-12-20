@@ -29,7 +29,11 @@ def teardown_request(exception):
 @app.route('/')
 def index():
     nrows = db.count_json_data()
-    return render_template('index.html', nrows=nrows)
+    errors = db.count_planner_errors()
+    stats = db.get_planner_stats()
+    return render_template('index.html', nrows=nrows,
+            planner_errors=errors,
+            planner_stats=stats)
 
 @app.route('/status')
 def status():
