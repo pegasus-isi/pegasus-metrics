@@ -1,6 +1,8 @@
+import os
 import sys
 import logging
 import threading
+from flask import Flask
 
 ctx = threading.local()
 
@@ -14,9 +16,10 @@ def init_logging():
 
 init_logging()
 
-from flask import Flask
-
 app = Flask(__name__)
+
+# This is required for sessions and message flashing
+app.secret_key = os.urandom(24)
 
 import pegasus.metrics.views
 

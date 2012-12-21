@@ -8,8 +8,14 @@ from pegasus.metrics import db
 log = logging.getLogger("pegasus.metrics.loader")
 
 def reprocess_raw_data():
+    db.delete_processed_data()
+    
+    i = 0    
     for data in db.each_raw_data():
+        i += 1
         process_raw_data(data)
+    
+    return i
 
 def process_raw_data(data):
     try:
@@ -77,7 +83,7 @@ def main():
     
     if len(args) > 0:
         parser.error("Invalid argument")
-
+    
     if opts.passwd is None:
         opts.passwd = getpass()
     
@@ -87,7 +93,6 @@ def main():
                    user=opts.user,
                    passwd=opts.passwd,
                    db=opts.db)
-        db.delete_processed_data()
         reprocess_raw_data()
         db.commit()
     except:

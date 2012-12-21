@@ -5,7 +5,7 @@ except ImportError:
 import pprint
 import logging
 import time
-from flask import request, render_template, redirect, url_for, g
+from flask import request, render_template, redirect, url_for, g, flash
 
 from pegasus.metrics import app, db, ctx, loader
 
@@ -38,6 +38,12 @@ def index():
             invalid=invalid,
             planner_errors=errors,
             planner_stats=stats)
+
+@app.route('/reprocess', methods=["POST"])
+def reprocess():
+    i = loader.reprocess_raw_data()
+    flash("Reprocessed %d objects successfully" % i)
+    return redirect(url_for('index'))
 
 @app.route('/invalid')
 def invalid():

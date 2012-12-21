@@ -4,15 +4,35 @@
 <title>Pegasus Metrics</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<script>
+function reprocess() {
+    form = document.createElement("form");
+    form.method = "post";
+    form.action = "{{ url_for('reprocess') }}";
+    document.getElementsByTagName('body')[0].appendChild(form);
+    if (confirm("The previously processed data will be deleted and reloaded from the raw data. Are you sure you want to do this?")) {
+        form.submit();
+    }
+}
+</script>
 </head>
 <body>
 <div id="body">
-    {% for message in get_flashed_messages() %}
-        <div class=flash>{{ message }}</div>
-    {% endfor %}
-    <div id="header">
-        <h1><a href="/">Pegasus Metrics</a></h1>
+    <div id="header">Pegasus Metrics</div>
+    <div id="navigation">
+        <a href="/">Home</a>
+        <a href="/invalid">Invalid Data</a>
+        <a href="javascript:reprocess()">Reprocess Data</a>
     </div>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages: %}
+        <ul class="flashes">
+        {% for category, message in messages: %}
+            <li class="{{category}}">{{message}}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
     <div id="content">
     {% block body %}{% endblock %}
     </div>

@@ -1,3 +1,46 @@
+body {
+    background-color: #DDDDDD;
+    font-family: Veranda, Sans-serif;
+}
+
+#header {
+    font-size: 200%;
+    font-weight: bold;
+    padding-bottom: 15px;
+}
+
+#body {
+    padding: 20px;
+    background-color: #FFFFFF;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#navigation {
+    font-size: 125%;
+}
+
+#navigation a {
+    padding: 5px;
+    border: 1px solid #AAAAAA;
+    text-decoration: none;
+    color: #444444;
+    background-color: #CCCCCC;
+}
+
+#navigation a:hover {
+    background-color: #DDDDDD;
+}
+
+.flashes .message {
+    color: green;
+}
+
+.flashes .error {
+    color: red;
+}
+
 table { 
     border-collapse: collapse;
 }
@@ -21,10 +64,6 @@ td.numcol {
 
 table.keyvalue th {
     text-align: left;
-}
-
-td {
-    white-space: nowrap;
 }
 
 td.json {
