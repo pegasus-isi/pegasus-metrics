@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Planner Errors</h2>
+<table>
+    <tr><th>Object</th><th>Error Message</th></tr>
+    {% for err in errors: %}
+        <tr><td>{{err["id"]}}</td><td class="error">{{err["error"]}}</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
+

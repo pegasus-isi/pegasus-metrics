@@ -55,6 +55,12 @@ def invalid():
     return render_template('invalid.html',
             objects=objects)
 
+@app.route('/errors')
+def errors():
+    errors = db.get_planner_errors()
+    return render_template('errors.html',
+            errors=errors)
+
 @app.route('/status')
 def status():
     # Make sure the database is reachable

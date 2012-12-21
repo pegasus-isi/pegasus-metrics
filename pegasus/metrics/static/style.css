@@ -120,3 +120,8 @@ td.json {
     white-space: pre-wrap;
 }
 
+td.error {
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+

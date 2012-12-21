@@ -75,6 +75,11 @@ def each_raw_data():
             jsondata["id"] = row["id"]
             yield jsondata
 
+def get_planner_errors():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT * FROM planner_errors")
+        return cur.fetchall()
+
 def count_planner_errors():
     with ctx.db.cursor() as cur:
         cur.execute("SELECT count(*) as count FROM planner_errors")
