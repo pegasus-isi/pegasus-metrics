@@ -36,6 +36,9 @@ h2 {
     margin-left: auto;
     margin-right: auto;
     background-color: #FFFFFF;
+    -moz-box-shadow: 3px 3px 4px #555;
+    -webkit-box-shadow: 3px 3px 4px #555;
+    box-shadow: 3px 3px 4px #555;
 }
 
 #navigation {
