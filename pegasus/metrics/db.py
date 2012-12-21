@@ -134,7 +134,8 @@ def store_planner_metrics(data):
             create_dir_jobs,
             clustered_jobs,
             reg_jobs,
-            total_jobs
+            total_jobs,
+            data_config
         ) VALUES (
             %(id)s,
             %(ts)s,
@@ -161,7 +162,8 @@ def store_planner_metrics(data):
             %(create_dir_jobs)s,
             %(clustered_jobs)s,
             %(reg_jobs)s,
-            %(total_jobs)s
+            %(total_jobs)s,
+            %(data_config)s
         )""", data)
 
 def store_planner_errors(data):

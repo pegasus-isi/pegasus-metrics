@@ -41,6 +41,7 @@ create table planner_metrics (
     clustered_jobs INTEGER UNSIGNED,
     reg_jobs INTEGER UNSIGNED,
     total_jobs INTEGER UNSIGNED,
+    data_config VARCHAR(15),
     PRIMARY KEY (id),
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

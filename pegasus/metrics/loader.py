@@ -55,6 +55,9 @@ def process_planner_metrics(data):
             log.debug("Using old string format for planner end_time")
             ts = time.mktime(time.strptime(end_time, datefmt))
             data["end_time"] = ts
+
+    if "data_config" not in data:
+        data["data_config"] = None
     
     db.store_planner_metrics(data)
 
