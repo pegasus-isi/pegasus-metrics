@@ -107,6 +107,7 @@ def store_metrics():
         db.commit()
     except Exception, e:
         log.error("Error storing JSON data: %s", e)
+        db.rollback()
         return "Error storing JSON data", 500
     
     # Store the processed data
@@ -115,6 +116,7 @@ def store_metrics():
         db.commit()
     except Exception, e:
         log.error("Error processing JSON data: %s", e)
+        db.rollback()
     
     return "", 202
 

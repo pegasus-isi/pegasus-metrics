@@ -9,25 +9,25 @@ log = logging.getLogger("pegasus.metrics.loader")
 
 def reprocess_raw_data():
     for data in db.each_raw_data():
-        try:
-            process_raw_data(data)
-        except Exception, e:
-            log.exception(e)
-            db.store_invalid_data(data["id"], unicode(e))
+        process_raw_data(data)
 
 def process_raw_data(data):
-    client = data["client"]
-    dtype = data["type"]
-    if (client, dtype) == ("pegasus-plan", "metrics"):
-        process_planner_metrics(data)
-    elif (client, dtype) == ("pegasus-plan", "error"):
-        process_planner_error(data)
-        # Planner errors also contain planner metrics
-        process_planner_metrics(data)
-    else:
-        error = "Unknown client/data type: %s/%s" % (client, dtype)
-        log.warn(error)
-        db.store_invalid_data(data["id"], error)
+    try:
+        client = data["client"]
+        dtype = data["type"]
+        if (client, dtype) == ("pegasus-plan", "metrics"):
+            process_planner_metrics(data)
+        elif (client, dtype) == ("pegasus-plan", "error"):
+            process_planner_error(data)
+            # Planner errors also contain planner metrics
+            process_planner_metrics(data)
+        else:
+            error = "Unknown client/data type: %s/%s" % (client, dtype)
+            log.warn(error)
+            db.store_invalid_data(data["id"], error)
+    except Exception, e:
+        log.exception(e)
+        db.store_invalid_data(data["id"], unicode(e))
 
 def process_planner_metrics(data):
     # Remove the nested structure the planner sends
