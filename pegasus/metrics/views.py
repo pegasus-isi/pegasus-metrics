@@ -43,7 +43,7 @@ def index():
 def reprocess():
     i = loader.reprocess_raw_data()
     flash("Reprocessed %d objects successfully" % i)
-    return redirect(url_for('index'))
+    return redirect(request.referrer or url_for('index'))
 
 @app.route('/invalid')
 def invalid():

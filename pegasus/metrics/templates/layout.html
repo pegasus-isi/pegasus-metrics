@@ -18,22 +18,24 @@ function reprocess() {
 </head>
 <body>
 <div id="body">
-    <div id="header">Pegasus Metrics</div>
+    <div id="header">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}"/>Pegasus Metrics
+        </a>
+    </div>
     <div id="navigation">
         <a href="/">Home</a>
         <a href="/invalid">Invalid Data</a>
         <a href="javascript:reprocess()">Reprocess Data</a>
     </div>
-    {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages: %}
-        <ul class="flashes">
-        {% for category, message in messages: %}
-            <li class="{{category}}">{{message}}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
     <div id="content">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages: %}
+            {% for category, message in messages: %}
+                <div class="flash_{{category}}">{{message}}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     {% block body %}{% endblock %}
     </div>
 </div>

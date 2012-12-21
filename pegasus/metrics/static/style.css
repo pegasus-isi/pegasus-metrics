@@ -3,42 +3,79 @@ body {
     font-family: Veranda, Sans-serif;
 }
 
+h2 {
+    margin: 0px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 #header {
     font-size: 200%;
     font-weight: bold;
-    padding-bottom: 15px;
+    padding: 10px;
+}
+
+#header a {
+    color: #000000;
+    text-decoration: none;
+}
+
+#header a:hover {
+    text-decoration: underline;
+}
+
+#header img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    vertical-align: middle;
 }
 
 #body {
-    padding: 20px;
-    background-color: #FFFFFF;
     width: 80%;
     margin-left: auto;
     margin-right: auto;
+    background-color: #FFFFFF;
 }
 
 #navigation {
+    width: 100%;
+    height: 30px;
     font-size: 125%;
+    padding-top: 10px;
+    vertical-align: middle;
+    background-color: #0000AA;
 }
 
 #navigation a {
-    padding: 5px;
-    border: 1px solid #AAAAAA;
     text-decoration: none;
-    color: #444444;
-    background-color: #CCCCCC;
+    padding-right: 0px;
+    padding-left: 20px;
+    font-weight: bold;
+    color: #FFFFFF;
 }
 
 #navigation a:hover {
-    background-color: #DDDDDD;
+    text-decoration: underline;
 }
 
-.flashes .message {
+#content {
+    padding: 20px;
+    margin: 0px;
+}
+
+.flash_message {
     color: green;
+    font-size: 125%;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.flashes .error {
+.flash_error {
     color: red;
+    font-size: 125%;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 table { 
@@ -55,15 +92,24 @@ td {
 }
 
 th {
-    background-color: #CCCCCC;
+    color: #FFFFFF;
+    background-color: #0000AA;
 }
 
 td.numcol {
     text-align: right;
 }
 
+table.keyvalue {
+}
+
 table.keyvalue th {
     text-align: left;
+    width: 250px;
+}
+
+table.keyvalue td {
+    width: 100px;
 }
 
 td.json {
