@@ -85,7 +85,7 @@ def main():
         parser.error("Invalid argument")
     
     if opts.passwd is None:
-        opts.passwd = getpass()
+        opts.passwd = getpass("Database password: ")
     
     try:
         db.connect(host=opts.host,

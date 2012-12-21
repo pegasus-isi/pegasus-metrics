@@ -20,7 +20,7 @@ def main():
         parser.error("Invalid argument")
     
     if opts.passwd is None:
-        opts.passwd = getpass()
+        opts.passwd = getpass("Database password: ")
     
     app.config["DBHOST"] = opts.host
     app.config["DBPORT"] = opts.port
