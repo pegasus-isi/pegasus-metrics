@@ -1,6 +1,3 @@
-Test on Apache (logging, benchmarking)
-Add CRON script for status checks and email alerts
-Add type-specific processing for metrics data
-Add script to reload data
+Fix logging on Apache
 Add CRON script for email reports
 
