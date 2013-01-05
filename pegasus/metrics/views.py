@@ -42,6 +42,7 @@ def index():
 @app.route('/reprocess', methods=["POST"])
 def reprocess():
     i = loader.reprocess_raw_data()
+    db.commit()
     flash("Reprocessed %d objects successfully" % i)
     return redirect(request.referrer or url_for('index'))
 
