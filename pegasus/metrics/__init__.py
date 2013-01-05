@@ -7,7 +7,7 @@ from flask import Flask
 ctx = threading.local()
 
 def init_logging():
-    logFormat = "%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(message)s"
+    logFormat = "%(levelname)s %(filename)s:%(lineno)s %(message)s"
     logFormatter = logging.Formatter(fmt=logFormat)
     logHandler = logging.StreamHandler()
     logHandler.setFormatter(logFormatter)
