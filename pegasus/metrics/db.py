@@ -58,6 +58,8 @@ def store_raw_data(data):
     with ctx.db.cursor() as cur:
         cur.execute("INSERT INTO raw_data (data) VALUES (%s)", 
                 [json.dumps(data)])
+    
+    return ctx.db.insert_id()
 
 def count_raw_data():
     with ctx.db.cursor() as cur:

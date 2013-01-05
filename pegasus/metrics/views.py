@@ -115,7 +115,7 @@ def store_metrics():
     
     # Store the raw data
     try:
-        db.store_raw_data(data)
+        data["id"] = db.store_raw_data(data)
         db.commit()
     except Exception, e:
         log.error("Error storing JSON data: %s", e)
