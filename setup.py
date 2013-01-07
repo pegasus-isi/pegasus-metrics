@@ -9,7 +9,8 @@ def read(fname):
 # The packages we depend on
 dependencies = [
     "Flask==0.9",
-    "MySQL-python==1.2.4c1"
+    "MySQL-python==1.2.4c1",
+    "repoze.lru==0.5"
 ]
 
 # If old Python, then we need simplejson

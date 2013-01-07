@@ -18,6 +18,8 @@ create table planner_metrics (
     id INTEGER UNSIGNED NOT NULL,
     ts DOUBLE,
     remote_addr VARCHAR(15),
+    hostname VARCHAR(256),
+    domain VARCHAR(256),
     version VARCHAR(10),
     wf_uuid VARCHAR(36),
     root_wf_uuid VARCHAR(36),

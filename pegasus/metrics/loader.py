@@ -2,7 +2,9 @@ import sys
 import time
 import logging
 import optparse
+import socket
 from getpass import getpass
+from repoze.lru import lru_cache
 from pegasus.metrics import db
 
 log = logging.getLogger("pegasus.metrics.loader")
@@ -17,8 +19,36 @@ def reprocess_raw_data():
     
     return i
 
+@lru_cache(1024, timeout=3600)
+def get_hostname_domain(ipaddr):
+    if ipaddr == "127.0.0.1":
+        return "localhost", "localhost"
+    
+    try:
+        log.debug("Looking up %s" % ipaddr)
+        hostname = socket.gethostbyaddr(ipaddr)[0]
+        log.debug("%s is %s" % (ipaddr, hostname))
+        
+        parts = hostname.split(".")
+        if len(parts) >= 2:
+            domain = parts[-2] + "." + parts[-1]
+        else:
+            domain = hostname
+
+        return hostname, domain
+    except:
+        log.warning("No such host: %s" % ipaddr)
+        return None, None
+
 def process_raw_data(data):
     try:
+        # Get the hostname and domain
+        ipaddr = data["remote_addr"]
+        hostname, domain = get_hostname_domain(ipaddr)
+        data["hostname"] = hostname
+        data["domain"] = domain
+        
+        # Process metrics according to type
         client = data["client"]
         dtype = data["type"]
         if (client, dtype) == ("pegasus-plan", "metrics"):
@@ -36,6 +66,7 @@ def process_raw_data(data):
         db.store_invalid_data(data["id"], unicode(e))
 
 def process_planner_metrics(data):
+    
     # Remove the nested structure the planner sends
     metrics = data["wf_metrics"]
     del data["wf_metrics"]

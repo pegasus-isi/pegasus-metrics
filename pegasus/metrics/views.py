@@ -33,11 +33,17 @@ def index():
     invalid = db.count_invalid_data()
     errors = db.count_planner_errors()
     stats = db.get_planner_stats()
+
+    top_hosts = db.get_top_hosts()
+    top_domains = db.get_top_domains()
+    
     return render_template('index.html',
             raw=raw,
             invalid=invalid,
             planner_errors=errors,
-            planner_stats=stats)
+            planner_stats=stats,
+            top_hosts=top_hosts,
+            top_domains=top_domains)
 
 @app.route('/reprocess', methods=["POST"])
 def reprocess():

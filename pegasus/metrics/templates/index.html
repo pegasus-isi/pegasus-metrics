@@ -13,5 +13,29 @@
     <tr><th>Jobs Planned</th><td class="numcol">{{planner_stats["jobs"]}}</td></tr>
     <tr><th>Errors Reported</th><td class="numcol">{{planner_errors}}</td></tr>
 </table>
+<h2>Top Domains</h2>
+<table class="top5">
+    <tr><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+    {% for domain in top_domains: %}
+    <tr>
+        <td>{{domain["domain"]}}</td>
+        <td>{{domain["workflows"]}}</td>
+        <td>{{domain["tasks"]}}</td>
+        <td>{{domain["jobs"]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h2>Top Hosts</h2>
+<table class="top5">
+    <tr><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+    {% for host in top_hosts: %}
+    <tr>
+        <td>{{host["hostname"]}}</td>
+        <td>{{host["workflows"]}}</td>
+        <td>{{host["tasks"]}}</td>
+        <td>{{host["jobs"]}}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}
 

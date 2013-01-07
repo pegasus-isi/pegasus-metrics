@@ -115,6 +115,14 @@ table.keyvalue td {
     width: 100px;
 }
 
+table.top5 tr td {
+    text-align: right;
+}
+
+table.top5 tr td:first-of-type {
+    text-align: left;
+}
+
 td.json {
     font-family: monospace;
     white-space: pre-wrap;
