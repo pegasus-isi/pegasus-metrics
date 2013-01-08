@@ -2,26 +2,26 @@
 {% block body %}
 <h2>Metametrics</h2>
 <table class="keyvalue">
-    <tr><th>Number of raw objects</th><td class="numcol">{{ raw }}</td></tr>
-    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{ invalid }}</a></td></tr>
-    <tr><th>Number of processed objects</th><td class="numcol">{{ raw - invalid }}</td></tr>
+    <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
+    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{invalid | decimal}}</a></td></tr>
+    <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
 </table>
 <h2>Planner Metrics</h2>
 <table class="keyvalue">
-    <tr><th>Workflows Planned</th><td class="numcol">{{planner_stats["plans"]}}</td></tr>
-    <tr><th>Tasks Planned</th><td class="numcol">{{planner_stats["tasks"]}}</td></tr>
-    <tr><th>Jobs Planned</th><td class="numcol">{{planner_stats["jobs"]}}</td></tr>
-    <tr><th>Errors Reported</th><td class="numcol">{{planner_errors}}</td></tr>
+    <tr><th>Workflows Planned</th><td class="numcol">{{planner_stats["plans"] | decimal}}</td></tr>
+    <tr><th>Tasks Planned</th><td class="numcol">{{planner_stats["tasks"] | decimal}}</td></tr>
+    <tr><th>Jobs Planned</th><td class="numcol">{{planner_stats["jobs"] | decimal}}</td></tr>
+    <tr><th>Errors Reported</th><td class="numcol">{{planner_errors | decimal}}</td></tr>
 </table>
 <h2>Top Domains</h2>
 <table class="top5">
     <tr><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for domain in top_domains: %}
     <tr>
-        <td>{{domain["domain"]}}</td>
-        <td>{{domain["workflows"]}}</td>
-        <td>{{domain["tasks"]}}</td>
-        <td>{{domain["jobs"]}}</td>
+        <td>{{domain["domain"] }}</td>
+        <td>{{domain["workflows"] | decimal}}</td>
+        <td>{{domain["tasks"] | decimal}}</td>
+        <td>{{domain["jobs"] | decimal}}</td>
     </tr>
     {% endfor %}
 </table>
@@ -31,9 +31,9 @@
     {% for host in top_hosts: %}
     <tr>
         <td>{{host["hostname"]}}</td>
-        <td>{{host["workflows"]}}</td>
-        <td>{{host["tasks"]}}</td>
-        <td>{{host["jobs"]}}</td>
+        <td>{{host["workflows"] | decimal}}</td>
+        <td>{{host["tasks"] | decimal}}</td>
+        <td>{{host["jobs"] | decimal}}</td>
     </tr>
     {% endfor %}
 </table>

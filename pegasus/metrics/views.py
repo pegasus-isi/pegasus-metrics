@@ -5,6 +5,7 @@ except ImportError:
 import pprint
 import logging
 import time
+import locale
 from flask import request, render_template, redirect, url_for, g, flash
 
 from pegasus.metrics import app, db, ctx, loader
@@ -15,6 +16,10 @@ MAX_CONTENT_LENGTH = 16*1024
 
 @app.before_request
 def before_request():
+    # TODO Make this choose the correct locale based
+    # on the user's accept_languages or something
+    locale.setlocale(locale.LC_ALL, "en_US")
+    
     db.connect(host=app.config["DBHOST"],
                port=app.config["DBPORT"],
                user=app.config["DBUSER"],
@@ -26,6 +31,12 @@ def teardown_request(exception):
     if exception is not None:
         db.rollback()
     db.close()
+
+@app.template_filter('decimal')
+def decimal_filter(num):
+    if isinstance(num, basestring):
+        return num
+    return locale.format("%d", num, True)
 
 @app.route('/')
 def index():
