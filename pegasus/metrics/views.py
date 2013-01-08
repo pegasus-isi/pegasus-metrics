@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 MAX_CONTENT_LENGTH = 16*1024
 
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 @app.before_request
 def before_request():
