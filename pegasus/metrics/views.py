@@ -14,12 +14,10 @@ log = logging.getLogger(__name__)
 
 MAX_CONTENT_LENGTH = 16*1024
 
+locale.setlocale(locale.LC_ALL, '')
+
 @app.before_request
 def before_request():
-    # TODO Make this choose the correct locale based
-    # on the user's accept_languages or something
-    locale.setlocale(locale.LC_ALL, "en_US")
-    
     db.connect(host=app.config["DBHOST"],
                port=app.config["DBPORT"],
                user=app.config["DBUSER"],
