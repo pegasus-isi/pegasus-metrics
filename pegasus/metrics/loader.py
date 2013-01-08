@@ -22,19 +22,17 @@ def reprocess_raw_data():
 @lru_cache(1024, timeout=3600)
 def get_hostname_domain(ipaddr):
     if ipaddr == "127.0.0.1":
-        return "localhost", "localhost"
+        return "localhost", "localdomain"
     
     try:
         log.debug("Looking up %s" % ipaddr)
         hostname = socket.gethostbyaddr(ipaddr)[0]
         log.debug("%s is %s" % (ipaddr, hostname))
         
-        parts = hostname.split(".")
-        if len(parts) >= 2:
-            domain = parts[-2] + "." + parts[-1]
-        else:
-            domain = hostname
-
+        # The domain is everything after the first dot
+        # unless there is no dot, then it is everything
+        domain = hostname[hostname.find(".")+1:]
+        
         return hostname, domain
     except:
         log.warning("No such host: %s" % ipaddr)
