@@ -3,6 +3,7 @@ import time
 import logging
 import optparse
 import socket
+import hashlib
 from getpass import getpass
 from repoze.lru import lru_cache
 from pegasus.metrics import db
@@ -96,11 +97,46 @@ def process_planner_metrics(data):
     
     db.store_planner_metrics(data)
 
+def hash_error(error):
+    # XXX We assume it is a Java stacktrace for now
+    # When we get more data we can revise our processing
+    
+    # Each stack trace has several lines
+    lines = error.split("\n")
+    
+    # Line 0 should start with the exception type followed by a colon
+    exception = lines[0]
+    colon = exception.find(":")
+    if colon > 0:
+        exception = exception[0:colon]
+    else:
+        log.warn("Did not find a colon in exception stack trace line 0:\n%s" % lines[0])
+        exception = "java.lang.RuntimeException"
+    
+    # Line 1 should be where the exception was thrown and start with "at"
+    location = lines[1]
+    if not location.lstrip().startswith("at "):
+        log.warn("Exception stack trace line 1 does not look like a location:\n%s" % lines[1])
+    
+    # Use MD5 to create a hash
+    md = hashlib.md5()
+    md.update(exception)
+    md.update(location)
+    errhash = md.hexdigest()
+    
+    return errhash
+
 def process_planner_error(data):
+    objid = data["id"]
+    message = data["error"]
+    errhash = hash_error(message)
+    
     error = {
-        "id": data["id"],
-        "error": data["error"]
+        "id": objid,
+        "error": message,
+        "hash": errhash
     }
+    
     db.store_planner_errors(error)
 
 def main():

@@ -124,6 +124,18 @@ def get_top_domains():
         from planner_metrics group by domain order by workflows desc limit 5""")
         return cur.fetchall()
 
+def get_top_errors():
+    with ctx.db.cursor() as cur:
+        cur.execute("select hash, count(*) count, max(error) error from planner_errors group by hash order by count desc limit 10")
+        return cur.fetchall()
+
+def get_recent_errors():
+    with ctx.db.cursor() as cur:
+        cur.execute("select e.id, from_unixtime(m.ts) ts, e.error " 
+                "from planner_errors e left join planner_metrics m on e.id=m.id "
+                "order by m.ts desc limit 10")
+        return cur.fetchall()
+
 def store_planner_metrics(data):
     with ctx.db.cursor() as cur:
         cur.execute(
@@ -191,6 +203,6 @@ def store_planner_metrics(data):
 
 def store_planner_errors(data):
     with ctx.db.cursor() as cur:
-        cur.execute("""INSERT INTO planner_errors (id, error) 
-                       VALUES (%(id)s, %(error)s)""", data)
+        cur.execute("""INSERT INTO planner_errors (id, error, hash) 
+                       VALUES (%(id)s, %(error)s, %(hash)s)""", data)
 

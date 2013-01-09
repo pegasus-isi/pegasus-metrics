@@ -6,6 +6,7 @@ import pprint
 import logging
 import time
 import locale
+import datetime
 from flask import request, render_template, redirect, url_for, g, flash
 
 from pegasus.metrics import app, db, ctx, loader
@@ -35,6 +36,12 @@ def decimal_filter(num):
     if isinstance(num, basestring):
         return num
     return locale.format("%d", num, True)
+
+@app.template_filter('datetime')
+def datetime_filter(ts):
+    if not isinstance(ts, datetime.datetime):
+        return ts
+    return unicode(ts)
 
 @app.route('/')
 def index():
@@ -73,9 +80,10 @@ def invalid():
 
 @app.route('/errors')
 def errors():
-    errors = db.get_planner_errors()
+    top = db.get_top_errors()
+    recent = db.get_recent_errors()
     return render_template('errors.html',
-            errors=errors)
+            top=top, recent=recent)
 
 @app.route('/status')
 def status():

@@ -51,6 +51,7 @@ create table planner_metrics (
 drop table if exists planner_errors;
 create table planner_errors (
     id INTEGER UNSIGNED NOT NULL,
+    hash VARCHAR(32),
     error MEDIUMTEXT,
     PRIMARY KEY (id),
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE

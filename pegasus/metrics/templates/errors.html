@@ -1,12 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h2>Planner Errors</h2>
+<h2>Top Planner Errors</h2>
 <table>
-    <tr><th>Object</th><th>Error Message</th></tr>
-    {% for err in errors: %}
-        <tr><td>{{err["id"]}}</td><td class="error">{{err["error"]}}</td></tr>
+    <tr><th>Hash</th><th>Count</th><th>Error Message</th></tr>
+    {% for err in top: %}
+        <tr><td>{{err["hash"][0:8]}}</td><td>{{err["count"]}}</td><td class="error">{{err["error"]}}</td></tr>
     {% endfor %}
 </table>
+
+<h2>Recent Errors</h2>
+<table>
+    <tr><th>Object</th><th>Timestamp</th><th>Error Message</th></tr>
+    {% for err in recent: %}
+    <tr>
+        <td>{{err["id"]}}</td>
+        <td>{{err["ts"] | datetime}}</td>
+        <td class="error">{{err["error"]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock %}
 
