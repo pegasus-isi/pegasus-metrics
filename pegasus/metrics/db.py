@@ -126,14 +126,24 @@ def get_top_domains():
 
 def get_top_errors():
     with ctx.db.cursor() as cur:
-        cur.execute("select hash, count(*) count, max(error) error from planner_errors group by hash order by count desc limit 10")
+        cur.execute("select hash, count(*) count, max(error) error from planner_errors group by hash order by count desc limit 50")
         return cur.fetchall()
+
+def get_errors_by_hash(errhash):
+    with ctx.db.cursor() as cur:
+        cur.execute("select * from planner_errors where hash=%s order by id desc", [errhash])
+        return cur.fetchall()
+
+def get_metrics_and_error(objid):
+    with ctx.db.cursor() as cur:
+        cur.execute("select m.*, e.*  from planner_metrics m left join planner_errors e on m.id=e.id where m.id=%s", [objid])
+        return cur.fetchone()
 
 def get_recent_errors():
     with ctx.db.cursor() as cur:
-        cur.execute("select e.id, from_unixtime(m.ts) ts, e.error " 
+        cur.execute("select e.id, m.ts, e.error " 
                 "from planner_errors e left join planner_metrics m on e.id=m.id "
-                "order by m.ts desc limit 10")
+                "order by m.ts desc limit 50")
         return cur.fetchall()
 
 def store_planner_metrics(data):

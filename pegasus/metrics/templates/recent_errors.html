@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Recent Planner Errors</h2>
+<table>
+    <tr><th>ID</th><th>Timestamp</th><th>Error Message</th></tr>
+    {% for err in errors: %}
+    <tr>
+        <td><a href="{{ url_for('planner_metric', objid=err["id"]) }}">{{err["id"]}}</a></td>
+        <td>{{err["ts"] | timestamp}}</td>
+        <td class="error">{{err["error"]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+

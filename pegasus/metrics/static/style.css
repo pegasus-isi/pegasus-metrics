@@ -133,3 +133,8 @@ td.error {
     white-space: pre-wrap;
 }
 
+.stacktrace {
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+

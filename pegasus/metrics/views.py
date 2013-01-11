@@ -33,15 +33,18 @@ def teardown_request(exception):
 
 @app.template_filter('decimal')
 def decimal_filter(num):
+    if num is None:
+        return ""
     if isinstance(num, basestring):
         return num
     return locale.format("%d", num, True)
 
-@app.template_filter('datetime')
-def datetime_filter(ts):
-    if not isinstance(ts, datetime.datetime):
-        return ts
-    return unicode(ts)
+@app.template_filter('timestamp')
+def timestamp_filter(ts):
+    if ts is None:
+        return ""
+    local = time.localtime(ts)
+    return time.strftime("%Y-%m-%d %H:%M:%S", local)
 
 @app.route('/')
 def index():
@@ -78,12 +81,31 @@ def invalid():
     return render_template('invalid.html',
             objects=objects)
 
-@app.route('/errors')
-def errors():
-    top = db.get_top_errors()
-    recent = db.get_recent_errors()
-    return render_template('errors.html',
-            top=top, recent=recent)
+@app.route('/recenterrors')
+def recent_errors():
+    errors = db.get_recent_errors()
+    return render_template('recent_errors.html',
+            errors=errors)
+
+@app.route('/toperrors')
+def top_errors():
+    errors = db.get_top_errors()
+    return render_template('top_errors.html',
+            errors=errors)
+
+@app.route('/errors/byhash/<errhash>')
+def error_hash(errhash):
+    title = "Errors with hash %s" % errhash
+    errors = db.get_errors_by_hash(errhash)
+    return render_template('error_list.html',
+            title=title,
+            errors=errors)
+
+@app.route('/planner/<objid>')
+def planner_metric(objid):
+    obj = db.get_metrics_and_error(objid)
+    return render_template('planner_metric.html',
+            obj=obj)
 
 @app.route('/status')
 def status():

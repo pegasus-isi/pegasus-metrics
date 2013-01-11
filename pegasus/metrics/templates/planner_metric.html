@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Planner Metric {{obj["id"]}}</h2>
+
+<div style="float: left; margin-right: 20px;">
+<h3>Planner Information</h3>
+<table>
+    <tr><th>Timestamp</th><td>{{obj["ts"] | timestamp}}</td></tr>
+    <tr><th>Planner Version</th><td>{{obj["version"]}}</td></tr>
+    <tr><th>Domain</th><td>{{obj["domain"]}}</td></tr>
+    <tr><th>Hostname</th><td>{{obj["hostname"]}}</td></tr>
+    <tr><th>IP Address</th><td>{{obj["remote_addr"]}}</td></tr>
+    <tr><th>wf_uuid</th><td>{{obj["wf_uuid"]}}</td></tr>
+    <tr><th>root_wf_uuid</th><td>{{obj["root_wf_uuid"]}}</td></tr>
+    <tr><th>Data Config</th><td>{{obj["data_config"]}}</td></tr>
+    <tr><th>Start Time</th><td>{{obj["start_time"] | timestamp}}</td></tr>
+    <tr><th>End Time</th><td>{{obj["end_time"] | timestamp}}</td></tr>
+    <tr><th>Duration</th><td>{{obj["duration"]}} seconds</td></tr>
+    <tr><th>Exitcode</th><td>{{obj["exitcode"]}}</td></tr>
+</table>
+</div>
+
+<div style="float: left; margin-right: 20px;">
+<h3>Task Stats</h3>
+<table>
+    <tr><th>Compute Tasks</th><td>{{obj["compute_tasks"]}}</td></tr>
+    <tr><th>DAX Tasks</th><td>{{obj["dax_tasks"]}}</td></tr>
+    <tr><th>DAG Tasks</th><td>{{obj["dag_tasks"]}}</td></tr>
+    <tr><th>Total Tasks</th><td>{{obj["total_tasks"]}}</td></tr>
+</table>
+</div>
+
+<div style="float: left; margin-right: 20px;">
+<h3>Job Stats</h3>
+<table>
+    <tr><th>Compute Jobs</th><td>{{obj["compute_jobs"]}}</td></tr>
+    <tr><th>DAX Jobs</th><td>{{obj["dax_jobs"]}}</td></tr>
+    <tr><th>DAG Jobs</th><td>{{obj["dag_jobs"]}}</td></tr>
+    <tr><th>chmod Jobs</th><td>{{obj["chmod_jobs"]}}</td></tr>
+    <tr><th>Cleanup Jobs</th><td>{{obj["cleanup_jobs"]}}</td></tr>
+    <tr><th>Stage-Out Jobs</th><td>{{obj["so_tx_jobs"]}}</td></tr>
+    <tr><th>Stage-In Jobs</th><td>{{obj["si_tx_jobs"]}}</td></tr>
+    <tr><th>Stage-Inter Jobs</th><td>{{obj["inter_tx_jobs"]}}</td></tr>
+    <tr><th>Create Dir Jobs</th><td>{{obj["create_dir_jobs"]}}</td></tr>
+    <tr><th>Clustered Jobs</th><td>{{obj["clustered_jobs"]}}</td></tr>
+    <tr><th>Registration Jobs</th><td>{{obj["reg_jobs"]}}</td></tr>
+    <tr><th>Total Jobs</th><td>{{obj["total_jobs"]}}</td></tr>
+</table>
+</div>
+
+{% if obj["hash"]: %}
+<div style="float: left; margin-right: 20px;">
+<h3>Error Information</h3>
+<table>
+    <tr><th>Error Hash</th><td><a href="{{url_for('error_hash', errhash=obj["hash"])}}">{{obj["hash"]}}</a></td></tr>
+    <tr><td colspan="2" class="stacktrace">{{obj["error"]}}</td></tr>
+</table>
+</div>
+{% endif %}
+
+<div style="clear: both">&nbsp;</div>
+
+{% endblock %}
+
