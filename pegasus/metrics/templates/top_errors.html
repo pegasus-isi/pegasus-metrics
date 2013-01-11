@@ -3,9 +3,10 @@
 
 <h2>Top Planner Errors</h2>
 <table>
-    <tr><th>Count</th><th>Error Message</th></tr>
+    <tr><th>Rank</th><th>Count</th><th>Error Message</th></tr>
     {% for err in errors: %}
     <tr>
+        <td>{{loop.index}}</td>
         <td><a href="{{ url_for('error_hash', errhash=err["hash"]) }}">{{err["count"]}}</a></td>
         <td class="error">{{err["error"]}}</td>
     </tr>
