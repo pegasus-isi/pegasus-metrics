@@ -43,23 +43,9 @@ h2 {
 
 #navigation {
     width: 100%;
-    height: 30px;
-    font-size: 125%;
-    padding-top: 10px;
+    height: 35px;
     vertical-align: middle;
-    background-color: #0000AA;
-}
-
-#navigation a {
-    text-decoration: none;
-    padding-right: 0px;
-    padding-left: 20px;
-    font-weight: bold;
-    color: #FFFFFF;
-}
-
-#navigation a:hover {
-    text-decoration: underline;
+    background-color: #444;
 }
 
 #content {
@@ -95,6 +81,7 @@ td {
 }
 
 th {
+    font-weight: normal;
     color: #FFFFFF;
     background-color: #0000AA;
 }

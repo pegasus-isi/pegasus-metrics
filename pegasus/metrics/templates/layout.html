@@ -3,6 +3,7 @@
 <head>
 <title>Pegasus Metrics</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='nav.css') }}">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 <script>
 function reprocess() {
@@ -24,11 +25,21 @@ function reprocess() {
         </a>
     </div>
     <div id="navigation">
-        <a href="/">Home</a>
-        <a href="/invalid">Invalid Data</a>
-        <a href="/toperrors">Top Errors</a>
-        <a href="/recenterrors">Recent Errors</a>
-        <a href="javascript:reprocess()">Reprocess Data</a>
+        <ul id="nav">
+            <li><a href="/">Home</a></li>
+            <li>Reports
+                <ul>
+                    <li><a href="/invalid">Invalid Data</a>
+                    <li><a href="/toperrors">Top Errors</a>
+                    <li><a href="/recenterrors">Recent Errors</a>
+                </ul>
+            </li>
+            <li>Admin
+                <ul>
+                    <li><a href="javascript:reprocess()">Reprocess Data</a></li>
+                </ul>
+            </li>
+        </ul>
     </div>
     <div id="content">
     {% with messages = get_flashed_messages(with_categories=True) %}

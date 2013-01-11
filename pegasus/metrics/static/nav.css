@@ -1,0 +1,51 @@
+ul#nav {
+    font-size: 125%;
+    position: relative;
+    z-index: 1;
+    float: left;
+}
+
+ul#nav a {
+    display: block;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+ul#nav, ul#nav li, ul#nav ul { 
+    background: #444;
+    color: #FFFFFF;
+    list-style: none; 
+    margin: 0;
+    padding: 0;
+}
+
+ul#nav li {
+    float: left;
+    line-height: 35px;
+    vertical-align: middle;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+ul#nav li:hover {
+    background: #666;
+    position: relative;
+    z-index: 3;
+}
+
+ul#nav ul {
+    visibility: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 2;
+    width: 175px;
+}
+
+ul#nav ul li {
+    float: none;
+}
+
+ul#nav li:hover > ul {
+    visibility: visible
+}
