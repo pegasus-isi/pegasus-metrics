@@ -3,7 +3,7 @@
 
 <h2>Planner Metric {{obj["id"]}}</h2>
 
-<div style="float: left; margin-right: 20px;">
+<div class="widget">
 <h3>Planner Information</h3>
 <table>
     <tr><th>Timestamp</th><td>{{obj["ts"] | timestamp}}</td></tr>
@@ -21,7 +21,7 @@
 </table>
 </div>
 
-<div style="float: left; margin-right: 20px;">
+<div class="widget">
 <h3>Task Stats</h3>
 <table>
     <tr><th>Compute Tasks</th><td>{{obj["compute_tasks"]}}</td></tr>
@@ -31,7 +31,7 @@
 </table>
 </div>
 
-<div style="float: left; margin-right: 20px;">
+<div class="widget">
 <h3>Job Stats</h3>
 <table>
     <tr><th>Compute Jobs</th><td>{{obj["compute_jobs"]}}</td></tr>
@@ -50,7 +50,7 @@
 </div>
 
 {% if obj["hash"]: %}
-<div style="float: left; margin-right: 20px;">
+<div class="widget">
 <h3>Error Information</h3>
 <table>
     <tr><th>Error Hash</th><td><a href="{{url_for('error_hash', errhash=obj["hash"])}}">{{obj["hash"]}}</a></td></tr>
@@ -58,8 +58,6 @@
 </table>
 </div>
 {% endif %}
-
-<div style="clear: both">&nbsp;</div>
 
 {% endblock %}
 
