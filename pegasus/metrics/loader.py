@@ -101,27 +101,39 @@ def hash_error(error):
     # XXX We assume it is a Java stacktrace for now
     # When we get more data we can revise our processing
     
+    # Use MD5 to create a hash
+    md = hashlib.md5()
+    
     # Each stack trace has several lines
     lines = error.split("\n")
     
     # Line 0 should start with the exception type followed by a colon
-    exception = lines[0]
-    colon = exception.find(":")
+    colon = lines[0].find(":")
     if colon > 0:
-        exception = exception[0:colon]
+        md.update(lines[0][0:colon])
     else:
-        log.warn("Did not find a colon in exception stack trace line 0:\n%s" % lines[0])
-        exception = "java.lang.RuntimeException"
+        log.warn("Did not find an exception in stack trace:\n%s" % error)
     
-    # Line 1 should be where the exception was thrown and start with "at"
-    location = lines[1]
-    if not location.lstrip().startswith("at "):
-        log.warn("Exception stack trace line 1 does not look like a location:\n%s" % lines[1])
+    # The line where the exception was thrown should be the first one starting with "at"
+    location_found = False
+    for l in lines[1:]:
+        if l.lstrip().startswith("at "):
+            md.update(l)
+            location_found = True
+            break
+    if not location_found:
+        log.warn("Stack trace does not appear to have a location:\n%s" % error)
     
-    # Use MD5 to create a hash
-    md = hashlib.md5()
-    md.update(exception)
-    md.update(location)
+    # If the exception was caused by another, then take that into account
+    for i in range(0, len(lines)):
+        if lines[i].startswith("Caused by: "):
+            cause = lines[i].split(":")[1]
+            md.update(cause)
+            if i+1 < len(lines):
+                md.update(lines[i+1])
+            else:
+                log.warn("No location for cause in stack trace:\n%s" % error)
+    
     errhash = md.hexdigest()
     
     return errhash
