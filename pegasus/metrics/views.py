@@ -53,8 +53,8 @@ def index():
     errors = db.count_planner_errors()
     stats = db.get_planner_stats()
 
-    top_hosts = db.get_top_hosts()
-    top_domains = db.get_top_domains()
+    top_hosts = db.get_top_hosts(5)
+    top_domains = db.get_top_domains(5)
     
     return render_template('index.html',
             raw=raw,
@@ -92,6 +92,18 @@ def top_errors():
     errors = db.get_top_errors()
     return render_template('top_errors.html',
             errors=errors)
+
+@app.route('/topdomains')
+def top_domains():
+    domains = db.get_top_domains(50)
+    return render_template('top_domains.html',
+            domains=domains)
+
+@app.route('/tophosts')
+def top_hosts():
+    hosts = db.get_top_hosts(50)
+    return render_template('top_hosts.html',
+            hosts=hosts)
 
 @app.route('/errors/byhash/<errhash>')
 def error_hash(errhash):

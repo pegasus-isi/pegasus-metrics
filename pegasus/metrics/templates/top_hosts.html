@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Top Hosts</h2>
+<table class="top5">
+    <tr><th>Rank</th><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+    {% for host in hosts: %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td>{{host["hostname"]}}</td>
+        <td>{{host["workflows"] | decimal}}</td>
+        <td>{{host["tasks"] | decimal}}</td>
+        <td>{{host["jobs"] | decimal}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+

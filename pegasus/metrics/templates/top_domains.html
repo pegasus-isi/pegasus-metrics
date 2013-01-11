@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Top Domains</h2>
+<table class="top5">
+    <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+    {% for domain in domains: %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td>{{domain["domain"] }}</td>
+        <td>{{domain["workflows"] | decimal}}</td>
+        <td>{{domain["tasks"] | decimal}}</td>
+        <td>{{domain["jobs"] | decimal}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+

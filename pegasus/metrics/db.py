@@ -112,16 +112,16 @@ def store_invalid_data(id, error=None):
     with ctx.db.cursor() as cur:
         cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
-def get_top_hosts():
+def get_top_hosts(limit):
     with ctx.db.cursor() as cur:
         cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics group by hostname order by workflows desc limit 5""")
+        from planner_metrics group by hostname order by workflows desc limit %s""", [limit])
         return cur.fetchall()
 
-def get_top_domains():
+def get_top_domains(limit):
     with ctx.db.cursor() as cur:
         cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics group by domain order by workflows desc limit 5""")
+        from planner_metrics group by domain order by workflows desc limit %s""", [limit])
         return cur.fetchall()
 
 def get_top_errors():
