@@ -2,7 +2,7 @@
 {% block body %}
 
 <h2>Recent Planner Errors</h2>
-<table>
+<table id="recent_errors">
     <tr><th>ID</th><th>Timestamp</th><th>Error Message</th></tr>
     {% for err in errors: %}
     <tr>

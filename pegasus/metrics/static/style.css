@@ -142,3 +142,11 @@ td.error {
 #top_hosts td:nth-of-type(5) {
     text-align: right;
 }
+
+#recent_errors td:nth-of-type(2) {
+    white-space: nowrap;
+}
+
+#invalid_data td:nth-of-type(1) {
+    width: 50%;
+}
