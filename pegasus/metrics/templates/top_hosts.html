@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <h2>Top Hosts</h2>
-<table class="top5">
+<table id="top_hosts">
     <tr><th>Rank</th><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for host in hosts: %}
     <tr>

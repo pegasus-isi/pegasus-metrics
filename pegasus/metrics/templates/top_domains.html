@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <h2>Top Domains</h2>
-<table class="top5">
+<table id="top_domains">
     <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for domain in domains: %}
     <tr>
