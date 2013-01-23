@@ -141,6 +141,12 @@ def recent_downloads():
     return render_template('recent_downloads.html',
             downloads=dls)
 
+@app.route('/downloads/popular')
+def popular_downloads():
+    dls = db.get_popular_downloads()
+    return render_template('popular_downloads.html',
+            downloads=dls)
+
 @app.route('/downloads/metrics/<objid>')
 def download_metric(objid):
     obj = db.get_download(objid)

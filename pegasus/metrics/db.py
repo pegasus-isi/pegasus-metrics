@@ -163,6 +163,11 @@ def get_download(objid):
         cur.execute("SELECT * FROM downloads WHERE id=%s", [objid])
         return cur.fetchone()
 
+def get_popular_downloads():
+    with ctx.db.cursor() as cur:
+        cur.execute("select filename, count(*) as count, max(ts) latest from downloads group by filename order by count desc, latest desc")
+        return cur.fetchall()
+
 def store_download(data):
     with ctx.db.cursor() as cur:
         cur.execute(
