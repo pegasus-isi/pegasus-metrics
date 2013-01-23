@@ -97,6 +97,7 @@ def delete_processed_data():
         cur.execute("DELETE FROM invalid_data")
         cur.execute("DELETE FROM planner_metrics")
         cur.execute("DELETE FROM planner_errors")
+        cur.execute("DELETE FROM downloads")
 
 def get_invalid_data():
     with ctx.db.cursor() as cur:
@@ -145,6 +146,65 @@ def get_recent_errors():
                 "from planner_errors e left join planner_metrics m on e.id=m.id "
                 "order by m.ts desc limit 50")
         return cur.fetchall()
+
+def count_downloads():
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT count(*) as count FROM downloads")
+        return cur.fetchone()['count']
+
+def get_recent_downloads(limit=50):
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
+                    "FROM downloads ORDER BY ts DESC LIMIT %s", [limit])
+        return cur.fetchall()
+
+def get_download(objid):
+    with ctx.db.cursor() as cur:
+        cur.execute("SELECT * FROM downloads WHERE id=%s", [objid])
+        return cur.fetchone()
+
+def store_download(data):
+    with ctx.db.cursor() as cur:
+        cur.execute(
+        """INSERT INTO downloads (
+            id,
+            ts,
+            remote_addr,
+            hostname,
+            domain,
+            version,
+            filename,
+            name,
+            email,
+            organization,
+            app_domain,
+            app_description,
+            howheard,
+            howhelp,
+            oldfeatures,
+            newfeatures,
+            sub_users,
+            sub_announce
+        ) VALUES (
+            %(id)s,
+            %(ts)s,
+            %(remote_addr)s,
+            %(hostname)s,
+            %(domain)s,
+            %(version)s,
+            %(filename)s,
+            %(name)s,
+            %(email)s,
+            %(organization)s,
+            %(app_domain)s,
+            %(app_description)s,
+            %(howheard)s,
+            %(howhelp)s,
+            %(oldfeatures)s,
+            %(newfeatures)s,
+            %(sub_users)s,
+            %(sub_announce)s
+        )""", data)
 
 def store_planner_metrics(data):
     with ctx.db.cursor() as cur:

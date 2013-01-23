@@ -1,14 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="widget">
-<h2>Metametrics</h2>
-<table class="keyvalue">
-    <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
-    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{invalid | decimal}}</a></td></tr>
-    <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
-</table>
-</div>
-<div class="widget">
 <h2>Planner Metrics</h2>
 <table class="keyvalue">
     <tr><th>Workflows Planned</th><td class="numcol">{{planner_stats["plans"] | decimal}}</td></tr>
@@ -18,7 +10,22 @@
 </table>
 </div>
 <div class="widget">
-<h2>Top Domains</h2>
+<h2>Download Metrics</h2>
+<table class="keyvalue">
+    <tr><th>Number of downloads</th><td class="numcol">{{downloads | decimal}}</td></tr>
+</table>
+</div>
+<div class="widget">
+<h2>Metametrics</h2>
+<table class="keyvalue">
+    <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
+    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{invalid | decimal}}</a></td></tr>
+    <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
+</table>
+</div>
+<div style="clear: both;"></div>
+<div class="widget">
+<h2>Top Planner Domains</h2>
 <table class="top5">
     <tr><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for domain in top_domains: %}
@@ -32,7 +39,7 @@
 </table>
 </div>
 <div class="widget">
-<h2>Top Hosts</h2>
+<h2>Top Planner Hosts</h2>
 <table class="top5">
     <tr><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for host in top_hosts: %}

@@ -57,3 +57,27 @@ create table planner_errors (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+drop table if exists downloads;
+create table downloads (
+    id INTEGER UNSIGNED NOT NULL,
+    ts DOUBLE,
+    remote_addr VARCHAR(15),
+    hostname VARCHAR(256),
+    domain VARCHAR(256),
+    version VARCHAR(10),
+    filename VARCHAR(256),
+    name VARCHAR(256),
+    email VARCHAR(64),
+    organization VARCHAR(256),
+    app_domain VARCHAR(256),
+    app_description VARCHAR(256),
+    howheard MEDIUMTEXT,
+    howhelp MEDIUMTEXT,
+    oldfeatures MEDIUMTEXT,
+    newfeatures MEDIUMTEXT,
+    sub_users BOOLEAN,
+    sub_announce BOOLEAN,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

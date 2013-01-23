@@ -7,7 +7,7 @@ import logging
 import time
 import locale
 import datetime
-from flask import request, render_template, redirect, url_for, g, flash
+from flask import request, render_template, redirect, url_for, g, flash, Markup
 
 from pegasus.metrics import app, db, ctx, loader
 
@@ -31,6 +31,20 @@ def teardown_request(exception):
         db.rollback()
     db.close()
 
+@app.template_filter('null')
+def null_filter(obj):
+    if obj is None:
+        return Markup('<span class="na">n/a</span>')
+    else:
+        return obj
+
+@app.template_filter('yesno')
+def yesno_filter(boolean):
+    if boolean:
+        return "Yes"
+    else:
+        return "No"
+
 @app.template_filter('decimal')
 def decimal_filter(num):
     if num is None:
@@ -52,7 +66,8 @@ def index():
     invalid = db.count_invalid_data()
     errors = db.count_planner_errors()
     stats = db.get_planner_stats()
-
+    downloads = db.count_downloads()
+    
     top_hosts = db.get_top_hosts(5)
     top_domains = db.get_top_domains(5)
     
@@ -62,7 +77,8 @@ def index():
             planner_errors=errors,
             planner_stats=stats,
             top_hosts=top_hosts,
-            top_domains=top_domains)
+            top_domains=top_domains,
+            downloads=downloads)
 
 @app.route('/reprocess', methods=["POST"])
 def reprocess():
@@ -81,31 +97,31 @@ def invalid():
     return render_template('invalid.html',
             objects=objects)
 
-@app.route('/recenterrors')
+@app.route('/planner/recenterrors')
 def recent_errors():
     errors = db.get_recent_errors()
     return render_template('recent_errors.html',
             errors=errors)
 
-@app.route('/toperrors')
+@app.route('/planner/toperrors')
 def top_errors():
     errors = db.get_top_errors()
     return render_template('top_errors.html',
             errors=errors)
 
-@app.route('/topdomains')
+@app.route('/planner/topdomains')
 def top_domains():
     domains = db.get_top_domains(50)
     return render_template('top_domains.html',
             domains=domains)
 
-@app.route('/tophosts')
+@app.route('/planner/tophosts')
 def top_hosts():
     hosts = db.get_top_hosts(50)
     return render_template('top_hosts.html',
             hosts=hosts)
 
-@app.route('/errors/byhash/<errhash>')
+@app.route('/planner/errorsbyhash/<errhash>')
 def error_hash(errhash):
     title = "Errors with hash %s" % errhash
     errors = db.get_errors_by_hash(errhash)
@@ -113,10 +129,22 @@ def error_hash(errhash):
             title=title,
             errors=errors)
 
-@app.route('/planner/<objid>')
+@app.route('/planner/metrics/<objid>')
 def planner_metric(objid):
     obj = db.get_metrics_and_error(objid)
     return render_template('planner_metric.html',
+            obj=obj)
+
+@app.route('/downloads/recent')
+def recent_downloads():
+    dls = db.get_recent_downloads(50)
+    return render_template('recent_downloads.html',
+            downloads=dls)
+
+@app.route('/downloads/metrics/<objid>')
+def download_metric(objid):
+    obj = db.get_download(objid)
+    return render_template('download_metric.html',
             obj=obj)
 
 @app.route('/status')
@@ -158,8 +186,6 @@ def store_metrics():
         return "Error parsing JSON object", 400
     
     # TODO Validate required fields
-    if "wf_uuid" not in data:
-        return "wf_uuid missing", 400
     if "type" not in data:
         return "type missing", 400
     if "client" not in data:
@@ -167,9 +193,17 @@ def store_metrics():
     if "version" not in data:
         return "version missing", 400
     
-    # Get the remote IP address
-    data["remote_addr"] = request.environ["REMOTE_ADDR"]
-    data["ts"] = time.time()
+    # Record the time that the data was received
+    # The old downloads will have a timestamp already, so
+    # don't add one if the key exists
+    if "ts" not in data:
+        data["ts"] = time.time()
+    
+    # Get the remote IP address. The downloads will have
+    # a remote_addr already, so don't add it if the key 
+    # exists
+    if "remote_addr" not in data:
+        data["remote_addr"] = request.environ["REMOTE_ADDR"]
     
     # Store the raw data
     try:

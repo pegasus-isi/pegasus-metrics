@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Download #{{obj["id"]}}</h2>
+
+<div class="widget">
+<table>
+    <tr><th>Timestamp</th><td>{{obj["ts"] | timestamp}}</td></tr>
+    <tr><th>Domain</th><td>{{obj["domain"] | null}}</td></tr>
+    <tr><th>Hostname</th><td>{{obj["hostname"] | null}}</td></tr>
+    <tr><th>IP Address</th><td>{{obj["remote_addr"] | null}}</td></tr>
+    <tr><th>Name</th><td>{{obj["name"] | null}}</td></tr>
+    <tr><th>Email</th><td>{{obj["email"] | null}}</td></tr>
+    <tr><th>Organization</th><td>{{obj["organization"] | null}}</td></tr>
+    <tr><th>Subscribed to pegasus-users?</th><td>{{obj["sub_users"] | yesno}}</td></tr>
+    <tr><th>Subscribed to pegasus-announce?</th><td>{{obj["sub_announce"] | yesno}}</td></tr>
+    <tr><th>File Name</th><td>{{obj["filename"]}}</td></tr>
+    <tr><th>Version</th><td>{{obj["version"] | null}}</td></tr>
+    <tr><th>Application Domain</th><td>{{obj["app_domain"] | null}}</td></tr>
+    <tr><th>Application Description</th><td>{{obj["app_description"] | null}}</td></tr>
+    <tr><th>How did you hear about Pegasus?</th><td>{{obj["howheard"] | null}}</td></tr>
+    <tr><th>What features of Pegasus interest you most?</th><td>{{obj["oldfeatures"] | null}}</td></tr>
+    <tr><th>What feature(s) would you like to see supported?</th><td>{{obj["newfeatures"] | null}}</td></tr>
+    <tr><th>What could we do to help you and your research?</th><td>{{obj["howhelp"] | null}}</td></tr>
+</table>
+</div>
+
+{% endblock %}
+

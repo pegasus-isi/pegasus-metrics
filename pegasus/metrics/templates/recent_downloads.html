@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h2>Recent Downloads</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>Filename</th>
+        <th>Version</th>
+        <th>Hostname</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Organization</th>
+    </tr>
+    {% for dl in downloads: %}
+    <tr>
+        <td><a href="{{url_for('download_metric',objid=dl["id"])}}">{{dl["id"]}}</a></td>
+        <td>{{dl["ts"] | timestamp}}</td>
+        <td>{{dl["filename"]}}</td>
+        <td>{{dl["version"] | null}}</td>
+        <td>{{dl["hostname"] | null}}</td>
+        <td>{{dl["name"] | null}}</td>
+        <td>{{dl["email"] | null }}</td>
+        <td>{{dl["organization"] | null}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
