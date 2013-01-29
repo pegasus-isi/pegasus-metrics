@@ -1,6 +1,8 @@
 drop table if exists raw_data;
 create table raw_data (
     id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    ts DOUBLE,
+    remote_addr VARCHAR(15),
     data MEDIUMTEXT NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

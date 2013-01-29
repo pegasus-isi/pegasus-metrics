@@ -54,27 +54,29 @@ def close():
     ctx.db.close()
     del ctx.db
 
-def store_raw_data(data):
+def store_raw_data(ts, remote_addr, data):
     with ctx.db.cursor() as cur:
-        cur.execute("INSERT INTO raw_data (data) VALUES (%s)", 
-                [json.dumps(data)])
+        cur.execute("INSERT INTO raw_data (ts, remote_addr, data) VALUES (%s, %s, %s)", 
+                [ts, remote_addr, json.dumps(data)])
     
     return ctx.db.insert_id()
 
-def count_raw_data():
+def count_raw_data(start=0):
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM raw_data")
+        cur.execute("SELECT count(*) as count FROM raw_data WHERE ts>=%s", [start])
         return cur.fetchone()['count']
 
 def each_raw_data():
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT id, data FROM raw_data")
+        cur.execute("SELECT id, ts, remote_addr, data FROM raw_data")
         for row in cur:
             if row is None:
                 break
             strdata = row["data"]
             jsondata = json.loads(strdata)
             jsondata["id"] = row["id"]
+            jsondata["ts"] = row["ts"]
+            jsondata["remote_addr"] = row["remote_addr"]
             yield jsondata
 
 def get_planner_errors():
@@ -82,14 +84,14 @@ def get_planner_errors():
         cur.execute("SELECT * FROM planner_errors")
         return cur.fetchall()
 
-def count_planner_errors():
+def count_planner_errors(start=0):
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM planner_errors")
+        cur.execute("SELECT count(*) as count FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id WHERE m.ts>=%s", [start])
         return cur.fetchone()["count"]
 
-def get_planner_stats():
+def get_planner_stats(start=0):
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics")
+        cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics WHERE ts>=%s", [start])
         return cur.fetchone()
 
 def delete_processed_data():
@@ -104,30 +106,33 @@ def get_invalid_data():
         cur.execute("SELECT i.error, d.data FROM invalid_data i LEFT JOIN raw_data d ON i.id=d.id")
         return cur.fetchall()
 
-def count_invalid_data():
+def count_invalid_data(start=0):
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM invalid_data")
+        cur.execute("SELECT count(*) as count FROM invalid_data i LEFT JOIN raw_data d on i.id=d.id WHERE d.ts>=%s", [start])
         return cur.fetchone()["count"]
 
 def store_invalid_data(id, error=None):
     with ctx.db.cursor() as cur:
         cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
-def get_top_hosts(limit):
+def get_top_hosts(limit, start=0):
     with ctx.db.cursor() as cur:
         cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics group by hostname order by workflows desc limit %s""", [limit])
+        from planner_metrics where ts>=%s group by hostname order by workflows desc limit %s""", [start, limit])
         return cur.fetchall()
 
-def get_top_domains(limit):
+def get_top_domains(limit, start=0):
     with ctx.db.cursor() as cur:
         cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics group by domain order by workflows desc limit %s""", [limit])
+        from planner_metrics where ts>=%s group by domain order by workflows desc limit %s""", [start, limit])
         return cur.fetchall()
 
-def get_top_errors():
+def get_top_errors(start):
     with ctx.db.cursor() as cur:
-        cur.execute("select hash, count(*) count, max(error) error from planner_errors group by hash order by count desc limit 50")
+        cur.execute("SELECT e.hash, count(*) count, max(error) error "
+                    "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
+                    "WHERE m.ts>=%s GROUP BY hash "
+                    "ORDER BY count DESC LIMIT 50", [start])
         return cur.fetchall()
 
 def get_errors_by_hash(errhash):
@@ -147,9 +152,9 @@ def get_recent_errors():
                 "order by m.ts desc limit 50")
         return cur.fetchall()
 
-def count_downloads():
+def count_downloads(start=0):
     with ctx.db.cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM downloads")
+        cur.execute("SELECT count(*) as count FROM downloads WHERE ts>=%s", [start])
         return cur.fetchone()['count']
 
 def get_recent_downloads(limit=50):
@@ -163,9 +168,11 @@ def get_download(objid):
         cur.execute("SELECT * FROM downloads WHERE id=%s", [objid])
         return cur.fetchone()
 
-def get_popular_downloads():
+def get_popular_downloads(start):
     with ctx.db.cursor() as cur:
-        cur.execute("select filename, count(*) as count, max(ts) latest from downloads group by filename order by count desc, latest desc")
+        cur.execute("SELECT filename, count(*) as count, max(ts) latest "
+                    "FROM downloads WHERE ts>=%s GROUP BY filename "
+                    "ORDER BY count DESC, latest DESC", [start])
         return cur.fetchall()
 
 def store_download(data):

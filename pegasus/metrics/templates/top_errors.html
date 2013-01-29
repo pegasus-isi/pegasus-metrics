@@ -1,15 +1,18 @@
 {% extends "layout.html" %}
+{% import 'forms.html' as forms %}
 {% block body %}
-
+{{forms.period_form(form)}}
 <h2>Top Planner Errors</h2>
-<table id="top_errors">
+<table>
     <tr><th>Rank</th><th>Count</th><th>Error Message</th></tr>
     {% for err in errors: %}
     <tr>
-        <td>{{loop.index}}</td>
-        <td><a href="{{ url_for('error_hash', errhash=err["hash"]) }}">{{err["count"]}}</a></td>
+        <td class="right">{{loop.index}}</td>
+        <td class="right"><a href="{{ url_for('error_hash', errhash=err["hash"]) }}">{{err["count"]}}</a></td>
         <td class="error">{{err["error"]}}</td>
     </tr>
+    {% else %}
+    <tr><td colspan="3" class="nodata">No Data</td></tr>
     {% endfor %}
 </table>
 

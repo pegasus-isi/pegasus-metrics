@@ -1,0 +1,13 @@
+{% macro period_form(form) -%}
+<div id="filterform">
+<form method="get">
+    Show metrics for {{form.label}} {{form.period()}}
+    {% if form.period.errors %}
+    <span class="form_error">{{ ". ".join(form.period.errors) }}</span>
+    {% endif %}
+    <input type="submit" value="Update"/>
+    <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
+</form>
+</div>
+{%- endmacro %}
+

@@ -10,7 +10,8 @@ def read(fname):
 dependencies = [
     "Flask==0.9",
     "MySQL-python==1.2.4c1",
-    "repoze.lru==0.5"
+    "repoze.lru==0.5",
+    "WTForms==1.0.3"
 ]
 
 # If old Python, then we need simplejson

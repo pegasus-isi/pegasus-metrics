@@ -7,9 +7,9 @@ import logging
 import time
 import locale
 import datetime
-from flask import request, render_template, redirect, url_for, g, flash, Markup
+from flask import request, render_template, redirect, url_for, g, flash, Markup, session
 
-from pegasus.metrics import app, db, ctx, loader
+from pegasus.metrics import app, db, ctx, loader, forms
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def yesno_filter(boolean):
 @app.template_filter('decimal')
 def decimal_filter(num):
     if num is None:
-        return ""
+        return "0"
     if isinstance(num, basestring):
         return num
     return locale.format("%d", num, True)
@@ -57,19 +57,25 @@ def decimal_filter(num):
 def timestamp_filter(ts):
     if ts is None:
         return ""
+    if ts == 0:
+        return "the beginning of time"
     local = time.localtime(ts)
     return time.strftime("%Y-%m-%d %H:%M:%S", local)
 
 @app.route('/')
 def index():
-    raw = db.count_raw_data()
-    invalid = db.count_invalid_data()
-    errors = db.count_planner_errors()
-    stats = db.get_planner_stats()
-    downloads = db.count_downloads()
+    form = forms.PeriodForm(formdata=request.args)
+    form.validate()
+    start = form.get_start()
     
-    top_hosts = db.get_top_hosts(5)
-    top_domains = db.get_top_domains(5)
+    raw = db.count_raw_data(start)
+    invalid = db.count_invalid_data(start)
+    errors = db.count_planner_errors(start)
+    stats = db.get_planner_stats(start)
+    downloads = db.count_downloads(start)
+    
+    top_hosts = db.get_top_hosts(5, start)
+    top_domains = db.get_top_domains(5, start)
     
     return render_template('index.html',
             raw=raw,
@@ -78,7 +84,8 @@ def index():
             planner_stats=stats,
             top_hosts=top_hosts,
             top_domains=top_domains,
-            downloads=downloads)
+            downloads=downloads,
+            form=form)
 
 @app.route('/reprocess', methods=["POST"])
 def reprocess():
@@ -105,21 +112,33 @@ def recent_errors():
 
 @app.route('/planner/toperrors')
 def top_errors():
-    errors = db.get_top_errors()
+    form = forms.PeriodForm(request.args)
+    form.validate()
+    start = form.get_start()
+    errors = db.get_top_errors(start)
     return render_template('top_errors.html',
-            errors=errors)
+            errors=errors,
+            form=form)
 
 @app.route('/planner/topdomains')
 def top_domains():
-    domains = db.get_top_domains(50)
+    form = forms.PeriodForm(request.args)
+    form.validate()
+    start = form.get_start()
+    domains = db.get_top_domains(50, start)
     return render_template('top_domains.html',
-            domains=domains)
+            domains=domains,
+            form=form)
 
 @app.route('/planner/tophosts')
 def top_hosts():
-    hosts = db.get_top_hosts(50)
+    form = forms.PeriodForm(request.args)
+    form.validate()
+    start = form.get_start()
+    hosts = db.get_top_hosts(50, start)
     return render_template('top_hosts.html',
-            hosts=hosts)
+            hosts=hosts,
+            form=form)
 
 @app.route('/planner/errorsbyhash/<errhash>')
 def error_hash(errhash):
@@ -143,9 +162,13 @@ def recent_downloads():
 
 @app.route('/downloads/popular')
 def popular_downloads():
-    dls = db.get_popular_downloads()
+    form = forms.PeriodForm(request.args)
+    form.validate()
+    start = form.get_start()
+    dls = db.get_popular_downloads(start)
     return render_template('popular_downloads.html',
-            downloads=dls)
+            downloads=dls,
+            form=form)
 
 @app.route('/downloads/metrics/<objid>')
 def download_metric(objid):
@@ -204,16 +227,18 @@ def store_metrics():
     # don't add one if the key exists
     if "ts" not in data:
         data["ts"] = time.time()
+    ts = data["ts"]
     
     # Get the remote IP address. The downloads will have
     # a remote_addr already, so don't add it if the key 
     # exists
     if "remote_addr" not in data:
         data["remote_addr"] = request.environ["REMOTE_ADDR"]
+    remote_addr = data["remote_addr"]
     
     # Store the raw data
     try:
-        data["id"] = db.store_raw_data(data)
+        data["id"] = db.store_raw_data(ts, remote_addr, data)
         db.commit()
     except Exception, e:
         log.error("Error storing JSON data: %s", e)

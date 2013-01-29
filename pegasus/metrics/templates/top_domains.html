@@ -1,16 +1,20 @@
 {% extends "layout.html" %}
+{% import 'forms.html' as forms %}
 {% block body %}
+{{forms.period_form(form)}}
 <h2>Top Domains</h2>
-<table id="top_domains">
+<table>
     <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for domain in domains: %}
     <tr>
-        <td>{{loop.index}}</td>
+        <td class="right">{{loop.index}}</td>
         <td>{{domain["domain"] }}</td>
-        <td>{{domain["workflows"] | decimal}}</td>
-        <td>{{domain["tasks"] | decimal}}</td>
-        <td>{{domain["jobs"] | decimal}}</td>
+        <td class="right">{{domain["workflows"] | decimal}}</td>
+        <td class="right">{{domain["tasks"] | decimal}}</td>
+        <td class="right">{{domain["jobs"] | decimal}}</td>
     </tr>
+    {% else %}
+    <tr><td colspan="5" class="nodata">No Data</td></tr>
     {% endfor %}
 </table>
 {% endblock %}

@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
+{% import 'forms.html' as forms %}
 {% block body %}
+{{forms.period_form(form)}}
 <div class="widget">
 <h2>Planner Metrics</h2>
 <table class="keyvalue">
@@ -19,7 +21,7 @@
 <h2>Metametrics</h2>
 <table class="keyvalue">
     <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
-    <tr><th>Number of invalid objects</th><td class="numcol"><a href="/invalid">{{invalid | decimal}}</a></td></tr>
+    <tr><th>Number of invalid objects</th><td class="numcol">{{invalid | decimal}}</td></tr>
     <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
 </table>
 </div>
@@ -31,10 +33,12 @@
     {% for domain in top_domains: %}
     <tr>
         <td>{{domain["domain"] }}</td>
-        <td>{{domain["workflows"] | decimal}}</td>
-        <td>{{domain["tasks"] | decimal}}</td>
-        <td>{{domain["jobs"] | decimal}}</td>
+        <td class="right">{{domain["workflows"] | decimal}}</td>
+        <td class="right">{{domain["tasks"] | decimal}}</td>
+        <td class="right">{{domain["jobs"] | decimal}}</td>
     </tr>
+    {% else %}
+    <tr><td colspan="4" class="nodata">No Data</td></tr>
     {% endfor %}
 </table>
 </div>
@@ -45,10 +49,12 @@
     {% for host in top_hosts: %}
     <tr>
         <td>{{host["hostname"]}}</td>
-        <td>{{host["workflows"] | decimal}}</td>
-        <td>{{host["tasks"] | decimal}}</td>
-        <td>{{host["jobs"] | decimal}}</td>
+        <td class="right">{{host["workflows"] | decimal}}</td>
+        <td class="right">{{host["tasks"] | decimal}}</td>
+        <td class="right">{{host["jobs"] | decimal}}</td>
     </tr>
+    {% else %}
+    <tr><td colspan="4" class="nodata">No Data</td></tr>
     {% endfor %}
 </table>
 </div>
