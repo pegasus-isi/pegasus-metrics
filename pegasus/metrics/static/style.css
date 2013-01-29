@@ -31,6 +31,14 @@ h2 {
     vertical-align: middle;
 }
 
+#navdate {
+    float: right;
+    color: white;
+    font-size: 125%;
+    padding-top: 6px;
+    padding-right: 10px;
+}
+
 #body {
     width: 80%;
     margin-left: auto;

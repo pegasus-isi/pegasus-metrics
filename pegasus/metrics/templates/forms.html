@@ -1,7 +1,7 @@
 {% macro period_form(form) -%}
 <div id="filterform">
 <form method="get">
-    Show metrics for {{form.label}} {{form.period()}}
+    Show results for {{form.label}} {{form.period()}}
     {% if form.period.errors %}
     <span class="form_error">{{ ". ".join(form.period.errors) }}</span>
     {% endif %}

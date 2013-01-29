@@ -31,6 +31,10 @@ def teardown_request(exception):
         db.rollback()
     db.close()
 
+@app.context_processor
+def inject_date():
+    return dict(current_date=time.time())
+
 @app.template_filter('null')
 def null_filter(obj):
     if obj is None:
@@ -61,6 +65,15 @@ def timestamp_filter(ts):
         return "the beginning of time"
     local = time.localtime(ts)
     return time.strftime("%Y-%m-%d %H:%M:%S", local)
+
+@app.template_filter('simpledate')
+def timestamp_filter(ts):
+    if ts is None:
+        return ""
+    if ts == 0:
+        return "the beginning of time"
+    local = time.localtime(ts)
+    return time.strftime("%B %d, %Y", local)
 
 @app.route('/')
 def index():

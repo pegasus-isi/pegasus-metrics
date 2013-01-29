@@ -48,6 +48,7 @@ function reprocess() {
                 </ul>
             </li>
         </ul>
+        <div id="navdate">{{ current_date | simpledate }}</div>
     </div>
     <div id="content">
     {% with messages = get_flashed_messages(with_categories=True) %}
