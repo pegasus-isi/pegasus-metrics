@@ -59,6 +59,7 @@ h2 {
 #content {
     padding: 20px;
     margin: 0px;
+    overflow: auto;
 }
 
 #filterform {
