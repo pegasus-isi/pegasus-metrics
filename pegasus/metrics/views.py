@@ -201,7 +201,7 @@ def status():
     if count == 0:
         return "No data in last 24 hours", 503
     
-    return "", 200
+    return "OK", 200
 
 @app.route('/metrics', methods=["POST"])
 def store_metrics():
