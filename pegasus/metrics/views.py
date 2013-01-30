@@ -191,10 +191,15 @@ def download_metric(objid):
 
 @app.route('/status')
 def status():
-    # Make sure the database is reachable
-    db.count_raw_data()
+    # Make sure the database is reachable and that
+    # it received some data in the last 24 hours
     
-    # TODO Perform other status checks
+    now = time.time()
+    then = now - (24*60*60)
+    count = db.count_raw_data(then)
+    
+    if count == 0:
+        return "No data in last 24 hours", 503
     
     return "", 200
 
