@@ -8,7 +8,7 @@
     {% for host in hosts: %}
     <tr>
         <td>{{loop.index}}</td>
-        <td>{{host["hostname"]}}</td>
+        <td class="nowrap">{{host["hostname"]}}</td>
         <td class="right">{{host["workflows"] | decimal}}</td>
         <td class="right">{{host["tasks"] | decimal}}</td>
         <td class="right">{{host["jobs"] | decimal}}</td>

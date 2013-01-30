@@ -54,7 +54,7 @@
 <h3>Error Information</h3>
 <table>
     <tr><th>Error Hash</th><td><a href="{{url_for('error_hash', errhash=obj["hash"])}}">{{obj["hash"]}}</a></td></tr>
-    <tr><td colspan="2" class="stacktrace">{{obj["error"]}}</td></tr>
+    <tr><td colspan="2" class="monospaced">{{obj["error"]}}</td></tr>
 </table>
 </div>
 {% endif %}

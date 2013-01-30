@@ -1,4 +1,6 @@
 body {
+    padding: 0px;
+    margin: 0px;
     background-color: #DDDDDD;
     font-family: Veranda, Sans-serif;
 }
@@ -40,13 +42,20 @@ h2 {
 }
 
 #body {
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
     background-color: #FFFFFF;
-    -moz-box-shadow: 3px 3px 4px #555;
-    -webkit-box-shadow: 3px 3px 4px #555;
-    box-shadow: 3px 3px 4px #555;
+}
+
+@media (min-width: 1024px) {
+    #body {
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 20px;
+        -moz-box-shadow: 3px 3px 4px #555;
+        -webkit-box-shadow: 3px 3px 4px #555;
+        box-shadow: 3px 3px 4px #555;
+    }
 }
 
 #navigation {
@@ -118,22 +127,18 @@ table.keyvalue td {
     width: 100px;
 }
 
-td.json {
-    font-family: monospace;
-    white-space: pre-wrap;
+.monospaced {
+    font-family: "Consolas", "Courier New", monospace;
+    white-space: pre;
 }
 
-td.error {
-    font-family: monospace;
-    white-space: pre-wrap;
+@media (min-width: 1024px) {
+    .monospaced {
+        white-space: pre-wrap;
+    }
 }
 
-.stacktrace {
-    font-family: monospace;
-    white-space: pre-wrap;
-}
-
-#recent_errors td:nth-of-type(2) {
+.nowrap {
     white-space: nowrap;
 }
 

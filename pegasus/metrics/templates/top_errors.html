@@ -9,7 +9,7 @@
     <tr>
         <td class="right">{{loop.index}}</td>
         <td class="right"><a href="{{ url_for('error_hash', errhash=err["hash"]) }}">{{err["count"]}}</a></td>
-        <td class="error">{{err["error"]}}</td>
+        <td class="monospaced">{{err["error"]}}</td>
     </tr>
     {% else %}
     <tr><td colspan="3" class="nodata">No Data</td></tr>

@@ -10,7 +10,7 @@
     </tr>
     {% for dl in downloads: %}
     <tr>
-        <td>{{dl["filename"]}}</td>
+        <td class="nowrap">{{dl["filename"]}}</td>
         <td class="right">{{dl["count"] | decimal}}</td>
     </tr>
     {% else %}

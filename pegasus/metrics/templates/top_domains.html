@@ -8,7 +8,7 @@
     {% for domain in domains: %}
     <tr>
         <td class="right">{{loop.index}}</td>
-        <td>{{domain["domain"] }}</td>
+        <td class="nowrap">{{domain["domain"] }}</td>
         <td class="right">{{domain["workflows"] | decimal}}</td>
         <td class="right">{{domain["tasks"] | decimal}}</td>
         <td class="right">{{domain["jobs"] | decimal}}</td>
