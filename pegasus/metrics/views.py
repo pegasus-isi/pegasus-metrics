@@ -2,13 +2,12 @@ try:
     import json
 except ImportError:
     import simplejson as json
-import pprint
 import logging
 import time
 import requests
-from flask import request, render_template, redirect, url_for, g, flash, Markup, session
+from flask import request, render_template, redirect, url_for, flash
 
-from pegasus.metrics import app, db, ctx, loader, forms
+from pegasus.metrics import app, db, loader, forms
 
 log = logging.getLogger(__name__)
 
