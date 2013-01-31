@@ -11,7 +11,8 @@ dependencies = [
     "Flask==0.9",
     "MySQL-python==1.2.4c1",
     "repoze.lru==0.5",
-    "WTForms==1.0.3"
+    "WTForms==1.0.3",
+    "requests==1.1.0"
 ]
 
 # If old Python, then we need simplejson

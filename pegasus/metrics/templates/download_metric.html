@@ -16,6 +16,11 @@
     <tr><th>Subscribed to pegasus-announce?</th><td>{{obj["sub_announce"] | yesno}}</td></tr>
     <tr><th>File Name</th><td>{{obj["filename"]}}</td></tr>
     <tr><th>Version</th><td>{{obj["version"] | null}}</td></tr>
+</table>
+</div>
+
+<div class="widget">
+<table>
     <tr><th>Application Domain</th><td>{{obj["app_domain"] | null}}</td></tr>
     <tr><th>Application Description</th><td>{{obj["app_description"] | null}}</td></tr>
     <tr><th>How did you hear about Pegasus?</th><td>{{obj["howheard"] | null}}</td></tr>
@@ -24,6 +29,20 @@
     <tr><th>What could we do to help you and your research?</th><td>{{obj["howhelp"] | null}}</td></tr>
 </table>
 </div>
+
+{% if location: %}
+<div class="widget">
+<table>
+    <tr><th>City</th><td>{{location["city"]}}</td>
+    <tr><th>Region</th><td>{{location["region_name"]}} ({{location["region_code"]}})</td>
+    <tr><th>Country</th><td>{{location["country_name"]}} ({{location["country_code"]}})</td>
+    <tr><th>Postal Code</th><td>{{location["zipcode"]}}</td>
+    <tr><th>Area Code</th><td>{{location["metrocode"]}}</td>
+    <tr><th>Latitude</th><td>{{location["latitude"]}}</td>
+    <tr><th>Longitude</th><td>{{location["longitude"]}}</td>
+</table>
+</div>
+{% endif %}
 
 {% endblock %}
 

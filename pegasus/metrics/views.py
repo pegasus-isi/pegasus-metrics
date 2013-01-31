@@ -7,6 +7,7 @@ import logging
 import time
 import locale
 import datetime
+import requests
 from flask import request, render_template, redirect, url_for, g, flash, Markup, session
 
 from pegasus.metrics import app, db, ctx, loader, forms
@@ -183,11 +184,24 @@ def popular_downloads():
             downloads=dls,
             form=form)
 
+def get_location(ipaddr):
+    location = None
+    if ipaddr:
+        try:
+            r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
+            if 200 <= r.status_code < 300:
+                location = json.loads(r.text)
+        except:
+            pass
+    return location
+
 @app.route('/downloads/metrics/<objid>')
 def download_metric(objid):
     obj = db.get_download(objid)
+    location = get_location(obj["remote_addr"])
     return render_template('download_metric.html',
-            obj=obj)
+            obj=obj,
+            location=location)
 
 @app.route('/status')
 def status():
