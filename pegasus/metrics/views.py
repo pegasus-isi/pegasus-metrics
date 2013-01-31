@@ -5,8 +5,6 @@ except ImportError:
 import pprint
 import logging
 import time
-import locale
-import datetime
 import requests
 from flask import request, render_template, redirect, url_for, g, flash, Markup, session
 
@@ -15,8 +13,6 @@ from pegasus.metrics import app, db, ctx, loader, forms
 log = logging.getLogger(__name__)
 
 MAX_CONTENT_LENGTH = 16*1024
-
-locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 @app.before_request
 def before_request():
@@ -35,46 +31,6 @@ def teardown_request(exception):
 @app.context_processor
 def inject_date():
     return dict(current_date=time.time())
-
-@app.template_filter('null')
-def null_filter(obj):
-    if obj is None:
-        return Markup('<span class="na">n/a</span>')
-    else:
-        return obj
-
-@app.template_filter('yesno')
-def yesno_filter(boolean):
-    if boolean:
-        return "Yes"
-    else:
-        return "No"
-
-@app.template_filter('decimal')
-def decimal_filter(num):
-    if num is None:
-        return "0"
-    if isinstance(num, basestring):
-        return num
-    return locale.format("%d", num, True)
-
-@app.template_filter('timestamp')
-def timestamp_filter(ts):
-    if ts is None:
-        return ""
-    if ts == 0:
-        return "the beginning of time"
-    local = time.localtime(ts)
-    return time.strftime("%Y-%m-%d %H:%M:%S", local)
-
-@app.template_filter('simpledate')
-def timestamp_filter(ts):
-    if ts is None:
-        return ""
-    if ts == 0:
-        return "the beginning of time"
-    local = time.localtime(ts)
-    return time.strftime("%B %d, %Y", local)
 
 @app.route('/')
 def index():
