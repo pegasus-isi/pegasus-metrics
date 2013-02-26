@@ -26,24 +26,24 @@ function reprocess() {
     </div>
     <div id="navigation">
         <ul id="nav">
-            <li><a href="/">Home</a></li>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
             <li>Planner Metrics
                 <ul>
-                    <li><a href="/planner/toperrors">Top Errors</a></li>
-                    <li><a href="/planner/recenterrors">Recent Errors</a></li>
-                    <li><a href="/planner/topdomains">Top Domains</a></li>
-                    <li><a href="/planner/tophosts">Top Hosts</a></li>
+                    <li><a href="{{ url_for('top_errors') }}">Top Errors</a></li>
+                    <li><a href="{{ url_for('recent_errors') }}">Recent Errors</a></li>
+                    <li><a href="{{ url_for('top_domains') }}">Top Domains</a></li>
+                    <li><a href="{{ url_for('top_hosts') }}">Top Hosts</a></li>
                 </ul>
             </li>
             <li>Downloads
                 <ul>
-                    <li><a href="/downloads/recent">Recent Downloads</a></li>
-                    <li><a href="/downloads/popular">Popular Downloads</a></li>
+                    <li><a href="{{ url_for('recent_downloads') }}">Recent Downloads</a></li>
+                    <li><a href="{{ url_for('popular_downloads') }}">Popular Downloads</a></li>
                 </ul>
             </li>
             <li>Admin
                 <ul>
-                    <li><a href="/invalid">Invalid Data</a></li>
+                    <li><a href="{{ url_for('invalid') }}">Invalid Data</a></li>
                     <li><a href="javascript:reprocess()">Reprocess Data</a></li>
                 </ul>
             </li>
