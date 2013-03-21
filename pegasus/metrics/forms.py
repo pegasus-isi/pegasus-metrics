@@ -1,6 +1,6 @@
 import time
 from flask import session
-from wtforms import Form, SelectField, ValidationError
+from wtforms import Form, SelectField
 
 class PeriodForm(Form):
     period = SelectField(choices=[

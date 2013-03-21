@@ -5,7 +5,7 @@ except ImportError:
 import MySQLdb as mysql
 from MySQLdb.cursors import DictCursor
 
-from pegasus.metrics import app, ctx
+from pegasus.metrics import ctx
 
 class WithCursor(DictCursor):
     def __enter__(self):
