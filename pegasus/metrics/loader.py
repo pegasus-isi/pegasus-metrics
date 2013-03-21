@@ -40,7 +40,7 @@ def get_hostname_domain(ipaddr):
         return hostname, domain
     except:
         log.warning("No such host: %s" % ipaddr)
-        return None, None
+        return ipaddr, ipaddr
 
 def process_raw_data(data):
     try:
