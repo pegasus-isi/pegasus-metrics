@@ -13,7 +13,11 @@ def main():
     
     parser.add_option("-d", "--debug", dest="debug", action="store_true",
             help="Turn on debugging", default=False)
-    
+    parser.add_option("-b", "--bind-address", dest="bind_address", action="store",
+            help="Specify address to bind to", default="127.0.0.1") 
+    parser.add_option("-l", "--listen-port", dest="listen_port", action="store",
+            help="Port to listen on", default=5000, type="int")
+
     (opts, args) = parser.parse_args()
     
     if len(args) > 0:
@@ -40,5 +44,5 @@ def main():
         root = logging.getLogger("pegasus.metrics")
         root.setLevel(logging.DEBUG)
     
-    app.run()
+    app.run(opts.bind_address, opts.listen_port)
 
