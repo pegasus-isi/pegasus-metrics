@@ -1,6 +1,8 @@
+Add WHOIS query for IP addresses
+Add pagination to the recent errors and recent downloads reports
+Add sorting to the top domains and top hosts reports
+Add the ability to query errors by domain/host
 Add CRON script for email reports
 Store sessions in the database
 Add cumulative plots for downloads over time, jobs/tasks/workflows over time
-Add pagination to the recent errors and recent downloads reports
-Add sorting to the top domains and top hosts reports
 
