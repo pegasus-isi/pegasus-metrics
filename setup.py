@@ -34,6 +34,7 @@ setup(
         "License :: OSI Approved :: Apache Software License",
     ],
     packages = ["pegasus","pegasus.metrics"],
+    namespace_packages = ["pegasus"],
     package_data = {"pegasus.metrics" : ["templates/*", "static/*"] },
     include_package_data = True,
     zip_safe = False,
