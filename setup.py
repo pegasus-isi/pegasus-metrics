@@ -22,8 +22,8 @@ if sys.version_info < (2,6):
 setup(
     name = "pegasus-metrics",
     version = "0.1",
-    author = "Gideon Juve",
-    author_email = "gideon@isi.edu",
+    author = "Pegasus Team",
+    author_email = "pegasus@isi.edu",
     description = "Anonymous usage metrics collection and reporting for Pegasus",
     long_description = read("README.md"),
     license = "Apache2",
