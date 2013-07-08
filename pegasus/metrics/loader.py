@@ -139,20 +139,21 @@ def process_planner_metrics(data):
 def hash_error(error):
     # XXX We assume it is a Java stacktrace for now
     # When we get more data we can revise our processing
-    
+
     # Use MD5 to create a hash
     md = hashlib.md5()
-    
+
     # Each stack trace has several lines
     lines = error.split("\n")
-    
+
     # Line 0 should start with the exception type followed by a colon
+    # If there is no colon, then just assume there was no message
     colon = lines[0].find(":")
     if colon > 0:
         md.update(lines[0][0:colon])
     else:
-        log.warn("Did not find an exception in stack trace:\n%s" % error)
-    
+        md.update(lines[0])
+
     # The line where the exception was thrown should be the first one starting with "at"
     location_found = False
     for l in lines[1:]:
@@ -162,7 +163,7 @@ def hash_error(error):
             break
     if not location_found:
         log.warn("Stack trace does not appear to have a location:\n%s" % error)
-    
+
     # If the exception was caused by another, then take that into account
     for i in range(0, len(lines)):
         if lines[i].startswith("Caused by: "):
@@ -172,9 +173,9 @@ def hash_error(error):
                 md.update(lines[i+1])
             else:
                 log.warn("No location for cause in stack trace:\n%s" % error)
-    
+
     errhash = md.hexdigest()
-    
+
     return errhash
 
 def process_planner_error(data):
