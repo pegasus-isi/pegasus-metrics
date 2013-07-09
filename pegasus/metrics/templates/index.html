@@ -3,6 +3,14 @@
 {% block body %}
 {{forms.period_form(form)}}
 <div class="widget">
+<h2>Metametrics</h2>
+<table class="keyvalue">
+    <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
+    <tr><th>Number of invalid objects</th><td class="numcol">{{invalid | decimal}}</td></tr>
+    <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
+</table>
+</div>
+<div class="widget">
 <h2>Planner Metrics</h2>
 <table class="keyvalue">
     <tr><th>Workflows Planned</th><td class="numcol">{{planner_stats["plans"] | decimal}}</td></tr>
@@ -12,17 +20,20 @@
 </table>
 </div>
 <div class="widget">
-<h2>Download Metrics</h2>
+<h2>DAGMan Metrics</h2>
 <table class="keyvalue">
-    <tr><th>Number of downloads</th><td class="numcol">{{downloads | decimal}}</td></tr>
+    <tr><th>Workflow Runs</th><td class="numcol">{{dagman_stats["runs"] | decimal}}</td></tr>
+    <tr><th>Total Jobs</th><td class="numcol">{{dagman_stats["total_jobs"] | decimal}}</td></tr>
+    <tr><th>Jobs Submitted</th><td class="numcol">{{dagman_stats["jobs_run"] | decimal}}</td></tr>
+    <tr><th>Jobs Succeeded</th><td class="numcol">{{dagman_stats["succeeded"] | decimal}}</td></tr>
+    <tr><th>Jobs Failed</th><td class="numcol">{{dagman_stats["failed"] | decimal}}</td></tr>
+    <tr><th>Total Runtime (hrs)</th><td class="numcol">{{dagman_stats["total_runtime"] | float}}</td></tr>
 </table>
 </div>
 <div class="widget">
-<h2>Metametrics</h2>
+<h2>Download Metrics</h2>
 <table class="keyvalue">
-    <tr><th>Number of raw objects</th><td class="numcol">{{raw | decimal}}</td></tr>
-    <tr><th>Number of invalid objects</th><td class="numcol">{{invalid | decimal}}</td></tr>
-    <tr><th>Number of processed objects</th><td class="numcol">{{(raw-invalid) | decimal}}</td></tr>
+    <tr><th>Number of downloads</th><td class="numcol">{{downloads | decimal}}</td></tr>
 </table>
 </div>
 <div style="clear: both;"></div>

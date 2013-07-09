@@ -27,6 +27,14 @@ def decimal_filter(num):
         return num
     return locale.format("%d", num, True)
 
+@app.template_filter('float')
+def float_filter(num):
+    if num is None:
+        return "0.0"
+    if isinstance(num, basestring):
+        return num
+    return locale.format("%0.2f", num, True)
+
 @app.template_filter('timestamp')
 def timestamp_filter(ts):
     if ts is None:

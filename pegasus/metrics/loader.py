@@ -59,6 +59,8 @@ def process_raw_data(data):
             process_planner_error(data)
             # Planner errors also contain planner metrics
             process_planner_metrics(data)
+        elif (client, dtype) == ("condor_dagman", "metrics"):
+            process_dagman_metrics(data)
         elif dtype == "download":
             process_download(data)
         else:
@@ -135,6 +137,18 @@ def process_planner_metrics(data):
         data["data_config"] = None
     
     db.store_planner_metrics(data)
+
+def process_dagman_metrics(data):
+    if len(data["parent_dagman_id"]) == 0:
+        data["parent_dagman_id"] = None
+
+    if len(data["planner"]) == 0:
+        data["planner"] = None
+
+    if len(data["planner_version"]) == 0:
+        data["planner_version"] = None
+
+    db.store_dagman_metrics(data)
 
 def hash_error(error):
     # XXX We assume it is a Java stacktrace for now

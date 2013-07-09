@@ -36,21 +36,23 @@ def index():
     form = forms.PeriodForm(formdata=request.args)
     form.validate()
     start = form.get_start()
-    
+
     raw = db.count_raw_data(start)
     invalid = db.count_invalid_data(start)
     errors = db.count_planner_errors(start)
-    stats = db.get_planner_stats(start)
+    planner_stats = db.get_planner_stats(start)
+    dagman_stats = db.get_dagman_stats(start)
     downloads = db.count_downloads(start)
-    
+
     top_hosts = db.get_top_hosts(5, start)
     top_domains = db.get_top_domains(5, start)
-    
+
     return render_template('index.html',
             raw=raw,
             invalid=invalid,
             planner_errors=errors,
-            planner_stats=stats,
+            planner_stats=planner_stats,
+            dagman_stats=dagman_stats,
             top_hosts=top_hosts,
             top_domains=top_domains,
             downloads=downloads,

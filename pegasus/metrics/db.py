@@ -55,7 +55,7 @@ def store_raw_data(ts, remote_addr, data):
     with cursor() as cur:
         cur.execute("INSERT INTO raw_data (ts, remote_addr, data) VALUES (%s, %s, %s)", 
                 [ts, remote_addr, json.dumps(data)])
-    
+
     return ctx.db.insert_id()
 
 def count_raw_data(start=0):
@@ -91,12 +91,18 @@ def get_planner_stats(start=0):
         cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics WHERE ts>=%s", [start])
         return cur.fetchone()
 
+def get_dagman_stats(start=0):
+    with cursor() as cur:
+        cur.execute("SELECT count(*) as runs, sum(total_jobs) as total_jobs, sum(total_jobs_run) as jobs_run, sum(jobs_failed+dag_jobs_failed) failed, sum(jobs_succeeded+dag_jobs_succeeded) as succeeded, sum(total_job_time)/3600.0 as total_runtime FROM dagman_metrics WHERE ts>=%s", [start])
+        return cur.fetchone()
+
 def delete_processed_data():
     with cursor() as cur:
         cur.execute("DELETE FROM invalid_data")
         cur.execute("DELETE FROM planner_metrics")
         cur.execute("DELETE FROM planner_errors")
         cur.execute("DELETE FROM downloads")
+        cur.execute("DELETE FROM dagman_metrics")
 
 def get_invalid_data():
     with cursor() as cur:
@@ -284,4 +290,65 @@ def store_planner_errors(data):
     with cursor() as cur:
         cur.execute("""INSERT INTO planner_errors (id, error, hash) 
                        VALUES (%(id)s, %(error)s, %(hash)s)""", data)
+
+def store_dagman_metrics(data):
+    with cursor() as cur:
+        cur.execute(
+        """INSERT INTO dagman_metrics (
+            id,
+            ts,
+            remote_addr,
+            hostname,
+            domain,
+            version,
+            wf_uuid,
+            root_wf_uuid,
+            start_time,
+            end_time,
+            duration,
+            exitcode,
+            dagman_id,
+            parent_dagman_id,
+            jobs,
+            jobs_failed,
+            jobs_succeeded,
+            dag_jobs,
+            dag_jobs_failed,
+            dag_jobs_succeeded,
+            dag_status,
+            planner,
+            planner_version,
+            rescue_dag_number,
+            total_job_time,
+            total_jobs,
+            total_jobs_run
+        ) VALUES (
+            %(id)s,
+            %(ts)s,
+            %(remote_addr)s,
+            %(hostname)s,
+            %(domain)s,
+            %(version)s,
+            %(wf_uuid)s,
+            %(root_wf_uuid)s,
+            %(start_time)s,
+            %(end_time)s,
+            %(duration)s,
+            %(exitcode)s,
+            %(dagman_id)s,
+            %(parent_dagman_id)s,
+            %(jobs)s,
+            %(jobs_failed)s,
+            %(jobs_succeeded)s,
+            %(dag_jobs)s,
+            %(dag_jobs_failed)s,
+            %(dag_jobs_succeeded)s,
+            %(dag_status)s,
+            %(planner)s,
+            %(planner_version)s,
+            %(rescue_dag_number)s,
+            %(total_job_time)s,
+            %(total_jobs)s,
+            %(total_jobs_run)s
+        )""", data)
 
