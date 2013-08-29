@@ -12,31 +12,31 @@ log = logging.getLogger("pegasus.metrics.loader")
 
 def reprocess_raw_data():
     db.delete_processed_data()
-    
-    i = 0    
+
+    i = 0
     for data in db.each_raw_data():
         i += 1
         process_raw_data(data)
-    
+
     return i
 
 @lru_cache(1024, timeout=3600)
 def get_hostname_domain(ipaddr):
     if ipaddr is None:
         return None, None
-    
+
     if ipaddr == "127.0.0.1":
         return "localhost", "localdomain"
-    
+
     try:
         log.debug("Looking up %s" % ipaddr)
         hostname = socket.gethostbyaddr(ipaddr)[0]
         log.debug("%s is %s" % (ipaddr, hostname))
-        
+
         # The domain is everything after the first dot
         # unless there is no dot, then it is everything
         domain = hostname[hostname.find(".")+1:]
-        
+
         return hostname, domain
     except:
         log.warning("No such host: %s" % ipaddr)
@@ -49,7 +49,7 @@ def process_raw_data(data):
         hostname, domain = get_hostname_domain(ipaddr)
         data["hostname"] = hostname
         data["domain"] = domain
-        
+
         # Process metrics according to type
         client = data["client"]
         dtype = data["type"]
@@ -76,10 +76,10 @@ def process_download(data):
         if not key in data:
             data[key] = None
             return
-        
+
         if len(data[key].strip()) == 0:
             data[key] = None
-    
+
     # Convert missing and empty mappings to None
     nullify('name')
     nullify('email')
@@ -100,18 +100,18 @@ def process_download(data):
         if ver is None or len(newver) > len(ver):
             ver = newver
     data["version"] = ver
-    
+
     db.store_download(data)
 
 def process_planner_metrics(data):
     if "wf_uuid" not in data:
         raise Exception("wf_uuid missing")
-    
+
     # Remove the nested structure the planner sends
     metrics = data["wf_metrics"]
     del data["wf_metrics"]
     data.update(metrics)
-    
+
     # Change start_time and end_time into timestamps if they
     # are using the old string formats
     datefmt = "%b %d, %Y %H:%M:%S %p"
@@ -123,7 +123,7 @@ def process_planner_metrics(data):
             log.debug("Using old string format for planner start_time")
             ts = time.mktime(time.strptime(start_time, datefmt))
             data["start_time"] = ts
-    
+
     end_time = data["end_time"]
     if isinstance(end_time, basestring):
         if end_time[0] in "0123456789":
@@ -135,7 +135,7 @@ def process_planner_metrics(data):
 
     if "data_config" not in data:
         data["data_config"] = None
-    
+
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
@@ -196,28 +196,28 @@ def process_planner_error(data):
     objid = data["id"]
     message = data["error"]
     errhash = hash_error(message)
-    
+
     error = {
         "id": objid,
         "error": message,
         "hash": errhash
     }
-    
+
     db.store_planner_errors(error)
 
 def main():
     parser = optparse.OptionParser()
-    
+
     db.add_options(parser)
-    
+
     (opts, args) = parser.parse_args()
-    
+
     if len(args) > 0:
         parser.error("Invalid argument")
-    
+
     if opts.passwd is None:
         opts.passwd = getpass("Database password: ")
-    
+
     try:
         db.connect(host=opts.host,
                    port=opts.port,
