@@ -139,14 +139,17 @@ def process_planner_metrics(data):
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
-    if len(data["parent_dagman_id"]) == 0:
+    if "parent_dagman_id" not in data or len(data["parent_dagman_id"]) == 0:
         data["parent_dagman_id"] = None
 
-    if len(data["planner"]) == 0:
+    if "planner" not in data or len(data["planner"]) == 0:
         data["planner"] = None
 
-    if len(data["planner_version"]) == 0:
+    if "planner_version" not in data or len(data["planner_version"]) == 0:
         data["planner_version"] = None
+
+    if "total_job_time" not in data:
+        data["total_job_time"] = None
 
     db.store_dagman_metrics(data)
 
