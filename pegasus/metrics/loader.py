@@ -20,6 +20,17 @@ def reprocess_raw_data():
 
     return i
 
+def reprocess_invalid_data():
+    ids = db.get_invalid_ids()
+    db.delete_invalid_data()
+
+    i = 0
+    for data in db.each_raw_data(ids):
+        i += 1
+        process_raw_data(data)
+
+    return i
+
 @lru_cache(1024, timeout=3600)
 def get_hostname_domain(ipaddr):
     if ipaddr is None:
@@ -221,6 +232,9 @@ def main():
 
     db.add_options(parser)
 
+    parser.add_option("-a", "--all", action="store_true", default=False, dest="all",
+            help="Reprocess all raw metrics (default: only reprocess invalid metrics")
+
     (opts, args) = parser.parse_args()
 
     if len(args) > 0:
@@ -235,7 +249,10 @@ def main():
                    user=opts.user,
                    passwd=opts.passwd,
                    db=opts.db)
-        reprocess_raw_data()
+        if opts.all:
+            reprocess_raw_data()
+        else:
+            reprocess_invalid_data()
         db.commit()
     except:
         db.rollback()

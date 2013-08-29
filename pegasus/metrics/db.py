@@ -10,7 +10,7 @@ from pegasus.metrics import ctx
 class WithCursor(DictCursor):
     def __enter__(self):
         return self
-    
+
     def __exit__(self, type, value, traceback):
         self.close()
 
@@ -63,9 +63,14 @@ def count_raw_data(start=0):
         cur.execute("SELECT count(*) as count FROM raw_data WHERE ts>=%s", [start])
         return cur.fetchone()['count']
 
-def each_raw_data():
+def each_raw_data(ids=None):
     with cursor() as cur:
-        cur.execute("SELECT id, ts, remote_addr, data FROM raw_data")
+        query = "SELECT id, ts, remote_addr, data FROM raw_data"
+        if ids is not None:
+            query += " WHERE id in %s"
+            cur.execute(query, [ids])
+        else:
+            cur.execute(query)
         for row in cur:
             if row is None:
                 break
@@ -96,6 +101,10 @@ def get_dagman_stats(start=0):
         cur.execute("SELECT count(*) as runs, sum(total_jobs) as total_jobs, sum(total_jobs_run) as jobs_run, sum(jobs_failed+dag_jobs_failed) failed, sum(jobs_succeeded+dag_jobs_succeeded) as succeeded, sum(total_job_time)/3600.0 as total_runtime FROM dagman_metrics WHERE ts>=%s", [start])
         return cur.fetchone()
 
+def delete_invalid_data():
+    with cursor() as cur:
+        cur.execute("DELETE FROM invalid_data")
+
 def delete_processed_data():
     with cursor() as cur:
         cur.execute("DELETE FROM invalid_data")
@@ -103,6 +112,11 @@ def delete_processed_data():
         cur.execute("DELETE FROM planner_errors")
         cur.execute("DELETE FROM downloads")
         cur.execute("DELETE FROM dagman_metrics")
+
+def get_invalid_ids():
+    with cursor() as cur:
+        cur.execute("SELECT id FROM invalid_data")
+        return [row["id"] for row in cur]
 
 def get_invalid_data():
     with cursor() as cur:
