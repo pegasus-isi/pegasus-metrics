@@ -136,11 +136,10 @@ def process_planner_metrics(data):
     if "data_config" not in data:
         data["data_config"] = None
 
-    if "application" in data:
-        application = data["application"]
-        del data["application"]
-        if "name" in application:
-            data["application"] = application["name"]
+    if "app_metrics" in data:
+        app_metrics = data["app_metrics"]
+        if "name" in app_metrics:
+            data["application"] = app_metrics["name"]
 
     if "application" not in data:
         data["application"] = None
