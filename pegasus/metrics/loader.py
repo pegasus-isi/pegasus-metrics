@@ -44,13 +44,18 @@ def get_hostname_domain(ipaddr):
         hostname = socket.gethostbyaddr(ipaddr)[0]
         log.debug("%s is %s" % (ipaddr, hostname))
 
-        # The domain is everything after the first dot
-        # unless there is no dot, then it is everything
-        domain = hostname[hostname.find(".")+1:]
+        # Count the number of dots in the hostname
+        dots = len([x for x in hostname if x=='.'])
+
+        if dots <= 1:
+            domain = hostname
+        else:
+            # The domain is everything after the first dot
+            domain = hostname[hostname.find(".")+1:]
 
         return hostname, domain
-    except:
-        log.warning("No such host: %s" % ipaddr)
+    except Exception, e:
+        log.warning("%s: %s" % (e, ipaddr))
         return ipaddr, ipaddr
 
 def process_raw_data(data):
