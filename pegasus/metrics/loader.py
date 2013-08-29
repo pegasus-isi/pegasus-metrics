@@ -136,6 +136,15 @@ def process_planner_metrics(data):
     if "data_config" not in data:
         data["data_config"] = None
 
+    if "application" in data:
+        application = data["application"]
+        del data["application"]
+        if "name" in application:
+            data["application"] = application["name"]
+
+    if "application" not in data:
+        data["application"] = None
+
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
