@@ -44,10 +44,23 @@ def get_hostname_domain(ipaddr):
         hostname = socket.gethostbyaddr(ipaddr)[0]
         log.debug("%s is %s" % (ipaddr, hostname))
 
+
         # Count the number of dots in the hostname
         dots = len([x for x in hostname if x=='.'])
 
-        if dots <= 1:
+        # This is a list of tlds for which a second-level domain
+        # has no meaning. This is not all of them, just the ones
+        # we are likely to encounter.
+        tlds_wo_2nd_level = [".uk", ".il", ".nz", ".au", ".edu.pk", ".ac.in",".edu.in"]
+
+        # Require 2 dots for tlds without second-level, 1 otherwise
+        if any(hostname.endswith(tld) for tld in tlds_wo_2nd_level):
+            log.debug("Requiring 2 dots for host %s" % hostname)
+            mindots = 2
+        else:
+            mindots = 1
+
+        if dots <= mindots:
             domain = hostname
         else:
             # The domain is everything after the first dot
