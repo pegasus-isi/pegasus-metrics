@@ -1,23 +1,10 @@
-import MySQLdb as mysql
-from MySQLdb.cursors import DictCursor
 import json
 import requests
-import getpass
+import migrations
 
 url = 'http://metrics.pegasus.isi.edu/metrics'
 
-db = "pegasus"
-host = "stewie.isi.edu"
-username = "pegasus"
-password = getpass.getpass("Database password for mysql://%s@%s/%s:" % (username, host, db))
-
-# Connect to the drupal database
-conn = mysql.connect(user=username,
-                     passwd=password,
-                     db=db,
-                     host=host,
-                     cursorclass=DictCursor,
-                     use_unicode=True)
+conn = migrations.connect()
 
 # Fetch all the download data
 cur = conn.cursor()
@@ -43,9 +30,9 @@ for r in cur.fetchall():
        "howheard": r["howheard"],
        "howhelp": r["howhelp"]
     }
-    
+
     print r["did"],r["filename"]
-    
+
     # Post it to the metrics server
     resp = requests.post(url, data=json.dumps(d), headers={'content-type': 'application/json'})
     if resp.status_code != 202:
