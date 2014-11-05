@@ -132,24 +132,54 @@ def store_invalid_data(id, error=None):
     with cursor() as cur:
         cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
-def get_top_hosts(limit, start=0):
+def get_top_hosts(limit=50, start=0):
     with cursor() as cur:
-        cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics where ts>=%s group by hostname order by workflows desc limit %s""", [start, limit])
+        if limit != "all":
+            cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
+            from planner_metrics where ts>=%s group by hostname order by workflows desc limit %s""", [start, int(limit)])
+        else:
+            cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
+            from planner_metrics where ts>=%s group by hostname order by workflows desc""", [start])
         return cur.fetchall()
 
-def get_top_domains(limit, start=0):
+def get_top_domains(limit=50, start=0):
     with cursor() as cur:
-        cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-        from planner_metrics where ts>=%s group by domain order by workflows desc limit %s""", [start, limit])
+        if limit != "all":
+            cur.execute("""select domain, count(*) workflows, sum(m.total_tasks) tasks, sum(m.total_jobs) jobs,
+            l.latitude, l.longitude
+            from planner_metrics m LEFT JOIN locations l on m.remote_addr=l.ip where ts>=%s group by domain order by workflows desc limit %s""", [start, int(limit)])
+        else:
+            cur.execute("""select domain, count(*) workflows, sum(m.total_tasks) tasks, sum(m.total_jobs) jobs,
+            l.latitude, l.longitude
+            from planner_metrics m LEFT JOIN locations l on m.remote_addr=l.ip where ts>=%s group by domain order by workflows desc""", [start])
         return cur.fetchall()
 
-def get_top_errors(start):
+def get_top_errors(limit=50, start=0):
     with cursor() as cur:
-        cur.execute("SELECT e.hash, count(*) count, max(error) error "
-                    "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
-                    "WHERE m.ts>=%s GROUP BY hash "
-                    "ORDER BY count DESC LIMIT 50", [start])
+        if limit != "all":
+            cur.execute("SELECT e.hash, count(*) count, max(error) error "
+                        "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
+                        "WHERE m.ts>=%s GROUP BY hash "
+                        "ORDER BY count DESC LIMIT %s", [start, int(limit)])
+        else:
+            cur.execute("SELECT e.hash, count(*) count, max(error) error "
+                        "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
+                        "WHERE m.ts>=%s GROUP BY hash "
+                        "ORDER BY count DESC", [start])
+        return cur.fetchall()
+
+def get_top_applications(start, limit=50):
+    with cursor() as cur:
+        if limit != all:
+            cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
+                        "FROM planner_metrics "
+                        "WHERE ts>=%s GROUP BY application "
+                        "ORDER BY workflows DESC LIMIT %s", [start, int(limit)])
+        else:
+            cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
+                        "FROM planner_metrics "
+                        "WHERE ts>=%s GROUP BY application "
+                        "ORDER BY workflows DESC", [start])
         return cur.fetchall()
 
 def get_errors_by_hash(errhash):
@@ -162,11 +192,28 @@ def get_metrics_and_error(objid):
         cur.execute("select m.*, e.*  from planner_metrics m left join planner_errors e on m.id=e.id where m.id=%s", [objid])
         return cur.fetchone()
 
-def get_recent_errors():
+def get_recent_errors(limit=50):
     with cursor() as cur:
-        cur.execute("select e.id, m.ts, e.error " 
-                "from planner_errors e left join planner_metrics m on e.id=m.id "
-                "order by m.ts desc limit 50")
+        if limit != 'all':
+            cur.execute("select e.id, m.ts, e.error "
+                    "from planner_errors e left join planner_metrics m on e.id=m.id "
+                    "order by m.ts desc limit %s", [int(limit)])
+        else:
+            cur.execute("select e.id, m.ts, e.error "
+                        "from planner_errors e left join planner_metrics m on e.id=m.id "
+                        "order by m.ts desc")
+        return cur.fetchall()
+
+def get_recent_applications(limit=50):
+    with cursor() as cur:
+        if limit != 'all':
+            cur.execute("select id, ts, hostname, application "
+                        "from planner_metrics where application is not null "
+                        "order by ts desc limit %s",[int(limit)])
+        else:
+            cur.execute("select id, ts, hostname, application "
+                        "from planner_metrics where application is not null "
+                        "order by ts desc")
         return cur.fetchall()
 
 def count_downloads(start=0):
@@ -176,8 +223,12 @@ def count_downloads(start=0):
 
 def get_recent_downloads(limit=50):
     with cursor() as cur:
-        cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
-                    "FROM downloads ORDER BY ts DESC LIMIT %s", [limit])
+        if limit != 'all':
+            cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
+                        "FROM downloads ORDER BY ts DESC LIMIT %s", [int(limit)]) # not sure why we have to call int(), but we do
+        else:
+            cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
+                        "FROM downloads ORDER BY ts DESC") # not sure why we have to call int(), but we do
         return cur.fetchall()
 
 def get_download(objid):
@@ -191,6 +242,35 @@ def get_popular_downloads(start):
                     "FROM downloads WHERE ts>=%s GROUP BY filename "
                     "ORDER BY count DESC, latest DESC", [start])
         return cur.fetchall()
+
+def store_location(data):
+    with cursor() as cur:
+        cur.execute(
+        """INSERT INTO locations (
+            ip,
+            country_code,
+            country_name,
+            region_code,
+            region_name,
+            city,
+            zipcode,
+            latitude,
+            longitude,
+            metro_code,
+            area_code
+        ) VALUES (
+            %(ip)s,
+            %(country_code)s,
+            %(country_name)s,
+            %(region_code)s,
+            %(region_name)s,
+            %(city)s,
+            %(zipcode)s,
+            %(latitude)s,
+            %(longitude)s,
+            %(metro_code)s,
+            %(area_code)s
+        )""", data)
 
 def store_download(data):
     with cursor() as cur:

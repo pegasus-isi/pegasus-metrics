@@ -1,31 +1,54 @@
 {% extends "layout.html" %}
+{% import 'forms.html' as forms %}
 {% block body %}
-
+{{forms.limit_form(form)}}
 <h2>Recent Downloads</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Timestamp</th>
-        <th>Filename</th>
-        <th>Version</th>
-        <th>Hostname</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Organization</th>
-    </tr>
-    {% for dl in downloads: %}
-    <tr>
-        <td><a href="{{url_for('download_metric',objid=dl["id"])}}">{{dl["id"]}}</a></td>
-        <td>{{dl["ts"] | timestamp}}</td>
-        <td>{{dl["filename"]}}</td>
-        <td>{{dl["version"] | null}}</td>
-        <td>{{dl["hostname"] | null}}</td>
-        <td>{{dl["name"] | null}}</td>
-        <td>{{dl["email"] | null }}</td>
-        <td>{{dl["organization"] | null}}</td>
-    </tr>
-    {% endfor %}
+<p><label><input type="checkbox" id="formOnly">Hide entries with no form filled out</label></p>
+<table id="recentDownloads">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Filename</th>
+            <th>Version</th>
+            <th>Hostname</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Organization</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dl in downloads: %}
+        <tr>
+            <td><a href="{{url_for('download_metric',objid=dl["id"])}}">{{dl["id"]}}</a></td>
+            <td>{{dl["ts"] | timestamp}}</td>
+            <td>{{dl["filename"]}}</td>
+            <td>{{dl["version"] | null}}</td>
+            <td>{{dl["hostname"] | null}}</td>
+            <td>{{dl["name"] | null}}</td>
+            <td>{{dl["email"] | null }}</td>
+            <td>{{dl["organization"] | null}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+<script>
+    $.fn.dataTableExt.afnFiltering.push(
+            function(oSettings, aData, iDataIndex) {
+                if($("#formOnly").is(':checked')) {
+                    var formFilled = (aData[5] != "n/a") && (aData[6] != "n/a") && (aData[7] != "n/a");
+                    return formFilled;
+                }
+                else {
+                    return true; // If you don't explicitly return true then false gets passed
+                }
+            }
+    );
 
+    var downloadsTable = $("#recentDownloads").DataTable();
+    $(":checkbox").on('click',function() {
+        downloadsTable.draw();
+    });
+</script>
 {% endblock %}
 

@@ -4,6 +4,7 @@
 <title>Pegasus Metrics</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='nav.css') }}">
+<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/css/jquery.dataTables.css">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 <script>
 function reprocess() {
@@ -16,6 +17,10 @@ function reprocess() {
     }
 }
 </script>
+<!--script data-main="{{ url_for('static', filename='loader.js') }}" style="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script-->
+<script style="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+<script style="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCa-S-HB6CLI87XzzMJXeohiF4X0PRbm44"></script>
 </head>
 <body>
 <div id="body">
@@ -33,6 +38,8 @@ function reprocess() {
                     <li><a href="{{ url_for('recent_errors') }}">Recent Errors</a></li>
                     <li><a href="{{ url_for('top_domains') }}">Top Domains</a></li>
                     <li><a href="{{ url_for('top_hosts') }}">Top Hosts</a></li>
+                    <li><a href="{{ url_for('recent_applications') }}">Recent Applications</a></li>
+                    <li><a href="{{ url_for('top_applications') }}">Top Applications</a></li>
                 </ul>
             </li>
             <li onClick="return true">Downloads

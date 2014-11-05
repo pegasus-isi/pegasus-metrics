@@ -9,7 +9,7 @@ def read(fname):
 # The packages we depend on
 dependencies = [
     "Flask==0.9",
-    "MySQL-python==1.2.4c1",
+    "MySQL-python==1.2.5",
     "repoze.lru==0.5",
     "WTForms==1.0.3",
     "requests==1.1.0"

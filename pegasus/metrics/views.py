@@ -47,6 +47,7 @@ def index():
     top_hosts = db.get_top_hosts(5, start)
     top_domains = db.get_top_domains(5, start)
 
+
     return render_template('index.html',
             raw=raw,
             invalid=invalid,
@@ -77,39 +78,55 @@ def invalid():
 
 @app.route('/planner/recenterrors')
 def recent_errors():
-    errors = db.get_recent_errors()
+    form = forms.LimitForm(formdata=request.args)
+    form.validate()
+    limit = form.get_limit()
+    errors = db.get_recent_errors(limit)
     return render_template('recent_errors.html',
-            errors=errors)
+            errors=errors,
+            form=form)
 
 @app.route('/planner/toperrors')
 def top_errors():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
-    errors = db.get_top_errors(start)
+    limit_f = forms.LimitForm(request.args)
+    limit_f.validate()
+    limit = limit_f.get_limit()
+    errors = db.get_top_errors(limit, start)
     return render_template('top_errors.html',
             errors=errors,
-            form=form)
+            form=form,
+            limit_f=limit_f)
 
 @app.route('/planner/topdomains')
 def top_domains():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
-    domains = db.get_top_domains(50, start)
+    limit_f = forms.LimitForm(request.args)
+    limit_f.validate()
+    limit = limit_f.get_limit()
+    domains = db.get_top_domains(limit, start)
     return render_template('top_domains.html',
             domains=domains,
-            form=form)
+            form=form,
+            limit_f=limit_f)
 
 @app.route('/planner/tophosts')
 def top_hosts():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
-    hosts = db.get_top_hosts(50, start)
+    limit_f = forms.LimitForm(request.args)
+    limit_f.validate()
+    limit = limit_f.get_limit()
+    hosts = db.get_top_hosts(limit, start)
     return render_template('top_hosts.html',
             hosts=hosts,
-            form=form)
+            form=form,
+            limit_f=limit_f)
 
 @app.route('/planner/errorsbyhash/<errhash>')
 def error_hash(errhash):
@@ -125,11 +142,39 @@ def planner_metric(objid):
     return render_template('planner_metric.html',
             obj=obj)
 
+@app.route('/planner/recentapplications')
+def recent_applications():
+    form = forms.LimitForm(request.args)
+    form.validate()
+    limit = form.get_limit()
+    applications = db.get_recent_applications(limit)
+    return render_template('recent_applications.html',
+            applications=applications,
+            form=form)
+
+@app.route('/planner/topapplications')
+def top_applications():
+    form = forms.PeriodForm(request.args)
+    limit_f = forms.LimitForm(request.args)
+    form.validate()
+    limit_f.validate()
+    start = form.get_start()
+    limit = limit_f.get_limit()
+    applications = db.get_top_applications(start, limit)
+    return render_template('top_applications.html',
+                           applications=applications,
+                           form=form,
+                           limit_f=limit_f)
+
 @app.route('/downloads/recent')
 def recent_downloads():
-    dls = db.get_recent_downloads(50)
+    form = forms.LimitForm(formdata=request.args)
+    form.validate()
+    limit = form.get_limit()
+    dls = db.get_recent_downloads(limit)
     return render_template('recent_downloads.html',
-            downloads=dls)
+            downloads=dls,
+            form=form)
 
 @app.route('/downloads/popular')
 def popular_downloads():

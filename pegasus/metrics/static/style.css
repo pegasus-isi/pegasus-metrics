@@ -105,11 +105,11 @@ td {
     vertical-align: top;
 }
 
-th {
+/*th {
     font-weight: normal;
     color: #FFFFFF;
     background-color: #0000AA;
-}
+}*/
 
 td.numcol {
     text-align: right;
@@ -173,3 +173,7 @@ td.right {
     text-align: right;
 }
 
+#map {
+    width : 100%;
+    height : 500px;
+}

@@ -2,20 +2,34 @@
 {% import 'forms.html' as forms %}
 {% block body %}
 {{forms.period_form(form)}}
+{{forms.limit_form(limit_f)}}
 <h2>Top Domains</h2>
-<table>
-    <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
-    {% for domain in domains: %}
-    <tr>
-        <td class="right">{{loop.index}}</td>
-        <td class="nowrap">{{domain["domain"] }}</td>
-        <td class="right">{{domain["workflows"] | decimal}}</td>
-        <td class="right">{{domain["tasks"] | decimal}}</td>
-        <td class="right">{{domain["jobs"] | decimal}}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="5" class="nodata">No Data</td></tr>
-    {% endfor %}
+<table id="topDomains">
+    <thead>
+        <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+    </thead>
+    <tbody>
+        {% for domain in domains: %}
+        <tr>
+            <td class="right">{{loop.index}}</td>
+            <td class="nowrap">{{domain["domain"] }}</td>
+            <td class="right">{{domain["workflows"] | decimal}}</td>
+            <td class="right">{{domain["tasks"] | decimal}}</td>
+            <td class="right">{{domain["jobs"] | decimal}}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" class="nodata">No Data</td>
+            <td style="display:none">These dummy items keep DataTable happy</td>
+            <td style="display:none">These dummy items keep DataTable happy</td>
+            <td style="display:none">These dummy items keep DataTable happy</td>
+            <td style="display:none">These dummy items keep DataTable happy</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+<script>
+    $("#topDomains").DataTable();
+</script>
 {% endblock %}
 

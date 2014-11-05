@@ -3,20 +3,45 @@
 {% block body %}
 {{forms.period_form(form)}}
 <h2>Popular Downloads</h2>
-<table>
-    <tr>
-        <th>Filename</th>
-        <th>Downloads</th>
-    </tr>
-    {% for dl in downloads: %}
-    <tr>
-        <td class="nowrap">{{dl["filename"]}}</td>
-        <td class="right">{{dl["count"] | decimal}}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="2" class="nodata">No Data</td></tr>
-    {% endfor %}
+<table id="popularDownloads">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Downloads</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dl in downloads: %}
+        <tr>
+            <td class="nowrap">{{dl["filename"]}}</td>
+            <td class="right">{{dl["count"] | decimal}}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="2" class="nodata">No Data</td>
+            <td style="display:none">To keep datatables happy since we sort by the second column</td></tr>
+        {% endfor %}
+    </tbody>
 </table>
+<script>
+    /*$.fn.dataTableExt.afnFiltering.push(
+            function(oSettings, aData, iDataIndex) {
+                if($("#formOnly").is(':checked')) {
+                    var formFilled = (aData[5] != "n/a") && (aData[6] != "n/a") && (aData[7] != "n/a");
+                    return formFilled;
+                }
+                else {
+                    return true; // If you don't explicitly return true then false gets passed
+                }
+            }
+    );*/
 
+    var downloadsTable = $("#popularDownloads").DataTable({
+        "order": [[ 1, "desc" ]]
+    });
+    /*$(":checkbox").on('click',function() {
+        downloadsTable.draw();
+    });*/
+</script>
 {% endblock %}
 

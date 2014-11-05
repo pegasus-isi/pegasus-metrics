@@ -1,3 +1,8 @@
+try:
+    import json
+except ImportError:
+    import simplejson as json
+import requests
 import time
 import logging
 import optparse
@@ -99,6 +104,19 @@ def process_raw_data(data):
     except Exception, e:
         log.exception(e)
         db.store_invalid_data(data["id"], repr(e))
+
+def process_location(ipaddr):
+    if ipaddr:
+        if db.get_location(ipaddr):
+            return
+
+        try:
+            r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
+            if 200 <= r.status_code < 300:
+                location = json.loads(r.text)
+        except:
+            pass
+        db.store_location(location)
 
 def process_download(data):
     def nullify(key):
