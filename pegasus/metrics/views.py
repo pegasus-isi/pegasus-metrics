@@ -166,6 +166,17 @@ def top_applications():
                            form=form,
                            limit_f=limit_f)
 
+@app.route('/planner/map')
+def map_metrics():
+    form = forms.MapForm(request.args)
+    form.validate()
+    limit = form.get_limit()
+    pins = form.get_pins()
+    locations = db.get_locations(pins, limit)
+    return render_template('maps.html',
+                           form =form,
+                           locations=locations)
+
 @app.route('/downloads/recent')
 def recent_downloads():
     form = forms.LimitForm(formdata=request.args)

@@ -145,13 +145,11 @@ def get_top_hosts(limit=50, start=0):
 def get_top_domains(limit=50, start=0):
     with cursor() as cur:
         if limit != "all":
-            cur.execute("""select domain, count(*) workflows, sum(m.total_tasks) tasks, sum(m.total_jobs) jobs,
-            l.latitude, l.longitude
-            from planner_metrics m LEFT JOIN locations l on m.remote_addr=l.ip where ts>=%s group by domain order by workflows desc limit %s""", [start, int(limit)])
+            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs,
+            from planner_metrics  where ts>=%s group by domain order by workflows desc limit %s""", [start, int(limit)])
         else:
-            cur.execute("""select domain, count(*) workflows, sum(m.total_tasks) tasks, sum(m.total_jobs) jobs,
-            l.latitude, l.longitude
-            from planner_metrics m LEFT JOIN locations l on m.remote_addr=l.ip where ts>=%s group by domain order by workflows desc""", [start])
+            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs,
+            from planner_metrics where ts>=%s group by domain order by workflows desc""", [start])
         return cur.fetchall()
 
 def get_top_errors(limit=50, start=0):
@@ -241,6 +239,53 @@ def get_popular_downloads(start):
         cur.execute("SELECT filename, count(*) as count, max(ts) latest "
                     "FROM downloads WHERE ts>=%s GROUP BY filename "
                     "ORDER BY count DESC, latest DESC", [start])
+        return cur.fetchall()
+
+def get_locations(dataset, limit=50):
+    with cursor() as cur:
+        if dataset.__contains__("recent"):
+            if dataset.__contains__("downloads"):
+                if limit != "all":
+                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                                    "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip ORDER BY m.ts DESC LIMIT %s", [int(limit)])
+                else:
+                        cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                                    "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip ORDER BY m.ts DESC")
+            else:
+                if limit != "all":
+                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                                "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip ORDER BY d.ts DESC LIMIT %s", [int(limit)])
+                else:
+                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                                "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip ORDER BY d.ts DESC")
+        elif dataset == "downloads":
+            if limit != "all":
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
+                            "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
+                            "GROUP BY filename ORDER BY count DESC LIMIT %s", [int(limit)])
+            else:
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
+                            "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
+                            "GROUP BY filename ORDER BY count DESC")
+        elif dataset == "domain":
+
+            if limit != "all":
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
+                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
+                            "GROUP BY m.domain ORDER BY workflows DESC LIMIT %s", [int(limit)])
+            else:
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
+                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
+                            "GROUP BY m.domain ORDER BY workflows DESC")
+        elif dataset == "hostname":
+            if limit != "all":
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
+                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
+                            "GROUP BY m.hostname ORDER BY workflows DESC LIMIT %s", [ int(limit)])
+            else:
+                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
+                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
+                            "GROUP BY m.hostname ORDER BY workflows DESC")
         return cur.fetchall()
 
 def store_location(data):

@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% import 'forms.html' as forms %}
+{% block body %}
+{{forms.map_form(form)}}
+<h2>Where in the World is Pegasus?</h2>
+<div id="map"></div>
+<script type="text/javascript">
+    var mapOptions = {
+        center: { lat: 35.46067, lng: -40.281372},
+        zoom: 3
+    };
+    var map = new google.maps.Map(document.getElementById('map'),mapOptions);
+
+    var markers = [];
+    var minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+    {% for location in locations: %}
+        var currentLat = {{location["latitude"] | float}};
+        var currentLon = {{location["longitude"] | float}};
+        if( currentLat > maxLat) {
+            maxLat = currentLat
+        }
+        if( currentLat < minLat) {
+            minLat = currentLat;
+        }
+        if(currentLon > maxLon) {
+            maxLon = currentLon;
+        }
+        if(currentLon < minLon) {
+            minLon = currentLon;
+        }
+        var newMarker = new google.maps.Marker({
+            position : new google.maps.LatLng(currentLat, currentLon),
+            title : "{{location["city"]}}, {{location["region_name"]}}, {{location["country_code"]}}"
+        });
+        newMarker.setMap(map);
+        markers.push(newMarker);
+    {% endfor %}
+    var swCorner = new google.maps.LatLng(minLat, minLon);
+    var neCorner = new google.maps.LatLng(maxLat, maxLon);
+    map.fitBounds(new google.maps.LatLngBounds(swCorner, neCorner));
+</script>
+{% endblock %}

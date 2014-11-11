@@ -24,7 +24,22 @@
 </div>
 {%- endmacro %}
 
+{% macro map_form(form) -%}
+<div id="mapform">
+    <form method="get">
+        Drop pins for {{form.pins()}}
+        Limit results count to {{form.limit()}}
+        {% if form.pins.errors or form.limit.errors %}
+        <span class="form_error">{{ ". ".join(form.limit.errors) }}</span>
+        {% endif %}
+        <input type="submit" value="Update"/>
+        <span style="float: right;">Pinning {{form.get_pins()}} to the map</span><br/>
+        <span style="float: right;">Limiting results to {{form.get_limit()}}</span>
+    </form>
+</div>
+{%- endmacro %}
 
+// This form is not completed yet
 {% macro period_limit_form(form) -%}
 <div id="filterform">
     <form method="get">

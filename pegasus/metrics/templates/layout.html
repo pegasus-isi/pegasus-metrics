@@ -17,7 +17,6 @@ function reprocess() {
     }
 }
 </script>
-<!--script data-main="{{ url_for('static', filename='loader.js') }}" style="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script-->
 <script style="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
 <script style="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCa-S-HB6CLI87XzzMJXeohiF4X0PRbm44"></script>
@@ -40,6 +39,7 @@ function reprocess() {
                     <li><a href="{{ url_for('top_hosts') }}">Top Hosts</a></li>
                     <li><a href="{{ url_for('recent_applications') }}">Recent Applications</a></li>
                     <li><a href="{{ url_for('top_applications') }}">Top Applications</a></li>
+                    <li><a href="{{ url_for('map_metrics') }}">Map of Workflows</a></li>
                 </ul>
             </li>
             <li onClick="return true">Downloads

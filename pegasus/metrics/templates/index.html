@@ -78,8 +78,13 @@
     };
     var map = new google.maps.Map(document.getElementById('map'),mapOptions);
 
+    var markers = [];
     {% for domain in top_domains: %}
-        console.log({{domain["latitude"] | decimal}});
+        var newMarker = new google.maps.Marker({
+            position : new google.maps.LatLng({{domain["latitude"] | float}}, {{domain["longitude"] | float}})
+        });
+        newMarker.setMap(map);
+        markers.push(newMarker);
     {% endfor %}
 
 </script>
