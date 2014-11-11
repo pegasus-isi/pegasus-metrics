@@ -30,19 +30,17 @@
 </table>
 </div>
 
-{% if location: %}
 <div class="widget">
 <table>
-    <tr><th>City</th><td>{{location["city"]}}</td>
-    <tr><th>Region</th><td>{{location["region_name"]}} ({{location["region_code"]}})</td>
-    <tr><th>Country</th><td>{{location["country_name"]}} ({{location["country_code"]}})</td>
-    <tr><th>Postal Code</th><td>{{location["zipcode"]}}</td>
-    <tr><th>Area Code</th><td>{{location["metrocode"]}}</td>
-    <tr><th>Latitude</th><td>{{location["latitude"]}}</td>
-    <tr><th>Longitude</th><td>{{location["longitude"]}}</td>
+    <tr><th>City</th><td>{{obj["city"]}}</td>
+    <tr><th>Region</th><td>{{obj["region_name"]}} ({{obj["region_code"]}})</td>
+    <tr><th>Country</th><td>{{obj["country_name"]}} ({{obj["country_code"]}})</td>
+    <tr><th>Postal Code</th><td>{{obj["zipcode"]}}</td>
+    <tr><th>Area Code</th><td>{{obj["metrocode"]}}</td>
+    <tr><th>Latitude</th><td>{{obj["latitude"]}}</td>
+    <tr><th>Longitude</th><td>{{obj["longitude"]}}</td>
 </table>
 </div>
-{% endif %}
 
 {% endblock %}
 

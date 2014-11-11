@@ -11,28 +11,33 @@ conn = migrations.connect()
 
 cur = conn.cursor()
 
-cur.execute("""
-create table locations (
-    ip VARCHAR(15) NOT NULL,
-    country_code VARCHAR(256),
-    country_name VARCHAR(256),
-    region_code VARCHAR(256),
-    region_name VARCHAR(256),
-    city VARCHAR(256),
-    zipcode INTEGER UNSIGNED,
-    latitude DOUBLE,
-    longitude DOUBLE,
-    metro_code INTEGER UNSIGNED,
-    area_code INTEGER UNSIGNED,
-    PRIMARY KEY (ip)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-""")
-conn.commit()
+#cur.execute("""
+#create table locations (
+#    ip VARCHAR(15) NOT NULL,
+#    country_code VARCHAR(256),
+#    country_name VARCHAR(256),
+#    region_code VARCHAR(256),
+#    region_name VARCHAR(256),
+#    city VARCHAR(256),
+#    zipcode INTEGER UNSIGNED,
+#    latitude DOUBLE,
+#    longitude DOUBLE,
+#    metro_code INTEGER UNSIGNED,
+#    area_code INTEGER UNSIGNED,
+#    PRIMARY KEY (ip)
+#) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+#""")
+#conn.commit()
 
-cur.execute("SELECT distinct(remote_addr) FROM planner_metrics")
+cur.execute("SELECT distinct(remote_addr) FROM downloads ORDER BY ts desc")
 
 uniqueIPs = cur.fetchall()
 for ip in uniqueIPs:
+    cur.execute("SELECT * from locations WHERE ip = %s", [ip['remote_addr']])
+    if cur.fetchone() is not None or ip['remote_addr'] is None:
+        print ip['remote_addr']
+        print "Continuing"
+        continue
     try:
         print ip['remote_addr']
         r = requests.get('http://freegeoip.net/json/%s' % ip['remote_addr'])

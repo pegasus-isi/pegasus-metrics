@@ -187,7 +187,10 @@ def get_errors_by_hash(errhash):
 
 def get_metrics_and_error(objid):
     with cursor() as cur:
-        cur.execute("select m.*, e.*  from planner_metrics m left join planner_errors e on m.id=e.id where m.id=%s", [objid])
+        cur.execute("select m.*, e.*, l.*  from planner_metrics m "
+                    "left join planner_errors e on m.id=e.id "
+                    "left join locations l on m.remote_addr = l.ip "
+                    "where m.id=%s", [objid])
         return cur.fetchone()
 
 def get_recent_errors(limit=50):
@@ -231,7 +234,7 @@ def get_recent_downloads(limit=50):
 
 def get_download(objid):
     with cursor() as cur:
-        cur.execute("SELECT * FROM downloads WHERE id=%s", [objid])
+        cur.execute("SELECT * FROM downloads d LEFT JOIN locations l ON d.remote_addr =l.ip WHERE d.id=%s", [objid])
         return cur.fetchone()
 
 def get_popular_downloads(start):
