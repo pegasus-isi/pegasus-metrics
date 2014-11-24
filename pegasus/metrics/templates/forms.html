@@ -43,7 +43,7 @@
 {% macro trend_form(form) -%}
 <div id="filterform">
     <form method="get">
-        Show results for {{form.trend()}}
+        Show trends for {{form.trend()}}
         {% if form.trend.errors %}
         <span class="form_error">{{ ". ".join(form.trend.errors) }}</span>
         {% endif %}
