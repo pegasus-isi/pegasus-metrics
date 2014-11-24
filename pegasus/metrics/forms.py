@@ -107,7 +107,7 @@ class MapForm(Form):
     def __init__(self, *args, **kwargs):
         kwargs['limit'] = session.get('limit', 50)
         kwargs['pins'] = session.get('pins', 'domain')
-        print kwargs['pins']
+
         Form.__init__(self, *args, **kwargs)
 
     def validate_limit(self, field):
@@ -141,3 +141,57 @@ class MapForm(Form):
         if pins is None or pins == "None":
             pins = 'domain'
         return pins
+
+class TrendForm(Form):
+    trend = SelectField(choices=[
+        ('3', 'Last Three Months'),
+        ('6', 'Last Six Months'),
+        ('12', 'Last Year')
+    ])
+
+    def __init__(self, *args, **kwargs):
+        kwargs['trend'] = session.get('trend', '3')
+
+        Form.__init__(self, *args, **kwargs)
+
+    def validate_trend(self, field):
+        valid = [choice[0] for choice in field.choices]
+        if field.data not in valid:
+            invalid = field.data
+            field.data = field.default
+            field.errors = []
+            field.errors.append("Invalid trend '%s'" % invalid)
+            field.errors.append("Using '%s' instead" % field.default)
+
+        session["trend"] = field.data
+
+    def get_monthly_intervals(self):
+        DAY = 24*60*60
+        WEEK = 7*DAY
+        MONTH = 30*DAY # Close enough
+
+        monthlyIntervals = [time.time()]
+
+        trend = int(self.trend.data)
+
+
+        for i in range(trend):
+            monthlyIntervals.append(time.time() - (MONTH * (i + 1)))
+
+        return monthlyIntervals
+
+    def get_start(self):
+        DAY = 24*60*60
+        WEEK = 7*DAY
+        MONTH = 30*DAY # Close enough
+
+        trend = int(self.trend.data)
+
+        if trend is None or trend == "None":
+            trend = 3
+
+        return time.time() - MONTH * trend
+
+    def get_end(self):
+        return time.time()
+

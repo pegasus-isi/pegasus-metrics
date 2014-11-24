@@ -145,10 +145,10 @@ def get_top_hosts(limit=50, start=0):
 def get_top_domains(limit=50, start=0):
     with cursor() as cur:
         if limit != "all":
-            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs,
+            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
             from planner_metrics  where ts>=%s group by domain order by workflows desc limit %s""", [start, int(limit)])
         else:
-            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs,
+            cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
             from planner_metrics where ts>=%s group by domain order by workflows desc""", [start])
         return cur.fetchall()
 
@@ -192,6 +192,17 @@ def get_metrics_and_error(objid):
                     "left join locations l on m.remote_addr = l.ip "
                     "where m.id=%s", [objid])
         return cur.fetchone()
+
+
+def get_metrics_by_version(start, end):
+    with cursor() as cur:
+        cur.execute("SELECT count(*), version from planner_metrics where ts > %s and ts <= %s group by version", [start, end])
+        return cur.fetchall()
+
+def get_downloads_by_version(start, end):
+    with cursor() as cur:
+        cur.execute("SELECT count(*), version from downloads where ts > %s and ts <= %s group by version", [start, end])
+        return cur.fetchall()
 
 def get_recent_errors(limit=50):
     with cursor() as cur:
