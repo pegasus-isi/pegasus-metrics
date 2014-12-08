@@ -43,6 +43,11 @@ function reprocess() {
                     <li><a href="{{ url_for('map_metrics') }}">Map of Workflows</a></li>
                 </ul>
             </li>
+            <li onClick="return true">Run Metrics
+                <ul>
+                    <li><a href="{{ url_for('top_workflow_runs') }}">Top Workflow Runs</a></li>
+                </ul>
+            </li>
             <li onClick="return true">Downloads
                 <ul>
                     <li><a href="{{ url_for('recent_downloads') }}">Recent Downloads</a></li>

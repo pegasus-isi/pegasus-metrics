@@ -243,6 +243,29 @@ def get_recent_downloads(limit=50):
                         "FROM downloads ORDER BY ts DESC") # not sure why we have to call int(), but we do
         return cur.fetchall()
 
+def get_runs_for_workflow(root_wf_uuid, limit=50):
+    with cursor() as cur:
+        if limit:
+            cur.execute("SELECT * FROM dagman_metrics d  "
+                        "LEFT JOIN locations l ON d.remote_addr = l.ip "
+                        "WHERE d.root_wf_uuid = %s "
+                        "ORDER BY d.ts LIMIT %s", [root_wf_uuid, int(limit)])
+        else:
+            cur.execute("SELECT * FROM pdagman_metrics d  "
+                        "LEFT JOIN locations l ON d.remote_addr = l.ip "
+                        "WHERE d.root_wf_uuid = %s "
+                        "ORDER BY d.ts", [root_wf_uuid])
+        return cur.fetchall()
+
+def get_top_workflow_runs(limit=50):
+    with cursor() as cur:
+        cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
+                    "FROM planner_metrics p, "
+                    "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid LIMIT %s) d "
+                    "WHERE p.root_wf_uuid = d.root_wf_uuid "
+                    "GROUP BY p.root_wf_uuid ORDER BY runCount", [int(limit)])
+        return cur.fetchall()
+
 def get_download(objid):
     with cursor() as cur:
         cur.execute("SELECT * FROM downloads d LEFT JOIN locations l ON d.remote_addr =l.ip WHERE d.id=%s", [objid])

@@ -158,8 +158,10 @@ def error_hash(errhash):
 @app.route('/planner/metrics/<objid>')
 def planner_metric(objid):
     obj = db.get_metrics_and_error(objid)
+    runs = db.get_runs_for_workflow(obj['root_wf_uuid'])
     return render_template('planner_metric.html',
-            obj=obj)
+            obj=obj,
+            runs=runs)
 
 @app.route('/planner/recentapplications')
 def recent_applications():
@@ -195,6 +197,16 @@ def map_metrics():
     return render_template('maps.html',
                            form =form,
                            locations=locations)
+
+@app.route('/runs/topworkflows')
+def top_workflow_runs():
+    form = forms.LimitForm(request.args)
+    form.validate()
+    limit = form.get_limit()
+    workflows = db.get_top_workflow_runs(limit)
+    return render_template('top_workflow_runs.html',
+                           form=form,
+                           workflows=workflows)
 
 @app.route('/downloads/recent')
 def recent_downloads():

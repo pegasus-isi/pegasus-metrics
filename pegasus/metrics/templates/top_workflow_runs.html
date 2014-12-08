@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{%import 'forms.html' as forms %}
+{% block body %}
+<h2>Top Workflows For Runs</h2>
+<table id="topWorkflowRuns">
+    <thead>
+    <tr><th>Rank</th><th>Planner ID</th><th>Workflow UUID</th><th>Run Count</th></tr>
+    </thead>
+    <tbody>
+    {% for workflow in workflows: %}
+    <tr>
+        <td>{{loop.index}}</td>
+        <td><a href="{{ url_for('planner_metric', objid=workflow["id"]) }}">{{workflow["id"]}}</a></td>
+        <td class="nowrap">{{workflow["root_wf_uuid"]}}</td>
+        <td class="right">{{workflow["runCount"]}}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4" class="nodata">No Data</td>
+        <td style="display:none">These dummy items keep DataTable happy</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    $("#topWorkflowRuns").DataTable();
+</script>
+{% endblock %}

@@ -62,7 +62,34 @@
     </table>
 </div>
 
+{%if runs: %}
+
+<hr style="width:100%">
+<div>
+    <h3>Recent Runs of this workflow</h3>
+    <table id="recentRuns">
+        <thead>
+            <tr>
+                <th>Run ID</th><th>Time of Run</th><th>Run Duration</th><th>Location</th><th>Total Jobs (Jobs Run / Jobs Failed)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for run in runs %}
+        <tr>
+            <td class="nowrap">{{run["id"]}}</td>
+            <td class="right">{{run["ts"]}}</td>
+            <td class="right">{{run["total_job_time"]}}</td>
+            <td class="right">{{run["city"] }}, {{run["country_name"]}} </td>
+            <td class="right">{{run["total_jobs"] }} ( {{run["jobs_run"]}} / {{run["jobs_failed"]}} )</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
 {% if obj["hash"]: %}
+
 <div class="widget">
 <h3>Error Information</h3>
 <table>
@@ -71,6 +98,8 @@
 </table>
 </div>
 {% endif %}
-
+<script type="text/javascript">
+    $("#recentRuns").DataTable();
+</script>
 {% endblock %}
 
