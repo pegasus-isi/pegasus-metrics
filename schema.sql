@@ -7,6 +7,8 @@ create table raw_data (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+create index idx_raw_data_ts on raw_data (ts);
+
 drop table if exists invalid_data;
 create table invalid_data (
     id INTEGER UNSIGNED NOT NULL,
