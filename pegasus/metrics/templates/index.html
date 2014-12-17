@@ -2,7 +2,6 @@
 {% import 'forms.html' as forms %}
 {% block body %}
 {{forms.period_form(form)}}
-{{forms.trend_form(t_form)}}
 <div class="widget">
 <h2>Metametrics</h2>
 <table class="keyvalue">
@@ -70,6 +69,10 @@
     {% endfor %}
 </table>
 </div>
+<hr style="width:100%;">
+<h2>Trends</h2>
+{{forms.trend_form(t_form)}}
+<br/>
 <table style="width:100%;">
     <tr>
         <th colspan="2">Workflows Planned By Version</th>

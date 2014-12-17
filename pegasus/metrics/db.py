@@ -58,9 +58,9 @@ def store_raw_data(ts, remote_addr, data):
 
     return ctx.db.insert_id()
 
-def count_raw_data(start=0):
+def count_raw_data(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM raw_data WHERE ts>=%s", [start])
+        cur.execute("SELECT count(*) as count FROM raw_data WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()['count']
 
 def each_raw_data(ids=None):
@@ -86,19 +86,19 @@ def get_planner_errors():
         cur.execute("SELECT * FROM planner_errors")
         return cur.fetchall()
 
-def count_planner_errors(start=0):
+def count_planner_errors(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id WHERE m.ts>=%s", [start])
+        cur.execute("SELECT count(*) as count FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id WHERE m.ts>=%s AND m.ts <= %s", [start, end])
         return cur.fetchone()["count"]
 
-def get_planner_stats(start=0):
+def get_planner_stats(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics WHERE ts>=%s", [start])
+        cur.execute("SELECT count(*) as plans, sum(total_tasks) as tasks, sum(total_jobs) as jobs FROM planner_metrics WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()
 
-def get_dagman_stats(start=0):
+def get_dagman_stats(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as runs, sum(total_jobs) as total_jobs, sum(total_jobs_run) as jobs_run, sum(jobs_failed+dag_jobs_failed) failed, sum(jobs_succeeded+dag_jobs_succeeded) as succeeded, sum(total_job_time)/3600.0 as total_runtime FROM dagman_metrics WHERE ts>=%s", [start])
+        cur.execute("SELECT count(*) as runs, sum(total_jobs) as total_jobs, sum(total_jobs_run) as jobs_run, sum(jobs_failed+dag_jobs_failed) failed, sum(jobs_succeeded+dag_jobs_succeeded) as succeeded, sum(total_job_time)/3600.0 as total_runtime FROM dagman_metrics WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()
 
 def delete_invalid_data():
@@ -123,61 +123,61 @@ def get_invalid_data():
         cur.execute("SELECT i.error, d.data FROM invalid_data i LEFT JOIN raw_data d ON i.id=d.id")
         return cur.fetchall()
 
-def count_invalid_data(start=0):
+def count_invalid_data(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM invalid_data i LEFT JOIN raw_data d on i.id=d.id WHERE d.ts>=%s", [start])
+        cur.execute("SELECT count(*) as count FROM invalid_data i LEFT JOIN raw_data d on i.id=d.id WHERE d.ts>=%s AND d.ts <= %s", [start, end])
         return cur.fetchone()["count"]
 
 def store_invalid_data(id, error=None):
     with cursor() as cur:
         cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
-def get_top_hosts(limit=50, start=0):
+def get_top_hosts(limit=50, start=0, end=0):
     with cursor() as cur:
         if limit != "all":
             cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-            from planner_metrics where ts>=%s group by hostname order by workflows desc limit %s""", [start, int(limit)])
+            from planner_metrics where ts>=%s  and ts <= %s group by hostname order by workflows desc limit %s""", [start, end, int(limit)])
         else:
             cur.execute("""select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-            from planner_metrics where ts>=%s group by hostname order by workflows desc""", [start])
+            from planner_metrics where ts>=%s and ts <= %s group by hostname order by workflows desc""", [start, end])
         return cur.fetchall()
 
-def get_top_domains(limit=50, start=0):
+def get_top_domains(limit=50, start=0, end=0):
     with cursor() as cur:
         if limit != "all":
             cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-            from planner_metrics  where ts>=%s group by domain order by workflows desc limit %s""", [start, int(limit)])
+            from planner_metrics  where ts>=%s and ts <= %s group by domain order by workflows desc limit %s""", [start, end, int(limit)])
         else:
             cur.execute("""select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs
-            from planner_metrics where ts>=%s group by domain order by workflows desc""", [start])
+            from planner_metrics where ts>=%s and ts <= %s group by domain order by workflows desc""", [start, end])
         return cur.fetchall()
 
-def get_top_errors(limit=50, start=0):
+def get_top_errors(limit=50, start=0, end=0):
     with cursor() as cur:
         if limit != "all":
             cur.execute("SELECT e.hash, count(*) count, max(error) error "
                         "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
-                        "WHERE m.ts>=%s GROUP BY hash "
-                        "ORDER BY count DESC LIMIT %s", [start, int(limit)])
+                        "WHERE m.ts>=%s  AND m.ts <= %s GROUP BY hash "
+                        "ORDER BY count DESC LIMIT %s", [start, end, int(limit)])
         else:
             cur.execute("SELECT e.hash, count(*) count, max(error) error "
                         "FROM planner_errors e LEFT JOIN planner_metrics m ON e.id=m.id "
-                        "WHERE m.ts>=%s GROUP BY hash "
-                        "ORDER BY count DESC", [start])
+                        "WHERE m.ts>=%s AND m.ts <= %s GROUP BY hash "
+                        "ORDER BY count DESC", [start, end])
         return cur.fetchall()
 
-def get_top_applications(start, limit=50):
+def get_top_applications(start, end, limit=50):
     with cursor() as cur:
-        if limit != all:
+        if limit != 'all':
             cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
                         "FROM planner_metrics "
-                        "WHERE ts>=%s GROUP BY application "
-                        "ORDER BY workflows DESC LIMIT %s", [start, int(limit)])
+                        "WHERE ts>=%s AND ts <= %s GROUP BY application "
+                        "ORDER BY workflows DESC LIMIT %s", [start, end,  int(limit)])
         else:
             cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
                         "FROM planner_metrics "
-                        "WHERE ts>=%s GROUP BY application "
-                        "ORDER BY workflows DESC", [start])
+                        "WHERE ts>=%s AND ts <= %s GROUP BY application "
+                        "ORDER BY workflows DESC", [start, end])
         return cur.fetchall()
 
 def get_errors_by_hash(errhash):
@@ -228,9 +228,9 @@ def get_recent_applications(limit=50):
                         "order by ts desc")
         return cur.fetchall()
 
-def count_downloads(start=0):
+def count_downloads(start=0, end=0):
     with cursor() as cur:
-        cur.execute("SELECT count(*) as count FROM downloads WHERE ts>=%s", [start])
+        cur.execute("SELECT count(*) as count FROM downloads WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()['count']
 
 def get_recent_downloads(limit=50):
@@ -259,11 +259,18 @@ def get_runs_for_workflow(root_wf_uuid, limit=50):
 
 def get_top_workflow_runs(limit=50):
     with cursor() as cur:
-        cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
-                    "FROM planner_metrics p, "
-                    "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid LIMIT %s) d "
-                    "WHERE p.root_wf_uuid = d.root_wf_uuid "
-                    "GROUP BY p.root_wf_uuid ORDER BY runCount", [int(limit)])
+        if limit != 'all':
+            cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
+                        "FROM planner_metrics p, "
+                        "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid LIMIT %s) d "
+                        "WHERE p.root_wf_uuid = d.root_wf_uuid "
+                        "GROUP BY p.root_wf_uuid ORDER BY runCount", [int(limit)])
+        else:
+            cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
+                        "FROM planner_metrics p, "
+                        "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid) d "
+                        "WHERE p.root_wf_uuid = d.root_wf_uuid "
+                        "GROUP BY p.root_wf_uuid ORDER BY runCount")
         return cur.fetchall()
 
 def get_download(objid):
@@ -271,58 +278,38 @@ def get_download(objid):
         cur.execute("SELECT * FROM downloads d LEFT JOIN locations l ON d.remote_addr =l.ip WHERE d.id=%s", [objid])
         return cur.fetchone()
 
-def get_popular_downloads(start):
+def get_popular_downloads(start, end):
     with cursor() as cur:
         cur.execute("SELECT filename, count(*) as count, max(ts) latest "
-                    "FROM downloads WHERE ts>=%s GROUP BY filename "
-                    "ORDER BY count DESC, latest DESC", [start])
+                    "FROM downloads WHERE ts>=%s AND ts <= %s GROUP BY filename "
+                    "ORDER BY count DESC, latest DESC", [start, end])
         return cur.fetchall()
 
-def get_locations(dataset, limit=50):
+def get_locations(dataset, start, end):
+    print dataset
     with cursor() as cur:
         if dataset.__contains__("recent"):
             if dataset.__contains__("downloads"):
-                if limit != "all":
-                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
-                                    "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip ORDER BY m.ts DESC LIMIT %s", [int(limit)])
-                else:
-                        cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
-                                    "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip ORDER BY m.ts DESC")
+                cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                            "FROM locations l, "
+                            "(SELECT remote_addr from downloads WHERE ts >= %s AND ts <= %s ORDER BY ts DESC) d WHERE d.remote_addr = l.ip ", [start, end])
             else:
-                if limit != "all":
-                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
-                                "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip ORDER BY d.ts DESC LIMIT %s", [int(limit)])
-                else:
-                    cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
-                                "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip ORDER BY d.ts DESC")
-        elif dataset == "downloads":
-            if limit != "all":
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
-                            "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
-                            "GROUP BY filename ORDER BY count DESC LIMIT %s", [int(limit)])
-            else:
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
-                            "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
-                            "GROUP BY filename ORDER BY count DESC")
-        elif dataset == "domain":
+                cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
+                            "WHERE m.ts >= %s AND m.ts <= %s ORDER BY m.ts DESC ", [start, end])
 
-            if limit != "all":
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
-                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "GROUP BY m.domain ORDER BY workflows DESC LIMIT %s", [int(limit)])
-            else:
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
-                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "GROUP BY m.domain ORDER BY workflows DESC")
+        elif dataset == "downloads":
+            cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
+                        "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
+                        " WHERE d.ts >= %s AND d.ts <= %s GROUP BY filename ORDER BY count DESC", [start, end])
+        elif dataset == "domain":
+            cur.execute("select l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
+                        "(select remote_addr, count(*) count from planner_metrics where ts >= %s and ts <= %s group by domain order by count desc) h "
+                        "where l.ip = h.remote_addr", [start, end])
         elif dataset == "hostname":
-            if limit != "all":
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
-                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "GROUP BY m.hostname ORDER BY workflows DESC LIMIT %s", [ int(limit)])
-            else:
-                cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) workflows, l.latitude, l.longitude "
-                            "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "GROUP BY m.hostname ORDER BY workflows DESC")
+            cur.execute("select l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
+                        "(select remote_addr, count(*) count from planner_metrics where ts >= %s and ts <= %s group by hostname order by count desc) h "
+                        "where l.ip = h.remote_addr", [start, end])
         return cur.fetchall()
 
 def store_location(data):

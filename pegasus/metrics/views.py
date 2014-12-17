@@ -36,6 +36,7 @@ def index():
     form = forms.PeriodForm(formdata=request.args)
     form.validate()
     start = form.get_start()
+    end = form.get_end()
 
     t_form = forms.TrendForm(request.args)
     t_form.validate()
@@ -52,15 +53,15 @@ def index():
 
 
 
-    raw = db.count_raw_data(start)
-    invalid = db.count_invalid_data(start)
-    errors = db.count_planner_errors(start)
-    planner_stats = db.get_planner_stats(start)
-    dagman_stats = db.get_dagman_stats(start)
-    downloads = db.count_downloads(start)
+    raw = db.count_raw_data(start, end)
+    invalid = db.count_invalid_data(start, end)
+    errors = db.count_planner_errors(start, end)
+    planner_stats = db.get_planner_stats(start, end)
+    dagman_stats = db.get_dagman_stats(start, end)
+    downloads = db.count_downloads(start, end)
 
-    top_hosts = db.get_top_hosts(5, start)
-    top_domains = db.get_top_domains(5, start)
+    top_hosts = db.get_top_hosts(5, start, end)
+    top_domains = db.get_top_domains(5, start, end)
 
 
     return render_template('index.html',
@@ -110,10 +111,11 @@ def top_errors():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
+    end = form.get_end()
     limit_f = forms.LimitForm(request.args)
     limit_f.validate()
     limit = limit_f.get_limit()
-    errors = db.get_top_errors(limit, start)
+    errors = db.get_top_errors(limit, start, end)
     return render_template('top_errors.html',
             errors=errors,
             form=form,
@@ -124,10 +126,11 @@ def top_domains():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
+    end = form.get_end()
     limit_f = forms.LimitForm(request.args)
     limit_f.validate()
     limit = limit_f.get_limit()
-    domains = db.get_top_domains(limit, start)
+    domains = db.get_top_domains(limit, start, end)
     return render_template('top_domains.html',
             domains=domains,
             form=form,
@@ -138,10 +141,11 @@ def top_hosts():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
+    end = form.get_end()
     limit_f = forms.LimitForm(request.args)
     limit_f.validate()
     limit = limit_f.get_limit()
-    hosts = db.get_top_hosts(limit, start)
+    hosts = db.get_top_hosts(limit, start, end)
     return render_template('top_hosts.html',
             hosts=hosts,
             form=form,
@@ -180,8 +184,9 @@ def top_applications():
     form.validate()
     limit_f.validate()
     start = form.get_start()
+    end = form.get_end()
     limit = limit_f.get_limit()
-    applications = db.get_top_applications(start, limit)
+    applications = db.get_top_applications(start, end, limit)
     return render_template('top_applications.html',
                            applications=applications,
                            form=form,
@@ -191,9 +196,11 @@ def top_applications():
 def map_metrics():
     form = forms.MapForm(request.args)
     form.validate()
-    limit = form.get_limit()
+    #limit = form.get_limit()
+    start = form.get_start()
+    end = form.get_end()
     pins = form.get_pins()
-    locations = db.get_locations(pins, limit)
+    locations = db.get_locations(pins, start, end)
     return render_template('maps.html',
                            form =form,
                            locations=locations)
@@ -223,7 +230,8 @@ def popular_downloads():
     form = forms.PeriodForm(request.args)
     form.validate()
     start = form.get_start()
-    dls = db.get_popular_downloads(start)
+    end = form.get_end()
+    dls = db.get_popular_downloads(start, end)
     return render_template('popular_downloads.html',
             downloads=dls,
             form=form)

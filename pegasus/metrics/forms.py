@@ -1,63 +1,111 @@
 import time
+import datetime
 from flask import session
-from wtforms import Form, SelectField
+from wtforms import Form, SelectField, IntegerField
 
 class PeriodForm(Form):
-    period = SelectField(choices=[
-        ('day', 'the last day'), 
-        ('week', 'the last week'),
-        ('month', 'the last month'),
-        ('year', 'the last year'),
-        ('all time', 'all time')
+
+    monthStart = SelectField(choices=[
+        ('1', 'January'),
+        ('2', 'February'),
+        ('3', 'March'),
+        ('4', 'April'),
+        ('5', 'May'),
+        ('6', 'June'),
+        ('7', 'July'),
+        ('8', 'August'),
+        ('9', 'September'),
+        ('10', 'October'),
+        ('11', 'November'),
+        ('12', 'December')
     ])
+    yearStart = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
+
+    monthEnd = SelectField(choices=[
+        ('1', 'January'),
+        ('2', 'February'),
+        ('3', 'March'),
+        ('4', 'April'),
+        ('5', 'May'),
+        ('6', 'June'),
+        ('7', 'July'),
+        ('8', 'August'),
+        ('9', 'September'),
+        ('10', 'October'),
+        ('11', 'November'),
+        ('12', 'December')
+    ])
+    yearEnd = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
     
     def __init__(self, *args, **kwargs):
-        
-        kwargs["period"] = session.get("period", "week")
+        today = datetime.date.today()
+        kwargs["monthEnd"] = session.get("monthEnd", today.month)
+        kwargs["yearEnd"] = session.get("yearEnd", today.year)
+
+        lastMonth = today - datetime.timedelta(days=30)
+        kwargs["monthStart"] = session.get("monthStart", lastMonth.month)
+        kwargs["yearStart"] = session.get("yearStart", lastMonth.year)
+        #print self.yearStart.data
         
         Form.__init__(self, *args, **kwargs)
-    
-    def validate_period(self, field):
-        valid = [choice[0] for choice in field.choices]
-        if field.data not in valid:
-            invalid = field.data
+
+
+    def validate_monthStart(self, field):
+        try:
+            month = int(field.data)
+            if month > 12 or month < 1:
+                field.data = field.default
+                field.errors.append("Month must be between 1 and 12")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
             field.data = field.default
-            field.errors = []
-            field.errors.append("Invalid period '%s'" % invalid)
+            field.errors.append("Month must be an integer value")
             field.errors.append("Using '%s' instead" % field.default)
 
-        session["period"] = field.data
-        
+    def validate_yearStart(self, field):
+        try:
+            year = int(field.data)
+            if year > datetime.date.today().year or year < 2012:
+                field.data = field.default
+                field.errors.append("The year must be between the epoch and now")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Year must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_monthEnd(self, field):
+        try:
+            month = int(field.data)
+            if month > 12 or month < 1:
+                field.data = field.default
+                field.errors.append("Month must be between 1 and 12")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Month must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_yearEnd(self, field):
+        try:
+            year = int(field.data)
+            if year > datetime.date.today().year or year < 2012:
+                field.data = field.default
+                field.errors.append("The year must be between the epoch and now")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Year must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
     def get_start(self):
-        DAY = 24*60*60
-        WEEK = 7*DAY
-        MONTH = 30*DAY # Close enough
-        YEAR = 365*DAY
-        
-        period = self.period.data
-        
-        if period is None or period == "None":
-            period = "week"
-        
-        now = time.time()
-        
-        if period == "day":
-            start = now - DAY
-        elif period == "week":
-            start = now - WEEK
-        elif period == "month":
-            start = now - MONTH
-        elif period == "year":
-            start = now - YEAR
-        elif period == "all time":
-            start = 0
-        else:
-            raise Exception("Invalid period: %s" % period)
-        
-        return start
+        startDate = datetime.date(int(self.yearStart.data), int(self.monthStart.data), datetime.date.today().day)
+        return (startDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
+
 
     def get_end(self):
-        return time.time()
+        endDate = datetime.date(int(self.yearEnd.data), int(self.monthEnd.data), datetime.date.today().day)
+        return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
 class LimitForm(Form):
     limit = SelectField(choices=[
@@ -97,31 +145,26 @@ class MapForm(Form):
         ('downloads', 'Top Downloads')
     ])
 
-    limit = SelectField(choices=[
-        ('50', '50'),
-        ('100','100'),
-        ('200', '200'),
-        ('all', 'all')
-    ])
+    monthStart = IntegerField('')
+    yearStart = IntegerField('')
+
+    monthEnd = IntegerField('')
+    yearEnd = IntegerField('')
 
     def __init__(self, *args, **kwargs):
-        kwargs['limit'] = session.get('limit', 50)
         kwargs['pins'] = session.get('pins', 'domain')
+
+        today = datetime.date.today()
+        kwargs["monthEnd"] = session.get("monthEnd", today.month)
+        kwargs["yearEnd"] = session.get("yearEnd", today.year)
+
+        lastMonth = today - datetime.timedelta(days=30)
+        kwargs["monthStart"] = session.get("monthStart", lastMonth.month)
+        kwargs["yearStart"] = session.get("yearStart", lastMonth.year)
 
         Form.__init__(self, *args, **kwargs)
 
-    def validate_limit(self, field):
-        valid = [choice[0] for choice in field.choices]
-        if field.data not in valid:
-            invalid = field.data
-            field.data = field.default
-            field.errors = []
-            field.errors.append("Invalid limit '%s'" % invalid)
-            field.errors.append("Using '%s' instead" % field.default)
-
-        session["limit"] = field.data
-
-    def validate_pins(selfself, field):
+    def validate_pins(self, field):
         valid = [choice[0] for choice in field.choices]
         if field.data not in valid:
             invalid = field.data
@@ -130,11 +173,62 @@ class MapForm(Form):
             field.errors.append("Invalid pins '%s'" % invalid)
             field.errors.append("Using '%s' instead" % field.default)
 
-    def get_limit(self):
-        limit = self.limit.data
-        if limit is None or limit == "None":
-            limit = 50
-        return limit
+    def validate_monthStart(self, field):
+        try:
+            month = int(field.data)
+            if month > 12 or month < 1:
+                field.data = field.default
+                field.errors.append("Month must be between 1 and 12")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Month must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_yearStart(self, field):
+        try:
+            year = int(field.data)
+            if year > datetime.date.today().year or year < 1970:
+                field.data = field.default
+                field.errors.append("The year must be between the epoch and now")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Year must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_monthEnd(self, field):
+        try:
+            month = int(field.data)
+            if month > 12 or month < 1:
+                field.data = field.default
+                field.errors.append("Month must be between 1 and 12")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Month must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_yearEnd(self, field):
+        try:
+            year = int(field.data)
+            if year > datetime.date.today().year or year < 1970:
+                field.data = field.default
+                field.errors.append("The year must be between the epoch and now")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Year must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def get_start(self):
+        startDate = datetime.date(self.yearStart.data, self.monthStart.data, datetime.date.today().day)
+        return (startDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
+
+
+    def get_end(self):
+        endDate = datetime.date(self.yearEnd.data, self.monthEnd.data, datetime.date.today().day)
+        return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
     def get_pins(self):
         pins = self.pins.data

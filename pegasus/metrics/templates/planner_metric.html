@@ -77,7 +77,7 @@
         {% for run in runs %}
         <tr>
             <td class="nowrap">{{run["id"]}}</td>
-            <td class="right">{{run["ts"]}}</td>
+            <td class="right">{{run["ts"] | timestamp}}</td>
             <td class="right">{{run["total_job_time"]}}</td>
             <td class="right">{{run["city"] }}, {{run["country_name"]}} </td>
             <td class="right">{{run["total_jobs"] }} ( {{run["jobs_run"]}} / {{run["jobs_failed"]}} )</td>
