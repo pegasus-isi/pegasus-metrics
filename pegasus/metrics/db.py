@@ -257,14 +257,14 @@ def get_runs_for_workflow(root_wf_uuid, limit=50):
                         "ORDER BY d.ts", [root_wf_uuid])
         return cur.fetchall()
 
-def get_top_workflow_runs(limit=50):
+def get_top_application_runs(limit=50):
     with cursor() as cur:
         if limit != 'all':
-            cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
+            cur.execute("SELECT p.application, count(*) runCount "
                         "FROM planner_metrics p, "
-                        "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid LIMIT %s) d "
+                        "(SELECT DISTINCT(root_wf_uuid) FROM dagman_metrics LIMIT %s) d "
                         "WHERE p.root_wf_uuid = d.root_wf_uuid "
-                        "GROUP BY p.root_wf_uuid ORDER BY runCount", [int(limit)])
+                        "GROUP BY p.application ORDER BY runCount", [int(limit)])
         else:
             cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
                         "FROM planner_metrics p, "

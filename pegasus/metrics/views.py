@@ -205,13 +205,13 @@ def map_metrics():
                            form =form,
                            locations=locations)
 
-@app.route('/runs/topworkflows')
-def top_workflow_runs():
+@app.route('/runs/topapplications')
+def top_application_runs():
     form = forms.LimitForm(request.args)
     form.validate()
     limit = form.get_limit()
-    workflows = db.get_top_workflow_runs(limit)
-    return render_template('top_workflow_runs.html',
+    workflows = db.get_top_application_runs(limit)
+    return render_template('top_application_runs.html',
                            form=form,
                            workflows=workflows)
 
