@@ -204,6 +204,21 @@ def map_metrics():
     return render_template('maps.html',
                            form =form,
                            locations=locations)
+@app.route('/planner/trends')
+def planner_trends():
+    form = forms.TrendForm(request.args)
+    form.validate()
+    intervals = form.get_monthly_intervals()
+
+    trend = []
+    for i in range(len(intervals)-1):
+        newPlans = db.get_metrics_by_version(intervals[i+1], intervals[i])
+        trend.append(newPlans)
+    return render_template('planner_trends.html',
+                           form=form,
+                           intervals=intervals,
+                           trend=trend)
+
 
 @app.route('/runs/topapplications')
 def top_application_runs():
@@ -235,6 +250,20 @@ def popular_downloads():
     return render_template('popular_downloads.html',
             downloads=dls,
             form=form)
+@app.route('/downloads/trends')
+def download_trends():
+    form = forms.TrendForm(request.args)
+    form.validate()
+    intervals = form.get_monthly_intervals()
+
+    trend = []
+    for i in range(len(intervals)-1):
+        newDownloads = db.get_downloads_by_version(intervals[i+1], intervals[i])
+        trend.append(newDownloads)
+    return render_template('download_trends.html',
+                           form=form,
+                           intervals=intervals,
+                           trend=trend)
 
 def get_location(ipaddr):
     location = None
