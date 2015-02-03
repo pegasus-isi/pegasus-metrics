@@ -108,18 +108,13 @@ def recent_errors():
 
 @app.route('/planner/toperrors')
 def top_errors():
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, errors = db.get_top_errors(**table_args)
+        return render_template('top_errors.json', table_args=table_args, count=totalCount, filtered=filteredCount, errors=errors)
     form = forms.PeriodForm(request.args)
     form.validate()
-    start = form.get_start()
-    end = form.get_end()
-    limit_f = forms.LimitForm(request.args)
-    limit_f.validate()
-    limit = limit_f.get_limit()
-    errors = db.get_top_errors(limit, start, end)
-    return render_template('top_errors.html',
-            errors=errors,
-            form=form,
-            limit_f=limit_f)
+    return render_template('top_errors.html', form=form)
 
 @app.route('/planner/topdomains')
 def top_domains():

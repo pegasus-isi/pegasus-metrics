@@ -2,30 +2,34 @@
 {% import 'forms.html' as forms %}
 {% block body %}
 {{forms.period_form(form)}}
-{{forms.limit_form(limit_f)}}
 <h2>Top Planner Errors</h2>
 <table id="topErrors">
     <thead>
-        <tr><th>Rank</th><th>Count</th><th>Error Message</th></tr>
+        <tr><th>Count</th><th>Error Message</th></tr>
     </thead>
     <tbody>
-        {% for err in errors: %}
-        <tr>
-            <td class="right">{{loop.index}}</td>
-            <td class="right"><a href="{{ url_for('error_hash', errhash=err["hash"]) }}">{{err["count"]}}</a></td>
-            <td class="monospaced">{{err["error"]}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="3" class="nodata">No Data</td>
-            <td style="display:none">These dummy items keep DataTableHappy</td>
-            <td style="display:none">These dummy items keep DataTableHappy</td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 <script>
-    $("#topErrors").DataTable();
+    $("#topErrors").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('top_errors') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 0, "desc" ]
+        ],
+        "aoColumns": [
+            { "sClass" : "nowrap" },
+            { "sClass" : "right" },
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
+    aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+    }
+    });
 </script>
 
 {% endblock %}
