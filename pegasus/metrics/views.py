@@ -123,33 +123,25 @@ def top_errors():
 
 @app.route('/planner/topdomains')
 def top_domains():
+    if request.is_xhr :
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, domains = db.get_top_domains(**table_args)
+        return render_template('top_domains.json', table_args=table_args, count=totalCount, filtered=filteredCount, domains=domains)
+
     form = forms.PeriodForm(request.args)
     form.validate()
-    start = form.get_start()
-    end = form.get_end()
-    limit_f = forms.LimitForm(request.args)
-    limit_f.validate()
-    limit = limit_f.get_limit()
-    domains = db.get_top_domains(limit, start, end)
-    return render_template('top_domains.html',
-            domains=domains,
-            form=form,
-            limit_f=limit_f)
+    return render_template('top_domains.html', form=form)
 
 @app.route('/planner/tophosts')
 def top_hosts():
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, hosts = db.get_top_hosts(**table_args)
+        return render_template('top_hosts.json', table_args=table_args, count=totalCount, filtered=filteredCount, hosts=hosts)
+
     form = forms.PeriodForm(request.args)
     form.validate()
-    start = form.get_start()
-    end = form.get_end()
-    limit_f = forms.LimitForm(request.args)
-    limit_f.validate()
-    limit = limit_f.get_limit()
-    hosts = db.get_top_hosts(limit, start, end)
-    return render_template('top_hosts.html',
-            hosts=hosts,
-            form=form,
-            limit_f=limit_f)
+    return render_template('top_hosts.html', form=form)
 
 @app.route('/planner/errorsbyhash/<errhash>')
 def error_hash(errhash):
@@ -368,3 +360,65 @@ def store_metrics():
     
     return "", 202
 
+
+def __get_datatables_args():
+    '''
+    Extract list of arguments passed in the request
+    '''
+    table_args = dict()
+    if request.args.get('sEcho'):
+        table_args['sequence'] = request.args.get('sEcho')
+
+    if request.args.get('iColumns'):
+        table_args['column-count'] = int(request.args.get('iColumns'))
+
+    if request.args.get('sColumns'):
+        table_args['columns'] = request.args.get('sColumns')
+
+    if request.args.get('iDisplayStart'):
+        table_args['offset'] = int(request.args.get('iDisplayStart'))
+
+    if request.args.get('iDisplayLength'):
+        table_args['limit'] = int(request.args.get('iDisplayLength'))
+
+    if request.args.get('sSearch'):
+        table_args['filter'] = request.args.get('sSearch')
+
+    if request.args.get('bRegex'):
+        table_args['filter-regex'] = request.args.get('bRegex')
+
+    if request.args.get('iSortingCols'):
+        table_args['sort-col-count'] = int(request.args.get('iSortingCols'))
+
+    if request.args.get('start_time'):
+        table_args['start_time'] = request.args.get('start_time')
+
+    if request.args.get('end_time'):
+        table_args['end_time'] = request.args.get('end_time')
+
+    if request.args.get('iColumns'):
+        for i in range(int(request.args.get('iColumns'))):
+            i = str(i)
+
+            if request.args.get('mDataProp_' + i):
+                table_args['mDataProp_' + i] = request.args.get('mDataProp_' + i)
+
+            if request.args.get('sSearch_' + i):
+                table_args['sSearch_' + i] = request.args.get('sSearch_' + i)
+
+            if request.args.get('bRegex_' + i):
+                table_args['bRegex_' + i] = request.args.get('bRegex_' + i)
+
+            if request.args.get('bSearchable_' + i):
+                table_args['bSearchable_' + i] = request.args.get('bSearchable_' + i)
+
+            if request.args.get('iSortCol_' + i):
+                table_args['iSortCol_' + i] = int(request.args.get('iSortCol_' + i))
+
+            if request.args.get('bSortable_' + i):
+                table_args['bSortable_' + i] = request.args.get('bSortable_' + i)
+
+            if request.args.get('sSortDir_' + i):
+                table_args['sSortDir_' + i] = request.args.get('sSortDir_' + i)
+
+    return table_args

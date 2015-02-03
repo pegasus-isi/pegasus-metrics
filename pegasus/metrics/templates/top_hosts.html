@@ -2,34 +2,36 @@
 {% import 'forms.html' as forms %}
 {% block body %}
 {{forms.period_form(form)}}
-{{forms.limit_form(limit_f)}}
 <h2>Top Hosts</h2>
 <table id="top_hosts">
     <thead>
-        <tr><th>Rank</th><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+        <tr><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     </thead>
     <tbody>
-        {% for host in hosts: %}
-        <tr>
-            <td>{{loop.index}}</td>
-            <td class="nowrap">{{host["hostname"]}}</td>
-            <td class="right">{{host["workflows"] | decimal}}</td>
-            <td class="right">{{host["tasks"] | decimal}}</td>
-            <td class="right">{{host["jobs"] | decimal}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="5" class="nodata">No Data</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 <script>
-    $("#top_hosts").DataTable();
+    $("#top_hosts").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('top_hosts') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 1, "desc" ]
+        ],
+        "aoColumns": [
+            { "sClass" : "nowrap" },
+            { "sClass" : "right" },
+            { "sClass" : "right" },
+            { "sClass" : "right" }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
+    aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+    }
+    });
 </script>
 {% endblock %}
 

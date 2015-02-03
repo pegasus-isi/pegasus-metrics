@@ -2,34 +2,36 @@
 {% import 'forms.html' as forms %}
 {% block body %}
 {{forms.period_form(form)}}
-{{forms.limit_form(limit_f)}}
 <h2>Top Domains</h2>
 <table id="topDomains">
     <thead>
-        <tr><th>Rank</th><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
+        <tr><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     </thead>
     <tbody>
-        {% for domain in domains: %}
-        <tr>
-            <td class="right">{{loop.index}}</td>
-            <td class="nowrap">{{domain["domain"] }}</td>
-            <td class="right">{{domain["workflows"] | decimal}}</td>
-            <td class="right">{{domain["tasks"] | decimal}}</td>
-            <td class="right">{{domain["jobs"] | decimal}}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="5" class="nodata">No Data</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-            <td style="display:none">These dummy items keep DataTable happy</td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 <script>
-    $("#topDomains").DataTable();
+    $("#topDomains").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('top_domains') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 1, "desc" ]
+        ],
+        "aoColumns": [
+            { "sClass" : "nowrap" },
+            { "sClass" : "right" },
+            { "sClass" : "right" },
+            { "sClass" : "right" }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
+            aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+        }
+    });
 </script>
 {% endblock %}
 
