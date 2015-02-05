@@ -206,13 +206,14 @@ def planner_trends():
 
 @app.route('/runs/topapplications')
 def top_application_runs():
-    form = forms.LimitForm(request.args)
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, applications = db.get_top_application_runs(**table_args)
+        return render_template('top_application_runs.json', table_args=table_args, count=totalCount, filtered=filteredCount, applications=applications)
+
+    form = forms.PeriodForm(request.args)
     form.validate()
-    limit = form.get_limit()
-    workflows = db.get_top_application_runs(limit)
-    return render_template('top_application_runs.html',
-                           form=form,
-                           workflows=workflows)
+    return render_template('top_application_runs.html', form=form)
 
 @app.route('/downloads/recent')
 def recent_downloads():

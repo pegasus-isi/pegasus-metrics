@@ -344,15 +344,6 @@ def get_recent_errors(**table_args):
         results = cur.fetchall()
 
         return totalCount, filteredCount, results
-        #if limit != 'all':
-        #    cur.execute("select e.id, m.ts, e.error "
-        #            "from planner_errors e left join planner_metrics m on e.id=m.id "
-        #            "order by m.ts desc limit %s", [int(limit)])
-        #else:
-        #    cur.execute("select e.id, m.ts, e.error "
-        #                "from planner_errors e left join planner_metrics m on e.id=m.id "
-        #                "order by m.ts desc")
-        #return cur.fetchall()
 
 def get_recent_applications(limit=50):
     with cursor() as cur:
@@ -395,21 +386,43 @@ def get_runs_for_workflow(root_wf_uuid, limit=50):
                         "ORDER BY d.ts", [root_wf_uuid])
         return cur.fetchall()
 
-def get_top_application_runs(limit=50):
+def get_top_application_runs(**table_args):
     with cursor() as cur:
-        if limit != 'all':
-            cur.execute("SELECT p.application, count(*) runCount "
-                        "FROM planner_metrics p, "
-                        "(SELECT DISTINCT(root_wf_uuid) FROM dagman_metrics LIMIT %s) d "
-                        "WHERE p.root_wf_uuid = d.root_wf_uuid "
-                        "GROUP BY p.application ORDER BY runCount", [int(limit)])
-        else:
-            cur.execute("SELECT p.id, p.root_wf_uuid, d.count runCount "
-                        "FROM planner_metrics p, "
-                        "(SELECT root_wf_uuid, count(id) count FROM dagman_metrics GROUP BY root_wf_uuid) d "
-                        "WHERE p.root_wf_uuid = d.root_wf_uuid "
-                        "GROUP BY p.root_wf_uuid ORDER BY runCount")
-        return cur.fetchall()
+        columns = ["application", "runCount"]
+
+        countClauseStart = "select count(count.application) from ("
+        countClauseEnd = ") as count"
+        queryClause = "select p.application, sum(d.count) runCount from planner_metrics p, (select root_wf_uuid, count(*) count from dagman_metrics where "
+        queryClause2 = " group by root_wf_uuid) d where p.root_wf_uuid = d.root_wf_uuid "
+        filterClause = ""
+        timeRangeClause = ""
+        orderClause = " group by application order by workflows desc "
+        limitClause = ""
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = " and application like '%s' " % (filterValue)
+
+        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
+
+        if "iSortCol_0" in table_args:
+            orderClause = " group by application order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + timeRangeClause + queryClause2 + orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(countClauseStart + queryClause + timeRangeClause + queryClause2 + filterClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(queryClause + timeRangeClause + queryClause2 + filterClause + orderClause + limitClause)
+        results = cur.fetchall()
+
+        return totalCount, filteredCount, results
 
 def get_download(objid):
     with cursor() as cur:
