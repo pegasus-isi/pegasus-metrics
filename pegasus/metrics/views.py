@@ -98,13 +98,14 @@ def invalid():
 
 @app.route('/planner/recenterrors')
 def recent_errors():
-    form = forms.LimitForm(formdata=request.args)
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, errors = db.get_recent_errors(**table_args)
+        return render_template('recent_errors.json', table_args=table_args, count=totalCount, filtered=filteredCount, errors=errors)
+
+    form = forms.PeriodForm(formdata=request.args)
     form.validate()
-    limit = form.get_limit()
-    errors = db.get_recent_errors(limit)
-    return render_template('recent_errors.html',
-            errors=errors,
-            form=form)
+    return render_template('recent_errors.html', form=form)
 
 @app.route('/planner/toperrors')
 def top_errors():

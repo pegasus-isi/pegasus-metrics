@@ -1,24 +1,44 @@
 {% extends "layout.html" %}
 {% import 'forms.html' as forms %}
 {% block body %}
-{{forms.limit_form(form)}}
+{{forms.period_form(form)}}
 <h2>Recent Planner Errors</h2>
 <table id="recentErrors">
     <thead>
         <tr><th>ID</th><th>Timestamp</th><th>Error Message</th></tr>
     </thead>
     <tbody>
-        {% for err in errors: %}
-        <tr>
-            <td><a href="{{ url_for('planner_metric', objid=err["id"]) }}">{{err["id"]}}</a></td>
-            <td class="nowrap">{{err["ts"] | timestamp}}</td>
-            <td class="monospaced">{{err["error"]}}</td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 <script>
-    $("#recentErrors").DataTable();
+    $("#recentErrors").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('recent_errors') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 1, "desc" ]
+        ],
+        "aoColumns": [
+            {
+                "sClass" : "right",
+                "mRender" : function(data, type, full) {
+                    // For some reason parseInt can't handle commas and we
+                    data = data.replace(/,/g, '');
+                    url = "{{url_for('planner_metric', objid=data) }}" + data;
+                    return "<a href='" + url + "'>" + data + "</a>";
+                }
+            },
+            { "sClass" : "nowrap" },
+            { "sClass" : "monospaced" }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
+    aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+    }
+    });
 </script>
 {% endblock %}
 
