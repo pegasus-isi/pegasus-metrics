@@ -247,19 +247,42 @@ def get_top_errors(**table_args):
 
         return totalCount, filteredCount, results
 
-def get_top_applications(start, end, limit=50):
+def get_top_applications(**table_args):
     with cursor() as cur:
-        if limit != 'all':
-            cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
-                        "FROM planner_metrics "
-                        "WHERE ts>=%s AND ts <= %s GROUP BY application "
-                        "ORDER BY workflows DESC LIMIT %s", [start, end,  int(limit)])
-        else:
-            cur.execute("SELECT application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs "
-                        "FROM planner_metrics "
-                        "WHERE ts>=%s AND ts <= %s GROUP BY application "
-                        "ORDER BY workflows DESC", [start, end])
-        return cur.fetchall()
+        columns = ["application", "workflows", "tasks", "jobs"]
+
+        countClauseStart = "select count(count.application) from ("
+        countClauseEnd = ") as count"
+        queryClause = "select application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+        filterClause = ""
+        timeRangeClause = ""
+        orderClause = " group by application order by workflows desc "
+        limitClause = ""
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = " application like '%s' and " % (filterValue)
+
+        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
+
+        if "iSortCol_0" in table_args:
+            orderClause = " group by application order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
+        results = cur.fetchall()
+
+        return totalCount, filteredCount, results
 
 def get_errors_by_hash(errhash):
     with cursor() as cur:

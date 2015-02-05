@@ -167,18 +167,14 @@ def recent_applications():
 
 @app.route('/planner/topapplications')
 def top_applications():
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, applications = db.get_top_applications(**table_args)
+        return render_template('top_applications.json', table_args=table_args, count=totalCount, filtered=filteredCount, applications=applications)
+
     form = forms.PeriodForm(request.args)
-    limit_f = forms.LimitForm(request.args)
     form.validate()
-    limit_f.validate()
-    start = form.get_start()
-    end = form.get_end()
-    limit = limit_f.get_limit()
-    applications = db.get_top_applications(start, end, limit)
-    return render_template('top_applications.html',
-                           applications=applications,
-                           form=form,
-                           limit_f=limit_f)
+    return render_template('top_applications.html', form=form)
 
 @app.route('/planner/map')
 def map_metrics():
