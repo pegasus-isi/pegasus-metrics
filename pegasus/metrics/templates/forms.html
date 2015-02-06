@@ -1,7 +1,7 @@
 {% macro period_form(form) -%}
 <div id="filterform">
     <form method="get">
-        Show results from {{form.monthStart()}} / {{form.yearStart()}} to {{form.monthEnd()}} / {{form.yearEnd()}}
+        Show results from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd()}} / {{form.yearEnd()}}
         <input type="submit" value="Update"/>
         <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
     </form>

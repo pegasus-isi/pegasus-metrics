@@ -60,8 +60,15 @@ def index():
     dagman_stats = db.get_dagman_stats(start, end)
     downloads = db.count_downloads(start, end)
 
-    top_hosts = db.get_top_hosts(5, start, end)
-    top_domains = db.get_top_domains(5, start, end)
+    table_args = {
+        "limit" : 5,
+        "offset" : 0,
+        "start_time" : start,
+        "end_time" : end
+    }
+    # These count variables are just dummies to get the top_hosts and top_domains
+    totalCount, filterCount, top_hosts = db.get_top_hosts(**table_args)
+    totalCount, filterCount, top_domains = db.get_top_domains(**table_args)
 
 
     return render_template('index.html',

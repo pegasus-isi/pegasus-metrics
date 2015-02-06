@@ -99,12 +99,17 @@ class PeriodForm(Form):
             field.errors.append("Using '%s' instead" % field.default)
 
     def get_start(self):
-        startDate = datetime.date(int(self.yearStart.data), int(self.monthStart.data), datetime.date.today().day)
+        startDate = datetime.date(int(self.yearStart.data), int(self.monthStart.data), 1)
         return (startDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
 
     def get_end(self):
-        endDate = datetime.date(int(self.yearEnd.data), int(self.monthEnd.data), datetime.date.today().day)
+        year = int(self.yearEnd.data)
+        month = int(self.monthEnd.data) + 1
+        if month == 13:
+            month = 1
+            year = year + 1
+        endDate = datetime.date(int(year), int(month), 1)
         return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
 class LimitForm(Form):
