@@ -218,13 +218,13 @@ def top_application_runs():
 
 @app.route('/downloads/recent')
 def recent_downloads():
-    form = forms.LimitForm(formdata=request.args)
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, downloads = db.get_recent_downloads(**table_args)
+        return render_template('recent_downloads.json', table_args=table_args, count=totalCount, filtered=filteredCount, downloads=downloads)
+    form = forms.PeriodForm(formdata=request.args)
     form.validate()
-    limit = form.get_limit()
-    dls = db.get_recent_downloads(limit)
-    return render_template('recent_downloads.html',
-            downloads=dls,
-            form=form)
+    return render_template('recent_downloads.html', form=form)
 
 @app.route('/downloads/popular')
 def popular_downloads():
@@ -389,6 +389,9 @@ def __get_datatables_args():
 
     if request.args.get('end_time'):
         table_args['end_time'] = request.args.get('end_time')
+
+    if request.args.get('form_only'):
+        table_args['form_only'] = request.args.get('form_only')
 
     if request.args.get('iColumns'):
         for i in range(int(request.args.get('iColumns'))):

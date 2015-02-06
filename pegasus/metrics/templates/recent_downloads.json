@@ -1,0 +1,22 @@
+{
+    {% if table_args ['sequence'] %}"sEcho" : {{ table_args ['sequence'] }},{% else %}"sEcho" : 0,{% endif %}
+    {% if count != None %}"iTotalRecords" : {{ count }},{% else %}"iTotalRecords" : {{ downloads|count }},{% endif %}
+    {% if table_args ['limit'] %}"iTotalDisplayRecords" : {{ filtered }},{% endif %}
+    "aaData" : [
+    {% if downloads %}
+        {% for i in range(0,downloads|count)%}
+            {
+                "0" : {{ downloads[i]['id']|decimal|tojson|safe }}, "1" : {{ downloads[i]['ts']|timestamp|tojson|safe }},"2" : {{ downloads[i]['filename']|tojson|safe }}, "3" : {{ downloads[i]['version']|tojson|safe }}, "4" : {{ downloads[i]['hostname']|tojson|safe }}, "5" : {{ downloads[i]['name']|tojson|safe }}, "6" : {{ downloads[i]['email']|tojson|safe }}, "7" : {{ downloads[i]['organization']|tojson|safe }}
+            }
+            {% if i + 1 != downloads|count %}
+                ,
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {
+            "0" : "No Data", "1" : "No Data", "2" : "No Data","3" : "No Data","4" : "No Data", "5" : "No Data", "6" : "No Data","7" : "No Data"
+        }
+    {% endif %}
+
+    ]
+}

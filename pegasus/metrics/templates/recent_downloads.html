@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% import 'forms.html' as forms %}
 {% block body %}
-{{forms.limit_form(form)}}
+{{forms.period_form(form)}}
 <h2>Recent Downloads</h2>
 <p><label><input type="checkbox" id="formOnly">Hide entries with no form filled out</label></p>
-<table id="recentDownloads">
+<table id="recentDownloads" style="width:100%">
     <thead>
         <tr>
             <th>ID</th>
@@ -18,34 +18,45 @@
         </tr>
     </thead>
     <tbody>
-        {% for dl in downloads: %}
-        <tr>
-            <td><a href="{{url_for('download_metric',objid=dl["id"])}}">{{dl["id"]}}</a></td>
-            <td>{{dl["ts"] | timestamp}}</td>
-            <td>{{dl["filename"]}}</td>
-            <td>{{dl["version"] | null}}</td>
-            <td>{{dl["hostname"] | null}}</td>
-            <td>{{dl["name"] | null}}</td>
-            <td>{{dl["email"] | null }}</td>
-            <td>{{dl["organization"] | null}}</td>
-        </tr>
-        {% endfor %}
     </tbody>
 </table>
 <script>
-    $.fn.dataTableExt.afnFiltering.push(
-            function(oSettings, aData, iDataIndex) {
-                if($("#formOnly").is(':checked')) {
-                    var formFilled = (aData[5] != "n/a") && (aData[6] != "n/a") && (aData[7] != "n/a");
-                    return formFilled;
-                }
-                else {
-                    return true; // If you don't explicitly return true then false gets passed
-                }
-            }
-    );
 
-    var downloadsTable = $("#recentDownloads").DataTable();
+    var downloadsTable = $("#recentDownloads").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('recent_downloads') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 1, "desc" ]
+        ],
+        "aoColumns": [
+            {
+                "sClass" : "right",
+                "mRender" : function(data, type, full) {
+                    // For some reason parseInt can't handle commas and we
+                    data = data.replace(/,/g, '');
+                    url = "{{url_for('download_metric', objid=data) }}" + data;
+                    return "<a href='" + url + "'>" + data + "</a>";
+                }
+            },
+            { "sClass" : "nowrap" },
+            { "sClass" : "monospace" },
+            { "sClass" : "monospace" },
+            { "sClass" : "monospace" },
+            { "sClass" : "monospace" },
+            { "sClass" : "monospace" },
+            { "sClass" : "monospace" }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push({ "name": "start_time", "value": {{form.get_start()}} });
+            aoData.push({ "name": "end_time", "value": {{form.get_end()}} });
+            aoData.push({ "name": "form_only", "value": $("#formOnly").is(":checked")});
+        }
+    });
+
     $(":checkbox").on('click',function() {
         downloadsTable.draw();
     });

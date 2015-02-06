@@ -387,15 +387,49 @@ def count_downloads(start=0, end=0):
         cur.execute("SELECT count(*) as count FROM downloads WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()['count']
 
-def get_recent_downloads(limit=50):
+def get_recent_downloads(**table_args):
     with cursor() as cur:
-        if limit != 'all':
-            cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
-                        "FROM downloads ORDER BY ts DESC LIMIT %s", [int(limit)]) # not sure why we have to call int(), but we do
-        else:
-            cur.execute("SELECT id, ts, hostname, filename, version, name, email, organization "
-                        "FROM downloads ORDER BY ts DESC") # not sure why we have to call int(), but we do
-        return cur.fetchall()
+        columns = ["id", "ts", "filename", "version", "hostname", "name", "email", "organization"]
+
+        countClauseStart = "select count(count.id) from ("
+        countClauseEnd = ") as count"
+        queryClause = "select id, ts, hostname, filename, version, name, email, organization from downloads where "
+        filterClause = ""
+        formOnlyClause = ""
+        timeRangeClause = ""
+        orderClause = " order by ts desc "
+        limitClause = ""
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = " filename like '%s' or version like '%s' or hostname like '%s' or name like '%s' or email like '%s' or organization like '%s' and " % (filterValue, filterValue, filterValue, filterValue, filterValue, filterValue)
+
+
+        if "form_only" in table_args:
+            print table_args['form_only']
+            if table_args['form_only'] == 'true':
+                formOnlyClause = " name is not null and email is not null and organization is not null and "
+
+        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
+
+        if "iSortCol_0" in table_args:
+            orderClause = " order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + formOnlyClause + timeRangeClause + orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(count.id)"]
+
+        cur.execute(countClauseStart + queryClause + filterClause + formOnlyClause + timeRangeClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(count.id)"]
+
+        cur.execute(queryClause + filterClause + formOnlyClause + timeRangeClause + orderClause + limitClause)
+        results = cur.fetchall()
+
+        return totalCount, filteredCount, results
 
 def get_runs_for_workflow(root_wf_uuid, limit=50):
     with cursor() as cur:
