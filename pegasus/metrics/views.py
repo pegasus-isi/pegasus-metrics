@@ -228,14 +228,14 @@ def recent_downloads():
 
 @app.route('/downloads/popular')
 def popular_downloads():
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, downloads = db.get_popular_downloads(**table_args)
+        return render_template('popular_downloads.json', table_args=table_args, count=totalCount, filtered=filteredCount, downloads=downloads)
+
     form = forms.PeriodForm(request.args)
-    form.validate()
-    start = form.get_start()
-    end = form.get_end()
-    dls = db.get_popular_downloads(start, end)
-    return render_template('popular_downloads.html',
-            downloads=dls,
-            form=form)
+    return render_template('popular_downloads.html', form=form)
+
 @app.route('/downloads/trends')
 def download_trends():
     form = forms.TrendForm(request.args)

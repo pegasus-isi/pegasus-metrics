@@ -488,12 +488,42 @@ def get_download(objid):
         cur.execute("SELECT * FROM downloads d LEFT JOIN locations l ON d.remote_addr =l.ip WHERE d.id=%s", [objid])
         return cur.fetchone()
 
-def get_popular_downloads(start, end):
+def get_popular_downloads(**table_args):
     with cursor() as cur:
-        cur.execute("SELECT filename, count(*) as count, max(ts) latest "
-                    "FROM downloads WHERE ts>=%s AND ts <= %s GROUP BY filename "
-                    "ORDER BY count DESC, latest DESC", [start, end])
-        return cur.fetchall()
+        columns = ["filename", "count", "latest",]
+
+        countClauseStart = "select count(*) from ("
+        countClauseEnd = ") as d"
+        queryClause = "select filename, count(*) count, max(ts) latest from downloads where "
+        filterClause = ""
+        timeRangeClause = ""
+        orderClause = " group by filename order by count desc "
+        limitClause = ""
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = " filename like '%s' and " % (filterValue)
+
+        timeRangeClause = " ts >=%s and ts <= %s " % (table_args['start_time'], table_args['end_time'])
+
+        if "iSortCol_0" in table_args:
+            orderClause = " group by filename order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(*)"]
+
+        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(*)"]
+
+        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
+        results = cur.fetchall()
+
+        return totalCount, filteredCount, results
 
 def get_locations(dataset, start, end):
     print dataset

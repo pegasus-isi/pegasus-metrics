@@ -24,24 +24,26 @@
     </tbody>
 </table>
 <script>
-    /*$.fn.dataTableExt.afnFiltering.push(
-            function(oSettings, aData, iDataIndex) {
-                if($("#formOnly").is(':checked')) {
-                    var formFilled = (aData[5] != "n/a") && (aData[6] != "n/a") && (aData[7] != "n/a");
-                    return formFilled;
-                }
-                else {
-                    return true; // If you don't explicitly return true then false gets passed
-                }
-            }
-    );*/
 
     var downloadsTable = $("#popularDownloads").DataTable({
-        "order": [[ 1, "desc" ]]
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('popular_downloads') }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 1, "desc" ]
+        ],
+        "aoColumns": [
+            { "sClass" : "nowrap" },
+            { "sClass" : "right" }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
+            aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+        }
     });
-    /*$(":checkbox").on('click',function() {
-        downloadsTable.draw();
-    });*/
 </script>
 {% endblock %}
 
