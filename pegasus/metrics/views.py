@@ -157,13 +157,14 @@ def planner_metric(objid):
 
 @app.route('/planner/recentapplications')
 def recent_applications():
-    form = forms.LimitForm(request.args)
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, applications = db.get_recent_applications(**table_args)
+        return render_template('recent_applications.json', table_args=table_args, count=totalCount, filtered=filteredCount, applications=applications)
+
+    form = forms.PeriodForm(request.args)
     form.validate()
-    limit = form.get_limit()
-    applications = db.get_recent_applications(limit)
-    return render_template('recent_applications.html',
-            applications=applications,
-            form=form)
+    return render_template('recent_applications.html', form=form)
 
 @app.route('/planner/topapplications')
 def top_applications():

@@ -345,17 +345,42 @@ def get_recent_errors(**table_args):
 
         return totalCount, filteredCount, results
 
-def get_recent_applications(limit=50):
+def get_recent_applications(**table_args):
     with cursor() as cur:
-        if limit != 'all':
-            cur.execute("select id, ts, hostname, application "
-                        "from planner_metrics where application is not null "
-                        "order by ts desc limit %s",[int(limit)])
-        else:
-            cur.execute("select id, ts, hostname, application "
-                        "from planner_metrics where application is not null "
-                        "order by ts desc")
-        return cur.fetchall()
+        columns = ["id", "ts", "hostname", "application"]
+
+        countClauseStart = "select count(count.application) from ("
+        countClauseEnd = ") as count"
+        queryClause = "select id, ts, hostname, application from planner_metrics where application is not null and "
+        filterClause = ""
+        timeRangeClause = ""
+        orderClause = " order by ts desc "
+        limitClause = ""
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = " application like '%s'  or hostname like '%s' and " % (filterValue, filterValue)
+
+        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
+
+        if "iSortCol_0" in table_args:
+            orderClause = " order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(count.application)"]
+
+        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
+        results = cur.fetchall()
+
+        return totalCount, filteredCount, results
 
 def count_downloads(start=0, end=0):
     with cursor() as cur:

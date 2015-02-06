@@ -1,0 +1,22 @@
+{
+    {% if table_args ['sequence'] %}"sEcho" : {{ table_args ['sequence'] }},{% else %}"sEcho" : 0,{% endif %}
+    {% if count != None %}"iTotalRecords" : {{ count }},{% else %}"iTotalRecords" : {{ applications|count }},{% endif %}
+    {% if table_args ['limit'] %}"iTotalDisplayRecords" : {{ filtered }},{% endif %}
+    "aaData" : [
+    {% if applications %}
+        {% for i in range(0,applications|count)%}
+            {
+                "0" : {{ applications[i]['id']|decimal|tojson|safe }}, "1" : {{ applications[i]['ts']|timestamp|tojson|safe }},"2" : {{ applications[i]['hostname']|decimal|tojson|safe }}, "3" : {{ applications[i]['application']|decimal|tojson|safe }}
+            }
+            {% if i + 1 != applications|count %}
+                ,
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {
+            "0" : "No Data", "1" : "No Data", "2" : "No Data","3" : "No Data"
+        }
+    {% endif %}
+
+    ]
+}
