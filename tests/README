@@ -1,0 +1,5 @@
+To use these to test the metrics server, run:
+
+$ curl -d @foo.metrics -H "Content-Type: application/json" http://localhost:5000/metrics
+
+For a file named 'foo.metrics'.

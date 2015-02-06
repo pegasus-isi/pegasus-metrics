@@ -1,0 +1,31 @@
+{
+  "client": "pegasus-plan",
+  "version": "4.5.0cvs",
+  "type": "metrics",
+  "start_time": 1.423209146913E9,
+  "end_time": 1.42320916127E9,
+  "duration": 14.357,
+  "exitcode": 0,
+  "root_wf_uuid": "ae527a92-0a89-4a70-8121-73efe225aac1",
+  "wf_uuid": "ae527a92-0a89-4a70-8121-73efe225aac1",
+  "data_config": "nonsharedfs",
+  "wf_metrics": {
+    "compute_tasks": 10429,
+    "dax_tasks": 0,
+    "dag_tasks": 0,
+    "total_tasks": 10429,
+    "compute_jobs": 53,
+    "clustered_jobs": 384,
+    "si_tx_jobs": 13,
+    "so_tx_jobs": 5,
+    "inter_tx_jobs": 0,
+    "reg_jobs": 4,
+    "cleanup_jobs": 0,
+    "create_dir_jobs": 1,
+    "dax_jobs": 0,
+    "dag_jobs": 0,
+    "chmod_jobs": 0,
+    "total_jobs": 460
+  }
+}
+
