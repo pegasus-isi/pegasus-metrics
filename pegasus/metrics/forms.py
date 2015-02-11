@@ -112,6 +112,8 @@ class PeriodForm(Form):
         endDate = datetime.date(int(year), int(month), 1)
         return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
+# We might not need this form anymore, but just in case it'll remain in the code to prevent
+# any surprise errors from occurring
 class LimitForm(Form):
     limit = SelectField(choices=[
         ('50', '50'),

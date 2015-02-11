@@ -106,17 +106,36 @@ def process_raw_data(data):
         db.store_invalid_data(data["id"], repr(e))
 
 def process_location(ipaddr):
-    if ipaddr:
-        if db.get_location(ipaddr):
+    if ipaddr is None:
+        return
+
+    if db.get_location(ipaddr):
+        return
+
+    if ipaddr.startswith("192.168.") or \
+       ipaddr.startswith("10.") or \
+       ipaddr == "127.0.0.1":
+        log.warning("Skipping local address %s" % ipaddr)
+        return
+
+    if ipaddr.startswith("172."):
+        i = ipaddr.split(".")
+        j = int(i[1])
+        if 16 <= j <= 31:
+            log.warning("Skipping local address %s" % ipaddr)
             return
 
-        try:
-            r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
-            if 200 <= r.status_code < 300:
-                location = json.loads(r.text)
-        except:
-            pass
-        db.store_location(location)
+    try:
+        r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
+        if 200 <= r.status_code < 300:
+            r.encoding = 'utf-8'
+            location = json.loads(r.text)
+
+            db.store_location(location)
+    except Exception, e:
+        log.exception(e)
+        log.warn("Error getting location for %s" % ipaddr)
+
 
 def process_download(data):
     def nullify(key):
@@ -148,6 +167,9 @@ def process_download(data):
             ver = newver
     data["version"] = ver
 
+    if "remote_addr" in data:
+        process_location(data["remote_addr"])
+
     db.store_download(data)
 
 def process_planner_metrics(data):
@@ -158,7 +180,6 @@ def process_planner_metrics(data):
     metrics = data["wf_metrics"]
     del data["wf_metrics"]
     data.update(metrics)
-
     # Change start_time and end_time into timestamps if they
     # are using the old string formats
     datefmt = "%b %d, %Y %H:%M:%S %p"
@@ -191,6 +212,9 @@ def process_planner_metrics(data):
     if "application" not in data:
         data["application"] = None
 
+    if "remote_addr" in data:
+        process_location(data["remote_addr"])
+
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
@@ -205,6 +229,9 @@ def process_dagman_metrics(data):
 
     if "total_job_time" not in data:
         data["total_job_time"] = None
+
+    if "remote_addr" in data:
+        process_location(data["remote_addr"])
 
     db.store_dagman_metrics(data)
 

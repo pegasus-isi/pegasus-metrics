@@ -114,6 +114,7 @@ def delete_processed_data():
         cur.execute("DELETE FROM planner_errors")
         cur.execute("DELETE FROM downloads")
         cur.execute("DELETE FROM dagman_metrics")
+        cur.execute("DELETE FROM locations")
 
 def get_invalid_ids():
     with cursor() as cur:
@@ -526,7 +527,6 @@ def get_popular_downloads(**table_args):
         return totalCount, filteredCount, results
 
 def get_locations(dataset, start, end):
-    print dataset
     with cursor() as cur:
         if dataset.__contains__("recent"):
             if dataset.__contains__("downloads"):
@@ -552,7 +552,29 @@ def get_locations(dataset, start, end):
                         "where l.ip = h.remote_addr", [start, end])
         return cur.fetchall()
 
+def get_location(ip_addr):
+    with cursor() as cur:
+        cur.execute("SELECT * FROM locations WHERE ip = %s", [ip_addr])
+        return cur.fetchone()
+
 def store_location(data):
+    if 'latitude' not in data or \
+        'longitude' not in data or \
+        'country_code' not in data or \
+        'region_code' not in data or \
+        'region_name' not in data or \
+        'city' not in data:
+        return
+
+    if 'zipcode' not in data:
+        data['zipcode'] = None
+
+    if 'metro_code' not in data:
+        data['metro_code'] = None
+
+    if 'area_code' not in data:
+        data['area_code'] = None
+
     with cursor() as cur:
         cur.execute(
         """INSERT INTO locations (
