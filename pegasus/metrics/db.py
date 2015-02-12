@@ -566,8 +566,8 @@ def store_location(data):
         'city' not in data:
         return
 
-    if 'zipcode' not in data:
-        data['zipcode'] = None
+    if 'zip_code' not in data:
+        data['zip_code'] = None
 
     if 'metro_code' not in data:
         data['metro_code'] = None
@@ -584,7 +584,7 @@ def store_location(data):
             region_code,
             region_name,
             city,
-            zipcode,
+            zip_code,
             latitude,
             longitude,
             metro_code,
@@ -596,7 +596,7 @@ def store_location(data):
             %(region_code)s,
             %(region_name)s,
             %(city)s,
-            %(zipcode)s,
+            %(zip_code)s,
             %(latitude)s,
             %(longitude)s,
             %(metro_code)s,
