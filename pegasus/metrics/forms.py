@@ -152,11 +152,37 @@ class MapForm(Form):
         ('downloads', 'Top Downloads')
     ])
 
-    monthStart = IntegerField('')
-    yearStart = IntegerField('')
+    monthStart = SelectField(choices=[
+        ('1', 'January'),
+        ('2', 'February'),
+        ('3', 'March'),
+        ('4', 'April'),
+        ('5', 'May'),
+        ('6', 'June'),
+        ('7', 'July'),
+        ('8', 'August'),
+        ('9', 'September'),
+        ('10', 'October'),
+        ('11', 'November'),
+        ('12', 'December')
+    ])
+    yearStart = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
 
-    monthEnd = IntegerField('')
-    yearEnd = IntegerField('')
+    monthEnd = SelectField(choices=[
+        ('1', 'January'),
+        ('2', 'February'),
+        ('3', 'March'),
+        ('4', 'April'),
+        ('5', 'May'),
+        ('6', 'June'),
+        ('7', 'July'),
+        ('8', 'August'),
+        ('9', 'September'),
+        ('10', 'October'),
+        ('11', 'November'),
+        ('12', 'December')
+    ])
+    yearEnd = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
 
     def __init__(self, *args, **kwargs):
         kwargs['pins'] = session.get('pins', 'domain')
@@ -229,12 +255,17 @@ class MapForm(Form):
             field.errors.append("Using '%s' instead" % field.default)
 
     def get_start(self):
-        startDate = datetime.date(self.yearStart.data, self.monthStart.data, datetime.date.today().day)
+        startDate = datetime.date(int(self.yearStart.data), int(self.monthStart.data), datetime.date.today().day)
         return (startDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
 
     def get_end(self):
-        endDate = datetime.date(self.yearEnd.data, self.monthEnd.data, datetime.date.today().day)
+        year = int(self.yearEnd.data)
+        month = int(self.monthEnd.data) + 1
+        if month == 13:
+            month = 1
+            year = year + 1
+        endDate = datetime.date(int(year), int(month), 1)
         return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
     def get_pins(self):

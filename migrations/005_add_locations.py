@@ -19,11 +19,11 @@ create table locations (
     region_code VARCHAR(256),
     region_name VARCHAR(256),
     city VARCHAR(256),
-    zip_code INTEGER UNSIGNED,
+    zip_code VARCHAR(256),
     latitude DOUBLE,
     longitude DOUBLE,
-    metro_code INTEGER UNSIGNED,
-    area_code INTEGER UNSIGNED,
+    metro_code VARCHAR(256),
+    area_code VARCHAR(256),
     PRIMARY KEY (ip)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 """)

@@ -526,6 +526,31 @@ def get_popular_downloads(**table_args):
 
         return totalCount, filteredCount, results
 
+def queryBuilder(queryClause, columns, groupClause, orderClause, **table_args):
+    countClauseStart = "select count(*) from("
+    countClauseEnd =") as c"
+    filterClause = " "
+    timeRangeClause = " (ts >= %s and ts <= %s " % (table_args['start_time'], table_args['end_time'])
+    limitClause = ""
+
+    if "filter" in table_args:
+        filterValue = "%" + table_args["filter"] + "%"
+        for i in range(len(columns)):
+            filterClause = "%s %s like '%s' " % (filterClause, columns[i], filterValue)
+            if i == len(columns) - 1:
+                filterClause = filterClause + ") "
+            else:
+                filterCluase = filterClause + "or "
+
+    if "iSortCol_0" in table_args:
+        orderClause = " order by %s " % (columns[table_args["iSortCol_0"]])
+
+    if "limit" in table_args:
+        limitClause = " limit %s offest %s " % (table_args["limit"], table_args["offset"])
+
+    cur.execute(countClauseStart + queryClause + timeRangeClause + groupClause + countClauseEnd)
+    totalCount = cur.fetchone()["count(*)"]
+
 def get_locations(dataset, start, end):
     with cursor() as cur:
         if dataset.__contains__("recent"):

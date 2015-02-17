@@ -79,6 +79,7 @@ def get_hostname_domain(ipaddr):
 def process_raw_data(data):
     try:
         # Get the hostname and domain
+        #print data["id"]
         ipaddr = data["remote_addr"]
         hostname, domain = get_hostname_domain(ipaddr)
         data["hostname"] = hostname
@@ -130,6 +131,9 @@ def process_location(ipaddr):
         if 200 <= r.status_code < 300:
             r.encoding = 'utf-8'
             location = json.loads(r.text)
+            for key in location:
+                if type(location[key]) == unicode:
+                    location[key] = location[key].encode('utf-8')
 
             db.store_location(location)
     except Exception, e:
@@ -146,6 +150,11 @@ def process_download(data):
         if len(data[key].strip()) == 0:
             data[key] = None
 
+    # Decode mappings
+    for key in data:
+        if type(data[key]) == unicode:
+            data[key] = data[key].encode('utf-8')
+
     # Convert missing and empty mappings to None
     nullify('name')
     nullify('email')
@@ -156,6 +165,7 @@ def process_download(data):
     nullify('howhelp')
     nullify('oldfeatures')
     nullify('newfeatures')
+
 
     # If the filename has a version string, then extract it
     # Always extract the longest string that looks like a version

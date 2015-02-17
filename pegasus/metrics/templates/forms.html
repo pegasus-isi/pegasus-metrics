@@ -25,7 +25,7 @@
 <div id="filterform">
     <form method="get">
         Drop pins for {{form.pins()}}
-        from {{form.monthStart()}} / {{form.yearStart()}} to {{form.monthEnd}} / {{form.yearEnd}}
+        from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd}} / {{form.yearEnd}}
         {% if form.pins.errors %}
         <span class="form_error">{{ ". ".join(form.pins.errors) }}</span>
         {% endif %}
@@ -45,25 +45,6 @@
         {% endif %}
         <input type="submit" value="Update"/>
         <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
-    </form>
-</div>
-{%- endmacro %}
-
-<!--This form is not completed yet -->
-{% macro period_limit_form(form) -%}
-<div id="filterform">
-    <form method="get">
-        Show results for {{form.label}} {{form.period()}}
-        {% if form.period.errors %}
-        <span class="form_error">{{ ". ".join(form.period.errors) }}</span>
-        {% endif %}
-        <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
-        Limit results count to {{form.limit()}}
-        {% if form.limit.errors %}
-        <span class="form_error">{{ ". ".join(form.limit.errors) }}</span>
-        {% endif %}
-        <span style="float: right;">Showing {{form.get_limit()}} of the latest results</span>
-        <p><input type="submit" value="Update"/></p>
     </form>
 </div>
 {%- endmacro %}
