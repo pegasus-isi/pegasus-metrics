@@ -119,3 +119,18 @@ create table dagman_metrics (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+drop table if exists locations;
+create table locations (
+    ip VARCHAR(15) NOT NULL,
+    country_code VARCHAR(256),
+    country_name VARCHAR(256),
+    region_code VARCHAR(256),
+    region_name VARCHAR(256),
+    city VARCHAR(256),
+    zip_code VARCHAR(256),
+    latitude DOUBLE,
+    longitude DOUBLE,
+    metro_code VARCHAR(256),
+    area_code VARCHAR(256),
+    PRIMARY KEY (ip)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

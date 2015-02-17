@@ -526,6 +526,7 @@ def get_popular_downloads(**table_args):
 
         return totalCount, filteredCount, results
 
+# Unfinished helper method for database calls to reduce SLOC and code duplication
 def queryBuilder(queryClause, columns, groupClause, orderClause, **table_args):
     countClauseStart = "select count(*) from("
     countClauseEnd =") as c"
