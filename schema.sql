@@ -1,3 +1,12 @@
+/* We have to drop all tables before raw_data because all the tables
+ * have a foreign key that links to raw_data
+*/
+drop table if exists invalid_data;
+drop table if exists planner_metrics;
+drop table if exists planner_errors;
+drop table if exists downloads;
+drop table if exists dagman_metrics;
+
 drop table if exists raw_data;
 create table raw_data (
     id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -9,7 +18,6 @@ create table raw_data (
 
 create index idx_raw_data_ts on raw_data (ts);
 
-drop table if exists invalid_data;
 create table invalid_data (
     id INTEGER UNSIGNED NOT NULL,
     error MEDIUMTEXT NOT NULL,
@@ -17,7 +25,6 @@ create table invalid_data (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table if exists planner_metrics;
 create table planner_metrics (
     id INTEGER UNSIGNED NOT NULL,
     ts DOUBLE,
@@ -53,7 +60,6 @@ create table planner_metrics (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table if exists planner_errors;
 create table planner_errors (
     id INTEGER UNSIGNED NOT NULL,
     hash VARCHAR(32),
@@ -62,7 +68,6 @@ create table planner_errors (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table if exists downloads;
 create table downloads (
     id INTEGER UNSIGNED NOT NULL,
     ts DOUBLE,
@@ -86,7 +91,6 @@ create table downloads (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-drop table if exists dagman_metrics;
 create table dagman_metrics (
     id INTEGER UNSIGNED NOT NULL,
     ts DOUBLE,

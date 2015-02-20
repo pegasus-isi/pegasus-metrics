@@ -38,20 +38,6 @@ def index():
     start = form.get_start()
     end = form.get_end()
 
-    t_form = forms.TrendForm(request.args)
-    t_form.validate()
-    intervals = t_form.get_monthly_intervals()
-
-    plans_trend = []
-    downloads_trend = []
-    for i in range(len(intervals)-1):
-        newPlans = db.get_metrics_by_version(intervals[i+1], intervals[i])
-        plans_trend.append(newPlans)
-
-        newDownloads = db.get_downloads_by_version(intervals[i+1], intervals[i])
-        downloads_trend.append(newDownloads)
-
-
 
     raw = db.count_raw_data(start, end)
     invalid = db.count_invalid_data(start, end)
@@ -80,11 +66,7 @@ def index():
             top_hosts=top_hosts,
             top_domains=top_domains,
             downloads=downloads,
-            form=form,
-            t_form=t_form,
-            intervals=intervals,
-            plans_trend=plans_trend,
-            downloads_trend=downloads_trend)
+            form=form)
 
 @app.route('/reprocess', methods=["POST"])
 def reprocess():
