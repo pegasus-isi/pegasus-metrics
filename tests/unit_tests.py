@@ -5,8 +5,11 @@ import ast
 
 from pegasus.metrics import app, ctx, db
 
-
 __author__ = 'dcbriggs'
+
+def relfile(filename):
+    d = os.path.dirname(os.path.abspath(__file__))
+    return os.path.abspath(os.path.join(d, filename))
 
 class MetricsTestCase(unittest.TestCase):
 
@@ -31,7 +34,7 @@ class MetricsTestCase(unittest.TestCase):
             select_db = "use %s " % (app.config['DBNAME'])
             cur.execute(select_db)
 
-            with open('../schema.sql', 'r') as schemaFile:
+            with open(relfile('../schema.sql'), 'r') as schemaFile:
                 schema = schemaFile.read().split(';')
                 for command in schema:
                     if command:
@@ -52,7 +55,7 @@ class MetricsTestCase(unittest.TestCase):
         rv = self.app.get('/')
 
     def test_add_planner_metric(self):
-        with open('metrics.json', 'r') as rawMetric:
+        with open(relfile('metrics.json'), 'r') as rawMetric:
             data = rawMetric.read()
             rv = self.app.post('/metrics', data=data, headers={'Content-Type' : 'application/json'})
             assert rv.data == ''
@@ -147,7 +150,7 @@ class MetricsTestCase(unittest.TestCase):
 
     def test_top_domains(self):
         # load the mock data
-        with open('addRawData.json', 'r') as rawDataFile:
+        with open(relfile('addRawData.json'), 'r') as rawDataFile:
             rawData = ast.literal_eval(rawDataFile.read())
             for dataPoint in rawData:
                 self.app.post('/metrics', data=dataPoint['data'], headers={'Content-Type' : 'application/json'})
@@ -157,7 +160,7 @@ class MetricsTestCase(unittest.TestCase):
                    user=app.config["DBUSER"],
                    passwd=app.config["DBPASS"],
                    db=app.config["DBNAME"])
-        
+
         with ctx.db.cursor() as cur:
             rv = self.app.get('/planner/topdomains?start_time=1355952000&end_time=1425168000', headers={'X-Requested-With' : 'XMLHttpRequest'})
             domainData =  ast.literal_eval(rv.data)
@@ -170,3 +173,4 @@ class MetricsTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
