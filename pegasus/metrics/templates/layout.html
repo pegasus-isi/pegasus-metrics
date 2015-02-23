@@ -6,17 +6,6 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='nav.css') }}">
 <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/css/jquery.dataTables.css">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<script>
-function reprocess() {
-    form = document.createElement("form");
-    form.method = "post";
-    form.action = "{{ url_for('reprocess') }}";
-    document.getElementsByTagName('body')[0].appendChild(form);
-    if (confirm("The previously processed data will be deleted and reloaded from the raw data. Are you sure you want to do this?")) {
-        form.submit();
-    }
-}
-</script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js"></script>
@@ -59,7 +48,6 @@ function reprocess() {
             <li onClick="return true">Admin
                 <ul>
                     <li><a href="{{ url_for('invalid') }}">Invalid Data</a></li>
-                    <li><a href="javascript:reprocess()">Reprocess Data</a></li>
                 </ul>
             </li>
         </ul>
