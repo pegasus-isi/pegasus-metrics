@@ -1,50 +1,50 @@
 {% macro period_form(form) -%}
 <div id="filterform">
-    <form method="get">
+    <form method="get" style="float: left;">
         Show results from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd()}} / {{form.yearEnd()}}
         <input type="submit" value="Update"/>
-        <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
     </form>
+    <div style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</div>
 </div>
 {%- endmacro %}
 
 {% macro limit_form(form) -%}
 <div id="filterform">
-    <form method="get">
+    <form method="get" style="float: left;">
         Limit results count to {{form.limit()}}
         {% if form.limit.errors %}
         <span class="form_error">{{ ". ".join(form.limit.errors) }}</span>
         {% endif %}
         <input type="submit" value="Update"/>
-        <span style="float: right;">Showing {{form.get_limit()}} of the latest results</span>
     </form>
+    <div style="float: right;">Showing {{form.get_limit()}} of the latest results</div>
 </div>
 {%- endmacro %}
 
 {% macro map_form(form) -%}
 <div id="filterform">
-    <form method="get">
+    <form method="get" style="float: left;">
         Drop pins for {{form.pins()}}
         from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd}} / {{form.yearEnd}}
         {% if form.pins.errors %}
         <span class="form_error">{{ ". ".join(form.pins.errors) }}</span>
         {% endif %}
         <input type="submit" value="Update"/>
-        <span style="float: right;">Pinning {{form.get_pins()}} to the map</span><br/>
-        <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
     </form>
+    <div style="float: right;">Pinning {{form.get_pins()}} to the map</br>
+        Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</div>
 </div>
 {%- endmacro %}
 
 {% macro trend_form(form) -%}
 <div id="filterform">
-    <form method="get">
+    <form method="get" style="float: left;">
         Show trends for {{form.trend()}}
         {% if form.trend.errors %}
         <span class="form_error">{{ ". ".join(form.trend.errors) }}</span>
         {% endif %}
         <input type="submit" value="Update"/>
-        <span style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</span>
     </form>
+    <div style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</div>
 </div>
 {%- endmacro %}
