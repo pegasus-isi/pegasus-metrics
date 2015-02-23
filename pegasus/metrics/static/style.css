@@ -106,11 +106,11 @@ td {
     vertical-align: top;
 }
 
-/*th {
+table.top5 th, table.keyvalue th {
     font-weight: normal;
     color: #FFFFFF;
     background-color: #0000AA;
-}*/
+}
 
 td.numcol {
     text-align: right;
