@@ -6,7 +6,7 @@
     {% if errors %}
         {% for i in range(0,errors|count)%}
             {
-                "0" : {{ errors[i]['count']|decimal|tojson|safe }}, "1" : {{ errors[i]['error']|tojson|safe }}
+                "0" : {{ errors[i]['count']|decimal|tojson|safe }}, "1" : {{ errors[i]['error']|tojson|safe }}, "hash" : {{errors[i]['hash']|tojson|safe}}
             }
             {% if i + 1 != errors|count %}
                 ,
@@ -14,7 +14,7 @@
         {% endfor %}
     {% else %}
         {
-            "0" : "No Data", "1" : "No Data"
+            "0" : "No Data", "1" : "No Data", "hash" : "0"
         }
     {% endif %}
 

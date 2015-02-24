@@ -21,14 +21,21 @@
             [ 0, "desc" ]
         ],
         "aoColumns": [
-            { "sClass" : "right" },
+            {
+                "sClass" : "right",
+                "mRender" : function(data, type, full) {
+                    console.log(full['hash']);
+                    url = "{{url_for('error_hash', errhash=full) }}" + full["hash"];
+                    return "<a href='" + url + "'>" + data + "</a>";
+                }
+            },
             { "sClass" : "monospaced" },
         ],
         "fnServerParams" : function (aoData)
         {
             aoData.push ({ "name": "start_time", "value": {{form.get_start()}} });
-    aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
-    }
+            aoData.push ({ "name": "end_time", "value": {{form.get_end()}} });
+        }
     });
 </script>
 

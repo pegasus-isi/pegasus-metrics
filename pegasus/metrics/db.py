@@ -217,7 +217,7 @@ def get_top_errors(**table_args):
 
         countClauseStart = "select count(err.count) from ("
         countClauseEnd = ") as err"
-        queryClause = "select e.hash, count(*) count, max(error) error from planner_errors e left join planner_metrics m on e.id=m.id where "
+        queryClause = "select hash, count(*) count, max(error) error from planner_errors e left join planner_metrics m on e.id=m.id where "
         filterClause = ""
         timeRangeClause = ""
         orderClause = " group by hash order by count desc "

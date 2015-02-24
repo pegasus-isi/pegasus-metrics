@@ -24,7 +24,7 @@
             {
                 "sClass" : "nowrap",
                 "mRender" : function(data, type, full) {
-                    // For some reason parseInt can't handle commas and we
+                    // For some reason parseInt can't handle commas
                     data = data.replace(/,/g, '');
                     url = "{{url_for('planner_metric', objid=data) }}" + data;
                     return "<a href='" + url + "'>" + data + "</a>";
