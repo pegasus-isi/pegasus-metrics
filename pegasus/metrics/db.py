@@ -598,9 +598,6 @@ def store_location(data):
     if 'metro_code' not in data:
         data['metro_code'] = None
 
-    if 'area_code' not in data:
-        data['area_code'] = None
-
     with cursor() as cur:
         cur.execute(
         """INSERT INTO locations (
@@ -613,8 +610,7 @@ def store_location(data):
             zip_code,
             latitude,
             longitude,
-            metro_code,
-            area_code
+            metro_code
         ) VALUES (
             %(ip)s,
             %(country_code)s,
@@ -625,8 +621,7 @@ def store_location(data):
             %(zip_code)s,
             %(latitude)s,
             %(longitude)s,
-            %(metro_code)s,
-            %(area_code)s
+            %(metro_code)s
         )""", data)
 
 def store_download(data):

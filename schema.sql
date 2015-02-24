@@ -135,6 +135,5 @@ create table locations (
     latitude DOUBLE,
     longitude DOUBLE,
     metro_code VARCHAR(256),
-    area_code VARCHAR(256),
     PRIMARY KEY (ip)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
