@@ -106,6 +106,11 @@ td {
     vertical-align: top;
 }
 
+th {
+    background-color: #0000AA !important;
+    color: #FFFFFF !important;
+}
+
 table.top5 th, table.keyvalue th {
     font-weight: normal;
     color: #FFFFFF;
