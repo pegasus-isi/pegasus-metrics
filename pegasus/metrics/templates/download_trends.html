@@ -61,15 +61,20 @@
         var formattedData = [];
         var dataSetCount = 0;
         for(var i = 0; i < unformattedData.length; i++) {
+            console.log("New loop: " + i);
+            console.log("Data points: " + unformattedData[i].length);
             for(var j = 0; j < unformattedData[i].length; j++) {
                 var newData = true;
                 for(var k = 0; k < formattedData.length; k++) {
+                    // Add plot point to an existing trendline
                     if(formattedData[k].label == unformattedData[i][j].version) {
                         newData = false;
                         formattedData[k].data.unshift(unformattedData[i][j]['count(*)']);
                     }
                 }
+                // Create a new trendline
                 if(newData && unformattedData[i][j].version.search('cvs') == -1 && unformattedData[i][j].version.search('shado') == -1) {
+                    console.log("New Data Found!");
                     var newDataSet = getNewDataSet(unformattedData[i][j].version, dataSetCount++);
                     // Generate html legend
                     $("#"+legendElementID).append("<tr><td><div style='width:20px;height:20px;background-color:" + newDataSet.pointColor + "'></div></td><td>" + newDataSet.label + "</td></p>");
@@ -80,10 +85,14 @@
                     }
                     newDataSet.data.unshift(unformattedData[i][j]['count(*)']);
                 }
-                for(var k = 0; k < formattedData.length; k++) {
-                    if(formattedData[k].data.length == i) {
-                        formattedData[k].data.unshift(0);
-                    }
+            }
+            // Add a zero to every trendline that did not have a new data point this iteration
+            for(var k = 0; k < formattedData.length; k++) {
+                if(formattedData[k].data.length == i) {
+                    console.log(formattedData[k].label);
+                    console.log(formattedData[k].data.length);
+                    console.log(i);
+                    formattedData[k].data.unshift(0);
                 }
             }
         }
@@ -98,8 +107,11 @@
         monthLabels.unshift(monthNames[intervalDate.getMonth()] + " " + intervalDate.getFullYear());
     }
 
+
     var downloads = {{ trend | tojson | safe}};
+    console.log(downloads);
     var downloadsTrend = formatTrendData(downloads, "downloadsLegend");
+    console.log(downloadsTrend);
 
     var downloadsChartData = {
         'labels' : monthLabels,

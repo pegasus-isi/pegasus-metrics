@@ -38,7 +38,7 @@
         [125,0,255],
         [255,0,125],
     ];
-    // For some reason Javasript Date doesn't give the month in string form, so just use this array
+    // For some reason Javascript Date doesn't give the month in string form, so just use this array
     var monthNames = [ "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December" ];
 
@@ -64,11 +64,13 @@
             for(var j = 0; j < unformattedData[i].length; j++) {
                 var newData = true;
                 for(var k = 0; k < formattedData.length; k++) {
+                    // Add plot point to an existing trendline
                     if(formattedData[k].label == unformattedData[i][j].version) {
                         newData = false;
                         formattedData[k].data.unshift(unformattedData[i][j]['count(*)']);
                     }
                 }
+                // Create a new trendline
                 if(newData && unformattedData[i][j].version.search('cvs') == -1 && unformattedData[i][j].version.search('shado') == -1) {
                     var newDataSet = getNewDataSet(unformattedData[i][j].version, dataSetCount++);
                     // Generate html legend
@@ -80,10 +82,11 @@
                     }
                     newDataSet.data.unshift(unformattedData[i][j]['count(*)']);
                 }
-                for(var k = 0; k < formattedData.length; k++) {
-                    if(formattedData[k].data.length == i) {
-                        formattedData[k].data.unshift(0);
-                    }
+            }
+            // Add a zero to every trendline that did not have a new data point this iteration
+            for(var k = 0; k < formattedData.length; k++) {
+                if(formattedData[k].data.length == i) {
+                    formattedData[k].data.unshift(0);
                 }
             }
         }

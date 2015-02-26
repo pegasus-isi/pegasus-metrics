@@ -298,32 +298,51 @@ class TrendForm(Form):
         session["trend"] = field.data
 
     def get_monthly_intervals(self):
-        DAY = 24*60*60
-        WEEK = 7*DAY
-        MONTH = 30*DAY # Close enough
+        today = datetime.date.today()
 
-        monthlyIntervals = [time.time()]
+        endYear = today.year
+        endMonth = today.month + 1
+        if endMonth == 13:
+            endMonth = 1
+            endYear = endYear + 1
+
+        monthlyIntervals = [datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60]
 
         trend = int(self.trend.data)
 
 
         for i in range(trend):
-            monthlyIntervals.append(time.time() - (MONTH * (i + 1)))
+            endMonth = endMonth - 1
+            if endMonth == 0:
+                endMonth = 12
+                endYear = endYear - 1
+            monthlyIntervals.append(datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60)
 
         return monthlyIntervals
 
     def get_start(self):
-        DAY = 24*60*60
-        WEEK = 7*DAY
-        MONTH = 30*DAY # Close enough
+        today = datetime.date.today()
 
         trend = int(self.trend.data)
-
         if trend is None or trend == "None":
             trend = 3
 
-        return time.time() - MONTH * trend
+        startYear = today.year
+        startMonth = today.month - trend
+        if startMonth < 1:
+            startMonth = startMonth + 12
+            startYear = startYear - 1
+
+
+        return datetime.date(startYear, startMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60
 
     def get_end(self):
-        return time.time()
+        today = datetime.date.today()
+
+        endYear = today.year
+        endMonth = today.month + 1
+        if endMonth == 13:
+            endMonth = 1
+            endYear = endYear + 1
+        return datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60
 
