@@ -311,7 +311,9 @@ def get_downloads_by_version(start, end):
 
 def get_recent_errors(**table_args):
     with cursor() as cur:
-        columns = ["count", "error"]
+        print "hello"
+        print "jello"
+        columns = ["id", "ts", "error"]
 
         countClauseStart = "select count(err.id) from ("
         countClauseEnd = ") as err"
@@ -452,7 +454,7 @@ def get_top_application_runs(**table_args):
 
         countClauseStart = "select count(count.application) from ("
         countClauseEnd = ") as count"
-        queryClause = "select p.application, sum(d.count) runCount from planner_metrics p, (select root_wf_uuid, count(*) count from dagman_metrics where "
+        queryClause = "select p.application application, sum(d.count) runCount from planner_metrics p, (select root_wf_uuid, count(*) count from dagman_metrics where "
         queryClause2 = " group by root_wf_uuid) d where p.root_wf_uuid = d.root_wf_uuid "
         filterClause = ""
         timeRangeClause = ""

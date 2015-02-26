@@ -21,8 +21,14 @@
             [ 1, "desc" ]
         ],
         "aoColumns": [
-            { "sClass" : "monospace" },
-            { "sClass" : "right" }
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "right",
+                "asSorting": [ "desc", "asc" ]
+            }
         ],
         "fnServerParams" : function (aoData)
         {

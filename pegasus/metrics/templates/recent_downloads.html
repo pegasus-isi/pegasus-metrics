@@ -34,6 +34,7 @@
         "aoColumns": [
             {
                 "sClass" : "right",
+                "asSorting": [ "desc", "asc" ],
                 "mRender" : function(data, type, full) {
                     // For some reason parseInt can't handle commas and we
                     data = data.replace(/,/g, '');
@@ -41,13 +42,34 @@
                     return "<a href='" + url + "'>" + data + "</a>";
                 }
             },
-            { "sClass" : "nowrap" },
-            { "sClass" : "monospace" },
-            { "sClass" : "monospace" },
-            { "sClass" : "monospace" },
-            { "sClass" : "monospace" },
-            { "sClass" : "monospace" },
-            { "sClass" : "monospace" }
+            {
+                "sClass" : "nowrap",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "monospace",
+                "asSorting": [ "desc", "asc" ]
+            }
         ],
         "fnServerParams" : function (aoData)
         {

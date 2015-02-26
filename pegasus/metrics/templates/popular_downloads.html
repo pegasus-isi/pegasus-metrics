@@ -35,8 +35,14 @@
             [ 1, "desc" ]
         ],
         "aoColumns": [
-            { "sClass" : "nowrap" },
-            { "sClass" : "right" }
+            {
+                "sClass" : "nowrap",
+                "asSorting": [ "desc", "asc" ]
+            },
+            {
+                "sClass" : "right",
+                "asSorting": [ "desc", "asc" ]
+            }
         ],
         "fnServerParams" : function (aoData)
         {

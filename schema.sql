@@ -60,6 +60,8 @@ create table planner_metrics (
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+create index idx_planner_metrics_root_wf_uuid on planner_metrics(root_wf_uuid);
+
 create table planner_errors (
     id INTEGER UNSIGNED NOT NULL,
     hash VARCHAR(32),
