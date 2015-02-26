@@ -311,8 +311,6 @@ def get_downloads_by_version(start, end):
 
 def get_recent_errors(**table_args):
     with cursor() as cur:
-        print "hello"
-        print "jello"
         columns = ["id", "ts", "error"]
 
         countClauseStart = "select count(err.id) from ("
@@ -409,7 +407,6 @@ def get_recent_downloads(**table_args):
 
 
         if "form_only" in table_args:
-            print table_args['form_only']
             if table_args['form_only'] == 'true':
                 formOnlyClause = " name is not null and email is not null and organization is not null and "
 
