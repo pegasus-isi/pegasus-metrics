@@ -621,6 +621,7 @@ def store_location(data):
         'region_code' not in data or \
         'region_name' not in data or \
         'city' not in data:
+        log.error("Invalid location data: %s" % (data))
         return
 
     if 'zip_code' not in data:

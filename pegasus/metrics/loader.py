@@ -106,39 +106,63 @@ def process_raw_data(data):
         log.exception(e)
         db.store_invalid_data(data["id"], repr(e))
 
-def process_location(ipaddr):
-    if ipaddr is None:
-        return
 
-    if db.get_location(ipaddr):
-        return
+def _geolocate(host, ipaddr, timeout):
+    try:
+        r = requests.get("http://%s/json/%s" % (host, ipaddr), timeout=timeout)
 
+        if r.status_code < 200 or r.status_code >= 300:
+            log.warn("Request to %s for %s returned failure: %s" \
+                     % (host, ipaddr, r.status_code))
+            return None
+
+        r.encoding = 'utf-8'
+        location = json.loads(r.text)
+        for key in location:
+            if type(location[key]) == unicode:
+                location[key] = location[key].encode('utf-8')
+        return location
+    except Exception, e:
+        log.exception(e)
+        log.warn("Error getting location for %s from %s" % (ipaddr, host))
+
+    return None
+
+
+def geolocate(ipaddr):
     if ipaddr.startswith("192.168.") or \
        ipaddr.startswith("10.") or \
        ipaddr == "127.0.0.1":
         log.warning("Skipping local address %s" % ipaddr)
-        return
+        return None
 
     if ipaddr.startswith("172."):
         i = ipaddr.split(".")
         j = int(i[1])
         if 16 <= j <= 31:
             log.warning("Skipping local address %s" % ipaddr)
-            return
+            return None
 
-    try:
-        r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
-        if 200 <= r.status_code < 300:
-            r.encoding = 'utf-8'
-            location = json.loads(r.text)
-            for key in location:
-                if type(location[key]) == unicode:
-                    location[key] = location[key].encode('utf-8')
+    hosts = [("gaul.isi.edu:8192", 0.5), ("freegeoip.net", 30)]
+    for host, timeout in hosts:
+        location = _geolocate(host, ipaddr, timeout)
+        if location is not None:
+            return location
 
-            db.store_location(location)
-    except Exception, e:
-        log.exception(e)
-        log.warn("Error getting location for %s" % ipaddr)
+    log.error("Unable to get location for %s" % ipaddr)
+    return None
+
+
+def process_location(ipaddr):
+    if ipaddr is None or ipaddr == "":
+        return
+
+    if db.get_location(ipaddr):
+        return
+
+    location = geolocate(ipaddr)
+    if location is not None:
+        db.store_location(location)
 
 
 def process_download(data):
