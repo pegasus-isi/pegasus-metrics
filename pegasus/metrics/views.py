@@ -130,11 +130,12 @@ def top_hosts():
 
 @app.route('/planner/errorsbyhash/<errhash>')
 def error_hash(errhash):
-    title = "Errors with hash %s" % errhash
-    errors = db.get_errors_by_hash(errhash)
-    return render_template('error_list.html',
-            title=title,
-            errors=errors)
+    if request.is_xhr:
+        table_args = __get_datatables_args()
+        totalCount, filteredCount, errors = db.get_errors_by_hash(**table_args)
+        return render_template('error_list.json', table_args=table_args, count=totalCount, filtered=filteredCount, errors=errors)
+
+    return render_template('error_list.html', err_hash=errhash)
 
 @app.route('/planner/metrics/<objid>')
 def planner_metric(objid):
@@ -381,6 +382,9 @@ def __get_datatables_args():
 
     if request.args.get('form_only'):
         table_args['form_only'] = request.args.get('form_only')
+
+    if request.args.get('errhash'):
+        table_args['errhash'] = request.args.get('errhash')
 
     if request.args.get('iColumns'):
         for i in range(int(request.args.get('iColumns'))):

@@ -1,17 +1,47 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h2>{{title}}</h2>
+<h2>Errors with hash {{err_hash}}</h2>
 
-<table>
-    <tr><th>Object</th><th>Error Message</th></tr>
-    {% for err in errors: %}
-    <tr>
-        <td><a href="{{url_for('planner_metric', objid=err["id"])}}">{{err["id"]}}</a></td>
-        <td class="monospaced">{{err["error"]}}</td>
-    </tr>
-    {% endfor %}
+<table id="errorList">
+    <thead>
+        <tr><th>Object</th><th>Error Message</th></tr>
+    </thead>
+    <tbody>
+    </tbody>
 </table>
+<script>
+    $("#errorList").DataTable({
+        "sPaginationType": "full_numbers",
+        "bProcessing"    : true,
+        "bServerSide"    : true,
+        "sAjaxSource"    : "{{ url_for ('error_hash', errhash=err_hash) }}",
+        "bAutoWidth"     : false,
+        "aaSorting"      : [
+            [ 0, "desc" ]
+        ],
+        "aoColumns": [
+            {
+                "sClass" : "right",
+                "asSorting": [ "desc", "asc" ],
+                "mRender" : function(data, type, full) {
+                    // For some reason parseInt can't handle commas
+                    data = data.replace(/,/g, '');
+                    url = "{{url_for('planner_metric', objid=data) }}" + data;
+                    return "<a href='" + url + "'>" + data + "</a>";
+                }
+            },
+            {
+                "sClass" : "monospaced",
+                "asSorting": [ "desc", "asc" ]
+            }
+        ],
+        "fnServerParams" : function (aoData)
+        {
+            aoData.push({ "name": "errhash", "value": "{{ err_hash }}" });
 
+        }
+    });
+</script>
 {% endblock %}
 

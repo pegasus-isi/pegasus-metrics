@@ -285,10 +285,42 @@ def get_top_applications(**table_args):
 
         return totalCount, filteredCount, results
 
-def get_errors_by_hash(errhash):
+def get_errors_by_hash(**table_args):
     with cursor() as cur:
-        cur.execute("select * from planner_errors where hash=%s order by id desc", [errhash])
-        return cur.fetchall()
+        columns = ["id", "error"]
+
+        countClauseStart = "select count(err.id) from ("
+        countClauseEnd = ") as err"
+        queryClause = "select e.id, e.error from planner_errors e where hash = '%s' " % (table_args["errhash"])
+        filterClause = ""
+        orderClause = " order by id desc "
+        limitClause = ""
+
+
+        if "filter" in table_args:
+            filterValue = "%" + table_args["filter"] + "%"
+            filterClause = filterClause + (" and e.error like '%s' " % (filterValue))
+
+        if "iSortCol_0" in table_args:
+            orderClause = " order by %s " % (columns[table_args['iSortCol_0']])
+            if table_args["sSortDir_0"] == "desc":
+                orderClause = orderClause + " desc "
+
+        if "limit" in table_args:
+            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
+
+        cur.execute(countClauseStart + queryClause + orderClause + countClauseEnd)
+        totalCount = cur.fetchone()["count(err.id)"]
+
+        cur.execute(countClauseStart + queryClause + filterClause + orderClause + countClauseEnd)
+        filteredCount = cur.fetchone()["count(err.id)"]
+
+        cur.execute(queryClause + filterClause + orderClause + limitClause)
+        results = cur.fetchall()
+        return totalCount, filteredCount, results
+    #with cursor() as cur:
+    #    cur.execute("select * from planner_errors where hash=%s order by id desc", [errhash])
+    #    return cur.fetchall()
 
 def get_metrics_and_error(objid):
     with cursor() as cur:
