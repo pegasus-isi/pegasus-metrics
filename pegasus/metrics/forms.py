@@ -306,7 +306,7 @@ class TrendForm(Form):
             endMonth = 1
             endYear = endYear + 1
 
-        monthlyIntervals = [datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60]
+        monthlyIntervals = [(datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60]
 
         trend = int(self.trend.data)
 
@@ -316,7 +316,7 @@ class TrendForm(Form):
             if endMonth == 0:
                 endMonth = 12
                 endYear = endYear - 1
-            monthlyIntervals.append(datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60)
+            monthlyIntervals.append((datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60)
 
         return monthlyIntervals
 
@@ -334,7 +334,7 @@ class TrendForm(Form):
             startYear = startYear - 1
 
 
-        return datetime.date(startYear, startMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60
+        return (datetime.date(startYear, startMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
     def get_end(self):
         today = datetime.date.today()
@@ -344,5 +344,5 @@ class TrendForm(Form):
         if endMonth == 13:
             endMonth = 1
             endYear = endYear + 1
-        return datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1).days * 24 * 60 * 60
+        return (datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60
 
