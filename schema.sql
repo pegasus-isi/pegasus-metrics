@@ -61,6 +61,7 @@ create table planner_metrics (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create index idx_planner_metrics_root_wf_uuid on planner_metrics(root_wf_uuid);
+create index idx_planner_metrics_ts on planner_metrics(ts);
 
 create table planner_errors (
     id INTEGER UNSIGNED NOT NULL,
