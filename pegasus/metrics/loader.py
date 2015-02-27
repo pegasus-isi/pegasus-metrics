@@ -127,7 +127,7 @@ def process_location(ipaddr):
             return
 
     try:
-        r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
+        r = requests.get("http://gaul.isi.edu:8192/json/%s" % ipaddr)
         if 200 <= r.status_code < 300:
             r.encoding = 'utf-8'
             location = json.loads(r.text)

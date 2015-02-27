@@ -244,7 +244,7 @@ def get_location(ipaddr):
     location = None
     if ipaddr:
         try:
-            r = requests.get("http://freegeoip.net/json/%s" % ipaddr)
+            r = requests.get("http://gaul.isi.edu:8192/json/%s" % ipaddr)
             if 200 <= r.status_code < 300:
                 location = json.loads(r.text)
         except:
