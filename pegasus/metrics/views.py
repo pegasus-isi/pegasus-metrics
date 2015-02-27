@@ -240,24 +240,10 @@ def download_trends():
                            intervals=intervals,
                            trend=trend)
 
-def get_location(ipaddr):
-    location = None
-    if ipaddr:
-        try:
-            r = requests.get("http://gaul.isi.edu:8192/json/%s" % ipaddr)
-            if 200 <= r.status_code < 300:
-                location = json.loads(r.text)
-        except:
-            pass
-    return location
-
 @app.route('/downloads/metrics/<objid>')
 def download_metric(objid):
     obj = db.get_download(objid)
-    location = get_location(obj["remote_addr"])
-    return render_template('download_metric.html',
-            obj=obj,
-            location=location)
+    return render_template('download_metric.html', obj=obj)
 
 @app.route('/status')
 def status():
