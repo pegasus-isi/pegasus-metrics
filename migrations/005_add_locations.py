@@ -6,8 +6,9 @@ import requests
 import logging
 import migrations
 
+logging.basicConfig()
 
-log = logging.getLogger("pegasus.metrics.loader")
+log = logging.getLogger()
 conn = migrations.connect()
 
 cur = conn.cursor()
@@ -27,23 +28,24 @@ create table locations (
     PRIMARY KEY (ip)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 """)
-conn.commit()
 
-cur.execute("SELECT distinct(remote_addr) FROM raw_data ORDER BY ts desc")
-
-uniqueIPs = cur.fetchall()
-for ip in uniqueIPs:
-    cur.execute("SELECT * from locations WHERE ip = %s", [ip['remote_addr']])
-    if cur.fetchone() is not None or ip['remote_addr'] is None:
-        continue
+cur.execute("SELECT distinct(remote_addr) FROM raw_data WHERE remote_addr is not NULL ORDER BY ts desc")
+locations = []
+for ip in cur:
+    addr = ip['remote_addr']
+    location = None
     try:
-        r = requests.get('http://freegeoip.net/json/%s' % ip['remote_addr'])
+        r = requests.get('http://gaul.isi.edu:8192/json/%s' % addr, timeout=0.05)
         if 200 <= r.status_code < 300:
             r.encoding = 'utf-8'
             location = json.loads(r.text)
+        else:
+            log.error("Error getting location for %s: Status %s" % (addr, r.status_code))
+            exit(1)
     except Exception, e:
+        log.error("Error getting location for %s" % addr)
         log.exception(e)
-        log.warn("Error getting location for %s" % ip['remote_addr'])
+        exit(1)
 
     for key in location:
         if type(location[key]) == unicode:
@@ -55,37 +57,44 @@ for ip in uniqueIPs:
                     'region_code' not in location or \
                     'region_name' not in location or \
                     'city' not in location:
-        continue
+        log.error("Location for %s missing something: %s" % (addr, location))
+        exit(1)
+
     if 'zip_code' not in location:
         location['zip_code'] = None
 
     if 'metro_code' not in location:
         location['metro_code'] = None
 
-    cur.execute(
-            """INSERT INTO locations (
-            ip,
-            country_code,
-            country_name,
-            region_code,
-            region_name,
-            city,
-            zip_code,
-            latitude,
-            longitude,
-            metro_code
-        ) VALUES (
-            %(ip)s,
-            %(country_code)s,
-            %(country_name)s,
-            %(region_code)s,
-            %(region_name)s,
-            %(city)s,
-            %(zip_code)s,
-            %(latitude)s,
-            %(longitude)s,
-            %(metro_code)s
-        )""", location)
-    conn.commit()
+    locations.append(location)
+
+# Insert all the locations at once
+cur.executemany(
+        """INSERT INTO locations (
+        ip,
+        country_code,
+        country_name,
+        region_code,
+        region_name,
+        city,
+        zip_code,
+        latitude,
+        longitude,
+        metro_code
+    ) VALUES (
+        %(ip)s,
+        %(country_code)s,
+        %(country_name)s,
+        %(region_code)s,
+        %(region_name)s,
+        %(city)s,
+        %(zip_code)s,
+        %(latitude)s,
+        %(longitude)s,
+        %(metro_code)s
+    )""", locations)
+
+# One transaction
+conn.commit()
 
 cur.close()
