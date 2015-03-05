@@ -413,22 +413,20 @@ def get_locations(dataset, start, end):
     :return: a list of locations that correspond to the dataset that was passed in
     """
     with cursor() as cur:
-        print dataset
         if dataset.__contains__("recent"):
             if dataset.__contains__("downloads"):
-                cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                cur.execute("SELECT d.id, l.ip, l.city, l.region_name, l.country_code, l.latitude, l.longitude "
                             "FROM locations l, "
-                            "(SELECT remote_addr from downloads WHERE ts >= %s AND ts <= %s ORDER BY ts DESC) d WHERE d.remote_addr = l.ip limit 100", [start, end])
+                            "(SELECT remote_addr, max(id) id from downloads WHERE ts >= %s AND ts <= %s GROUP BY remote_addr ORDER BY ts DESC) d WHERE d.remote_addr = l.ip ORDER BY l.city limit 100", [start, end])
             else:
-                cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
+                cur.execute("SELECT  max(m.id) id, l.ip, l.city, l.region_name, l.country_code, l.latitude, l.longitude "
                             "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "WHERE m.ts >= %s AND m.ts <= %s ORDER BY m.ts DESC limit 100", [start, end])
+                            "WHERE m.ts >= %s AND m.ts <= %s GROUP BY l.ip ORDER BY l.city, m.ts DESC limit 100", [start, end])
         elif dataset == "hostname":
-            cur.execute("select l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
-                        "(select remote_addr, count(*) count from planner_metrics where ts >= %s and ts <= %s group by hostname order by count desc) h "
+            cur.execute("select h.hostname, l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
+                        "(select remote_addr, hostname, count(*) count from planner_metrics where ts >= %s and ts <= %s group by hostname order by count desc) h "
                         "where l.ip = h.remote_addr limit 100", [start, end])
         results = cur.fetchall()
-        print results
         return results
 
 def get_location(ip_addr):

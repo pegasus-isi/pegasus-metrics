@@ -78,6 +78,10 @@ def get_hostname_domain(ipaddr):
 
 def process_raw_data(data):
     try:
+        # Decode mappings
+        for key in data:
+            if type(data[key]) == unicode:
+                data[key] = data[key].encode('utf-8')
         # Get the hostname and domain
         #print data["id"]
         ipaddr = data["remote_addr"]
@@ -103,6 +107,7 @@ def process_raw_data(data):
             log.warn(error)
             db.store_invalid_data(data["id"], error)
     except Exception, e:
+        log.warn(data["id"])
         log.exception(e)
         db.store_invalid_data(data["id"], repr(e))
 
@@ -174,10 +179,10 @@ def process_download(data):
         if len(data[key].strip()) == 0:
             data[key] = None
 
-    # Decode mappings
+    """# Decode mappings
     for key in data:
         if type(data[key]) == unicode:
-            data[key] = data[key].encode('utf-8')
+            data[key] = data[key].encode('utf-8')"""
 
     # Convert missing and empty mappings to None
     nullify('name')
@@ -209,6 +214,11 @@ def process_download(data):
 def process_planner_metrics(data):
     if "wf_uuid" not in data:
         raise Exception("wf_uuid missing")
+
+    """# Decode mappings
+    for key in data:
+        if type(data[key]) == unicode:
+            data[key] = data[key].encode('utf-8')"""
 
     # Remove the nested structure the planner sends
     metrics = data["wf_metrics"]
@@ -252,6 +262,11 @@ def process_planner_metrics(data):
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
+    """# Decode mappings
+    for key in data:
+        if type(data[key]) == unicode:
+            data[key] = data[key].encode('utf-8')"""
+
     if "parent_dagman_id" not in data or len(data["parent_dagman_id"]) == 0:
         data["parent_dagman_id"] = None
 

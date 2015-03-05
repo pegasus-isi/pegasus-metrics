@@ -17,6 +17,21 @@
         var markers = [];
         var minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
         {% for location in locations: %}
+
+            contentDetails = "";
+            if('{{form.get_pins()}}' == 'recent_planner_metrics') {
+                contentDetails = "{{location['ip']}}: <a href='{{url_for("planner_metric",objid=location["id"])}}'>Click here to view plan details.</a>";
+            }
+            else if ('{{form.get_pins()}}' == 'recent_downloads') {
+                contentDetails = "{{location['ip']}}: <a href='{{url_for("download_metric",objid=location["id"])}}'>Click here to view download details.</a>";
+            }
+            else if ('{{form.get_pins()}}' == 'hostname') {
+                contentDetails = "<h2>Host Name: {{location['hostname']}}</h2>";
+            }
+            else {
+                contentDetails = "Error getting pin type"
+            }
+
             var currentLat = {{location["latitude"] | float}};
             var currentLon = {{location["longitude"] | float}};
             if( currentLat > maxLat) {
@@ -31,16 +46,45 @@
             if(currentLon < minLon) {
                 minLon = currentLon;
             }
-            var newMarker = new google.maps.Marker({
-                position : new google.maps.LatLng(currentLat, currentLon),
-                title : "{{location["city"]}}, {{location["region_name"]}}, {{location["country_code"]}}"
-            });
-            newMarker.setMap(map);
-            markers.push(newMarker);
+            var newLatLng = new google.maps.LatLng(currentLat, currentLon);
+            var lastMarker = markers[markers.length-1];
+            if(markers.length == 0 || !closeToEachOther(newLatLng, lastMarker.position)) {
+                var newMarker = new google.maps.Marker({
+                    position : newLatLng,
+                    title : "{{location["city"]}}, {{location["region_name"]}}, {{location["country_code"]}}"
+                });
+                newMarker.setMap(map);
+                markers.push(newMarker);
+                var infoWindow = new google.maps.InfoWindow({
+                    content : "<h1> {{location['city']}}, {{location['region_name']}}, {{location['country_code']}}</h1>" + contentDetails
+                });
+
+                newMarker.infoWindow = infoWindow;
+
+
+                google.maps.event.addListener(newMarker, 'click', openInfoWindow);
+            }
+            else {
+                lastMarker.infoWindow.content += "<br/>" + contentDetails;
+            }
         {% endfor %}
         var swCorner = new google.maps.LatLng(minLat, minLon);
         var neCorner = new google.maps.LatLng(maxLat, maxLon);
         map.fitBounds(new google.maps.LatLngBounds(swCorner, neCorner));
+        
+        function closeToEachOther(latLng1, latLng2) {
+            var MAX_DIFF = 0.00001;
+            if(Math.abs(latLng1.k - latLng2.k) > MAX_DIFF)
+                return false;
+            if(Math.abs(latLng1.D - latLng2.D) > MAX_DIFF)
+                return false;
+            return true;
+        }
+
+        function openInfoWindow() {
+            // This will refer to the marker that called the openInfoWindow function
+            this.infoWindow.open(map,this);
+        }
     </script>
 {% else %}
     <h3>No results found.  Please change your search criteria</h3>
