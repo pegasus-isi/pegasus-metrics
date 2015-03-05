@@ -145,11 +145,9 @@ class LimitForm(Form):
 
 class MapForm(Form):
     pins = SelectField(choices=[
-        ('hostname', 'Top Hosts'),
-        ('domain', 'Top Domains'),
-        ('recent_planner_metrics', 'Recent Runs'),
-        ('recent_downloads', 'Recent Downloads'),
-        ('downloads', 'Top Downloads')
+        ('hostname', 'Top Planner Hosts'),
+        ('recent_planner_metrics', 'Recent Plans'),
+        ('recent_downloads', 'Recent Downloads')
     ])
 
     monthStart = SelectField(choices=[
@@ -185,7 +183,7 @@ class MapForm(Form):
     yearEnd = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
 
     def __init__(self, *args, **kwargs):
-        kwargs['pins'] = session.get('pins', 'domain')
+        kwargs['pins'] = session.get('pins', 'hostname')
 
         today = datetime.date.today()
         kwargs["monthEnd"] = session.get("monthEnd", today.month)
@@ -271,7 +269,7 @@ class MapForm(Form):
     def get_pins(self):
         pins = self.pins.data
         if pins is None or pins == "None":
-            pins = 'domain'
+            pins = 'hostname'
         return pins
 
 class TrendForm(Form):

@@ -6,6 +6,7 @@ except ImportError:
     import simplejson as json
 import MySQLdb as mysql
 from MySQLdb.cursors import DictCursor
+import warnings
 
 from pegasus.metrics import ctx
 
@@ -32,6 +33,7 @@ def add_options(parser):
 def connect(host="localhost", port=3306, user="pegasus", passwd="pegasus", db="pegasus_metrics"):
     if "db" in dir(ctx):
         return
+    warnings.filterwarnings('error', category=mysql.Warning)
     ctx.db = mysql.connect(host=host,
                            port=port,
                            user=user,
@@ -136,156 +138,40 @@ def store_invalid_data(id, error=None):
         cur.execute("INSERT INTO invalid_data (id, error) VALUES (%s, %s)", [id, error])
 
 def get_top_hosts(**table_args):
-    with cursor() as cur:
-        columns = ["hostname", "workflows", "tasks", "jobs"]
-
-        countClauseStart = "select count(h.hostname) from ("
-        countClauseEnd = ") as h"
-        queryClause = "select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by hostname order by workflows desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " hostname like '%s' and " % (filterValue)
-
-        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " group by hostname order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(h.hostname)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(h.hostname)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(True, "hostname"), (False, "workflows"), (False, "tasks"), (False, "jobs")]
+    queryClause = "select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    groupByClause = " group by hostname "
+    orderByClause = " order by workflows desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_top_domains(**table_args):
-    # Query occurs twice if a limit is present so we now the total number of results.
-    # There may be a better way to do this but at the time I could not find one.
-    with cursor() as cur:
-        columns = ["domain", "workflows", "tasks", "jobs"]
-
-        countClauseStart = "select count(d.domain) from ("
-        countClauseEnd = ") as d"
-        queryClause = "select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by domain order by workflows desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " domain like '%s' and " % (filterValue)
-
-        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " group by domain order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(d.domain)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(d.domain)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(True, "domain"), (False, "workflows"), (False, "tasks"), (False, "jobs")]
+    queryClause = "select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    groupByClause = " group by domain "
+    orderByClause = " order by workflows desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_top_errors(**table_args):
-    with cursor() as cur:
-        columns = ["count", "error"]
-
-        countClauseStart = "select count(err.count) from ("
-        countClauseEnd = ") as err"
-        queryClause = "select hash, count(*) count, max(error) error from planner_errors e left join planner_metrics m on e.id=m.id where "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by hash order by count desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " error like '%s' and " % (filterValue)
-
-        timeRangeClause = "m.ts >=%s and m.ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " group by hostname order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(err.count)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(err.count)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(False, "count"), (True, "error")]
+    queryClause = "select hash, count(*) count, max(error) error from planner_errors e left join planner_metrics m on e.id=m.id where "
+    groupByClause = " group by hash "
+    orderByClause = " order by count desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_top_applications(**table_args):
-    with cursor() as cur:
-        columns = ["application", "workflows", "tasks", "jobs"]
-
-        countClauseStart = "select count(count.application) from ("
-        countClauseEnd = ") as count"
-        queryClause = "select application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by application order by workflows desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " application like '%s' and " % (filterValue)
-
-        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " group by application order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(count.application)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(count.application)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(True, "application"), (False, "workflows"), (False, "tasks"), (False,"jobs")]
+    queryClause = "select application, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    groupByClause = " group by application "
+    orderByClause = " order by workflows desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_errors_by_hash(**table_args):
+    """
+     This method does not use the query builder function because the page it corresponds with does not specify
+     a start or end time, which is assumed for the query builder (it should be possible to slightly modify that function to fix this)
+    :param table_args: Arguments passed down from the web page
+    :return: The total number of results found, the number of results based on the search criteria, a list of the results
+    """
     with cursor() as cur:
         columns = ["id", "error"]
 
@@ -318,9 +204,6 @@ def get_errors_by_hash(**table_args):
         cur.execute(queryClause + filterClause + orderClause + limitClause)
         results = cur.fetchall()
         return totalCount, filteredCount, results
-    #with cursor() as cur:
-    #    cur.execute("select * from planner_errors where hash=%s order by id desc", [errhash])
-    #    return cur.fetchall()
 
 def get_metrics_and_error(objid):
     with cursor() as cur:
@@ -342,78 +225,18 @@ def get_downloads_by_version(start, end):
         return cur.fetchall()
 
 def get_recent_errors(**table_args):
-    with cursor() as cur:
-        columns = ["id", "ts", "error"]
-
-        countClauseStart = "select count(err.id) from ("
-        countClauseEnd = ") as err"
-        queryClause = "select e.id, m.ts, e.error from planner_errors e left join planner_metrics m on e.id=m.id where "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by hash order by count desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " e.error like '%s' and " % (filterValue)
-
-        timeRangeClause = "m.ts >=%s and m.ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " group by hostname order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(err.id)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(err.id)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(True, "e.id"),(True, "ts"), (True, "error")]
+    queryClause = "select e.id, m.ts, e.error from planner_errors e left join planner_metrics m on e.id=m.id where "
+    groupByClause = " group by hash "
+    orderByClause = " order by count desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_recent_applications(**table_args):
-    with cursor() as cur:
-        columns = ["id", "ts", "hostname", "application"]
-
-        countClauseStart = "select count(count.application) from ("
-        countClauseEnd = ") as count"
-        queryClause = "select id, ts, hostname, application from planner_metrics where application is not null and "
-        filterClause = ""
-        timeRangeClause = ""
-        orderClause = " order by ts desc "
-        limitClause = ""
-
-        if "filter" in table_args:
-            filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " application like '%s'  or hostname like '%s' and " % (filterValue, filterValue)
-
-        timeRangeClause = "ts >=%s and ts <= %s" % (table_args['start_time'], table_args['end_time'])
-
-        if "iSortCol_0" in table_args:
-            orderClause = " order by %s " % (columns[table_args['iSortCol_0']])
-            if table_args["sSortDir_0"] == "desc":
-                orderClause = orderClause + " desc "
-
-        if "limit" in table_args:
-            limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
-
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
-        totalCount = cur.fetchone()["count(count.application)"]
-
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
-        filteredCount = cur.fetchone()["count(count.application)"]
-
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
-        results = cur.fetchall()
-
-        return totalCount, filteredCount, results
+    columns = [(True, "id"),(True, "ts"),(True,"hostname"), (True,"application")]
+    queryClause = "select id, ts, hostname, application from planner_metrics where application is not null and "
+    groupByClause = ""
+    orderByClause = " order by ts desc "
+    return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def count_downloads(start=0, end=0):
     with cursor() as cur:
@@ -421,6 +244,13 @@ def count_downloads(start=0, end=0):
         return cur.fetchone()['count']
 
 def get_recent_downloads(**table_args):
+    """
+    NOTE: This method does not use the query builder because of the "form_only" clause, in order to
+          make it so that the clause can be used we would have to abstract that out
+    :param table_args: arguments obtained from the webpage
+    :return: the total count of downloads in the specified time frame, the count of downloads that match the search
+             criteria, and the results of the search
+    """
     with cursor() as cur:
         columns = ["id", "ts", "filename", "version", "hostname", "name", "email", "organization"]
 
@@ -521,93 +351,85 @@ def get_download(objid):
         return cur.fetchone()
 
 def get_popular_downloads(**table_args):
-    with cursor() as cur:
-        columns = ["filename", "count", "latest",]
+    columns = [(True,"filename"),(False,"count"),(False,"latest")]
+    queryClause = "select filename, count(*) count, max(ts) latest from downloads where "
+    groupByClause = " group by filename "
+    orderByClause = " order by count desc "
 
-        countClauseStart = "select count(*) from ("
-        countClauseEnd = ") as d"
-        queryClause = "select filename, count(*) count, max(ts) latest from downloads where "
+    (totalCount, filteredCount, results) =  queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
+    return totalCount, filteredCount, results
+
+def queryBuilder(queryClause, groupClause, orderClause, *columns, **table_args):
+    """
+    :param queryClause: The main clause of your query that should specify what columns you want to return and what tables you want to query
+    :param groupClause: Either "" or " group by ____ "
+    :param orderClause: Either "" or " order by ____ "
+    :param columns: An array of tuples where the first element specifies whether or not the column is searchable, and the second specifies the column name
+    :param table_args: Arguments passed down from the web page that originated the call
+    :return: The total number of results, the number of results based on the search criteria, and the results of the query
+    """
+    with cursor() as cur:
+        countClauseStart = "select count(*) from("
+        countClauseEnd =") as c"
         filterClause = ""
-        timeRangeClause = ""
-        orderClause = " group by filename order by count desc "
+        timeRangeClause = " (ts >= %s and ts <= %s) " % (table_args['start_time'], table_args['end_time'])
         limitClause = ""
 
         if "filter" in table_args:
+            filterClause = " ("
             filterValue = "%" + table_args["filter"] + "%"
-            filterClause = " filename like '%s' and " % (filterValue)
-
-        timeRangeClause = " ts >=%s and ts <= %s " % (table_args['start_time'], table_args['end_time'])
+            for i in range(len(columns)):
+                if(columns[i][0]):
+                    filterClause = "%s %s like '%s' or " % (filterClause, columns[i][1], filterValue)
+                if i == len(columns) - 1:
+                    filterClause = filterClause.strip("or ") + ") and "
 
         if "iSortCol_0" in table_args:
-            orderClause = " group by filename order by %s " % (columns[table_args['iSortCol_0']])
+            orderClause = " order by %s " % (columns[table_args["iSortCol_0"]][1])
             if table_args["sSortDir_0"] == "desc":
                 orderClause = orderClause + " desc "
 
         if "limit" in table_args:
             limitClause = " limit %s offset %s " % (table_args["limit"], table_args["offset"])
 
-        cur.execute(countClauseStart + queryClause + timeRangeClause +  orderClause + countClauseEnd)
+        cur.execute(countClauseStart + queryClause + timeRangeClause + groupClause + countClauseEnd)
         totalCount = cur.fetchone()["count(*)"]
 
-        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + orderClause + countClauseEnd)
+        cur.execute(countClauseStart + queryClause + filterClause + timeRangeClause + groupClause + countClauseEnd)
         filteredCount = cur.fetchone()["count(*)"]
 
-        cur.execute(queryClause + filterClause + timeRangeClause + orderClause + limitClause)
+        cur.execute(queryClause + filterClause + timeRangeClause + groupClause + orderClause + limitClause)
         results = cur.fetchall()
 
         return totalCount, filteredCount, results
 
-# Unfinished helper method for database calls to reduce SLOC and code duplication
-def queryBuilder(queryClause, columns, groupClause, orderClause, **table_args):
-    countClauseStart = "select count(*) from("
-    countClauseEnd =") as c"
-    filterClause = " "
-    timeRangeClause = " (ts >= %s and ts <= %s " % (table_args['start_time'], table_args['end_time'])
-    limitClause = ""
-
-    if "filter" in table_args:
-        filterValue = "%" + table_args["filter"] + "%"
-        for i in range(len(columns)):
-            filterClause = "%s %s like '%s' " % (filterClause, columns[i], filterValue)
-            if i == len(columns) - 1:
-                filterClause = filterClause + ") "
-            else:
-                filterCluase = filterClause + "or "
-
-    if "iSortCol_0" in table_args:
-        orderClause = " order by %s " % (columns[table_args["iSortCol_0"]])
-
-    if "limit" in table_args:
-        limitClause = " limit %s offest %s " % (table_args["limit"], table_args["offset"])
-
-    cur.execute(countClauseStart + queryClause + timeRangeClause + groupClause + countClauseEnd)
-    totalCount = cur.fetchone()["count(*)"]
 
 def get_locations(dataset, start, end):
+    """
+    NOTE: We use a hardcoded limit limit of 100 only in this method
+    :param dataset: Specifies what table to query and what metrics we want to get locations for
+    :param start: start of the time range to look for results from
+    :param end: end of the time range to look for results from
+    :return: a list of locations that correspond to the dataset that was passed in
+    """
     with cursor() as cur:
+        print dataset
         if dataset.__contains__("recent"):
             if dataset.__contains__("downloads"):
                 cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
                             "FROM locations l, "
-                            "(SELECT remote_addr from downloads WHERE ts >= %s AND ts <= %s ORDER BY ts DESC) d WHERE d.remote_addr = l.ip ", [start, end])
+                            "(SELECT remote_addr from downloads WHERE ts >= %s AND ts <= %s ORDER BY ts DESC) d WHERE d.remote_addr = l.ip limit 100", [start, end])
             else:
                 cur.execute("SELECT l.city, l.region_name, l.country_code, l.latitude, l.longitude "
                             "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
-                            "WHERE m.ts >= %s AND m.ts <= %s ORDER BY m.ts DESC ", [start, end])
-
-        elif dataset == "downloads":
-            cur.execute("SELECT l.city, l.region_name, l.country_code, count(*) count, l.latitude, l.longitude "
-                        "FROM downloads d LEFT JOIN locations l ON d.remote_addr = l.ip "
-                        " WHERE d.ts >= %s AND d.ts <= %s GROUP BY filename ORDER BY count DESC", [start, end])
-        elif dataset == "domain":
-            cur.execute("select l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
-                        "(select remote_addr, count(*) count from planner_metrics where ts >= %s and ts <= %s group by domain order by count desc) h "
-                        "where l.ip = h.remote_addr", [start, end])
+                            "WHERE m.ts >= %s AND m.ts <= %s ORDER BY m.ts DESC limit 100", [start, end])
         elif dataset == "hostname":
             cur.execute("select l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
                         "(select remote_addr, count(*) count from planner_metrics where ts >= %s and ts <= %s group by hostname order by count desc) h "
-                        "where l.ip = h.remote_addr", [start, end])
-        return cur.fetchall()
+                        "where l.ip = h.remote_addr limit 100", [start, end])
+        results = cur.fetchall()
+        print results
+        return results
 
 def get_location(ip_addr):
     with cursor() as cur:
