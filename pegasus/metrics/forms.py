@@ -3,9 +3,25 @@ import datetime
 from flask import session
 from wtforms import Form, SelectField, IntegerField
 
+epoch = datetime.date(1970,1,1)
+daysToSeconds = 24 * 60 * 60
+
+def getStartTime(year,month):
+    start = datetime.date(year, month, 1)
+    return (start - epoch).days * daysToSeconds
+
+def getEndTime(year, month):
+    print "getting End Time"
+    month = month + 1
+    if month == 13:
+        month = 1
+        year = year + 1
+    end = datetime.date(year, month, 1)
+    return (end - epoch).days * daysToSeconds
+
 class PeriodForm(Form):
 
-    monthStart = SelectField(choices=[
+    monthsOfYear = [
         ('1', 'January'),
         ('2', 'February'),
         ('3', 'March'),
@@ -18,24 +34,15 @@ class PeriodForm(Form):
         ('10', 'October'),
         ('11', 'November'),
         ('12', 'December')
-    ])
-    yearStart = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
+    ]
 
-    monthEnd = SelectField(choices=[
-        ('1', 'January'),
-        ('2', 'February'),
-        ('3', 'March'),
-        ('4', 'April'),
-        ('5', 'May'),
-        ('6', 'June'),
-        ('7', 'July'),
-        ('8', 'August'),
-        ('9', 'September'),
-        ('10', 'October'),
-        ('11', 'November'),
-        ('12', 'December')
-    ])
-    yearEnd = SelectField(choices=[(year,year) for year in range(2012, datetime.date.today().year+1)])
+    yearsFrom2012ToNow = [(year,year) for year in range(2012, datetime.date.today().year+1)]
+
+    monthStart = SelectField(choices=monthsOfYear)
+    yearStart = SelectField(choices= yearsFrom2012ToNow)
+
+    monthEnd = SelectField(choices=monthsOfYear)
+    yearEnd = SelectField(choices=yearsFrom2012ToNow)
     
     def __init__(self, *args, **kwargs):
         today = datetime.date.today()
@@ -45,12 +52,11 @@ class PeriodForm(Form):
         lastMonth = today - datetime.timedelta(days=30)
         kwargs["monthStart"] = session.get("monthStart", lastMonth.month)
         kwargs["yearStart"] = session.get("yearStart", lastMonth.year)
-        #print self.yearStart.data
         
         Form.__init__(self, *args, **kwargs)
 
 
-    def validate_monthStart(self, field):
+    def general_validate_month(self, field):
         try:
             month = int(field.data)
             if month > 12 or month < 1:
@@ -61,56 +67,36 @@ class PeriodForm(Form):
             field.data = field.default
             field.errors.append("Month must be an integer value")
             field.errors.append("Using '%s' instead" % field.default)
+
+    def general_validate_year(self, field):
+        try:
+            year = int(field.data)
+            if year > datetime.date.today().year or year < 2012:
+                field.data = field.default
+                field.errors.append("The year must be between the epoch and now")
+                field.errors.append("Using '%s' instead" % field.default)
+        except ValueError:
+            field.data = field.default
+            field.errors.append("Year must be an integer value")
+            field.errors.append("Using '%s' instead" % field.default)
+
+    def validate_monthStart(self, field):
+        self.general_validate_month(field)
 
     def validate_yearStart(self, field):
-        try:
-            year = int(field.data)
-            if year > datetime.date.today().year or year < 2012:
-                field.data = field.default
-                field.errors.append("The year must be between the epoch and now")
-                field.errors.append("Using '%s' instead" % field.default)
-        except ValueError:
-            field.data = field.default
-            field.errors.append("Year must be an integer value")
-            field.errors.append("Using '%s' instead" % field.default)
+        self.general_validate_year(field)
 
     def validate_monthEnd(self, field):
-        try:
-            month = int(field.data)
-            if month > 12 or month < 1:
-                field.data = field.default
-                field.errors.append("Month must be between 1 and 12")
-                field.errors.append("Using '%s' instead" % field.default)
-        except ValueError:
-            field.data = field.default
-            field.errors.append("Month must be an integer value")
-            field.errors.append("Using '%s' instead" % field.default)
+        self.general_validate_month(field)
 
     def validate_yearEnd(self, field):
-        try:
-            year = int(field.data)
-            if year > datetime.date.today().year or year < 2012:
-                field.data = field.default
-                field.errors.append("The year must be between the epoch and now")
-                field.errors.append("Using '%s' instead" % field.default)
-        except ValueError:
-            field.data = field.default
-            field.errors.append("Year must be an integer value")
-            field.errors.append("Using '%s' instead" % field.default)
+        self.general_validate_year(field)
 
     def get_start(self):
-        startDate = datetime.date(int(self.yearStart.data), int(self.monthStart.data), 1)
-        return (startDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
-
+        return getStartTime(int(self.yearStart.data), int(self.monthStart.data))
 
     def get_end(self):
-        year = int(self.yearEnd.data)
-        month = int(self.monthEnd.data) + 1
-        if month == 13:
-            month = 1
-            year = year + 1
-        endDate = datetime.date(int(year), int(month), 1)
-        return (endDate - datetime.date(1970,1,1)).days * 24 * 60 * 60
+        return getEndTime(int(self.yearEnd.data), int(self.monthEnd.data))
 
 # We might not need this form anymore, but just in case it'll remain in the code to prevent
 # any surprise errors from occurring
@@ -226,15 +212,8 @@ class TrendForm(Form):
             startMonth = startMonth + 12
             startYear = startYear - 1
 
-
-        return (datetime.date(startYear, startMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60
+        return getStartTime(startYear, startMonth)
 
     def get_end(self):
         today = datetime.date.today()
-
-        endYear = today.year
-        endMonth = today.month + 1
-        if endMonth == 13:
-            endMonth = 1
-            endYear = endYear + 1
-        return (datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60
+        return getEndTime(today.year, today.month)
