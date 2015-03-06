@@ -11,7 +11,6 @@ def getStartTime(year,month):
     return (start - epoch).days * daysToSeconds
 
 def getEndTime(year, month):
-    print "getting End Time"
     month = month + 1
     if month == 13:
         month = 1
@@ -179,23 +178,19 @@ class TrendForm(Form):
         session["trend"] = field.data
 
     def get_monthly_intervals(self):
-        today = datetime.date.today()
-        endYear = today.year
-        endMonth = today.month + 1
-        if endMonth == 13:
-            endMonth = 1
-            endYear = endYear + 1
-
-        monthlyIntervals = [(datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60]
+        monthlyIntervals = [self.get_end()]
 
         trend = int(self.trend.data)
 
+        today = datetime.date.today()
+        endYear = today.year
+        endMonth = today.month
         for i in range(trend):
+            monthlyIntervals.append((datetime.date(endYear, endMonth, 1) - epoch).days * daysToSeconds)
             endMonth = endMonth - 1
             if endMonth == 0:
                 endMonth = 12
                 endYear = endYear - 1
-            monthlyIntervals.append((datetime.date(endYear, endMonth, 1) - datetime.date(1970,1,1)).days * 24 * 60 * 60)
 
         return monthlyIntervals
 
