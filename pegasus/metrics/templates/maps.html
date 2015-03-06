@@ -71,7 +71,7 @@
         var swCorner = new google.maps.LatLng(minLat, minLon);
         var neCorner = new google.maps.LatLng(maxLat, maxLon);
         map.fitBounds(new google.maps.LatLngBounds(swCorner, neCorner));
-        
+
         function closeToEachOther(latLng1, latLng2) {
             var MAX_DIFF = 0.00001;
             if(Math.abs(latLng1.k - latLng2.k) > MAX_DIFF)
