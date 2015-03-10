@@ -253,7 +253,7 @@ def status():
     
     now = time.time()
     then = now - (24*60*60)
-    count = db.count_raw_data(then)
+    count = db.count_raw_data(then, now)
     
     if count == 0:
         return "No data in last 24 hours", 503
