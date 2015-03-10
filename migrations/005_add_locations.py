@@ -35,7 +35,7 @@ for ip in cur:
     addr = ip['remote_addr']
     location = None
     try:
-        r = requests.get('http://gaul.isi.edu:8192/json/%s' % addr, timeout=0.05)
+        r = requests.get('http://gaul.isi.edu:8192/json/%s' % addr)
         if 200 <= r.status_code < 300:
             r.encoding = 'utf-8'
             location = json.loads(r.text)
