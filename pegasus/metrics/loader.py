@@ -179,11 +179,6 @@ def process_download(data):
         if len(data[key].strip()) == 0:
             data[key] = None
 
-    """# Decode mappings
-    for key in data:
-        if type(data[key]) == unicode:
-            data[key] = data[key].encode('utf-8')"""
-
     # Convert missing and empty mappings to None
     nullify('name')
     nullify('email')
@@ -214,11 +209,6 @@ def process_download(data):
 def process_planner_metrics(data):
     if "wf_uuid" not in data:
         raise Exception("wf_uuid missing")
-
-    """# Decode mappings
-    for key in data:
-        if type(data[key]) == unicode:
-            data[key] = data[key].encode('utf-8')"""
 
     # Remove the nested structure the planner sends
     metrics = data["wf_metrics"]
@@ -256,17 +246,24 @@ def process_planner_metrics(data):
     if "application" not in data:
         data["application"] = None
 
+    if "dax_input_files" not in data:
+        data["dax_input_files"] = None
+
+    if "dax_inter_files" not in data:
+        data["dax_inter_files"] = None
+
+    if "dax_output_files" not in data:
+        data["dax_output_files"] = None
+
+    if "dax_total_files" not in data:
+        data["dax_total_files"] = None
+
     if "remote_addr" in data:
         process_location(data["remote_addr"])
 
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
-    """# Decode mappings
-    for key in data:
-        if type(data[key]) == unicode:
-            data[key] = data[key].encode('utf-8')"""
-
     if "parent_dagman_id" not in data or len(data["parent_dagman_id"]) == 0:
         data["parent_dagman_id"] = None
 

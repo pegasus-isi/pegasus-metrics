@@ -552,7 +552,11 @@ def store_planner_metrics(data):
             reg_jobs,
             total_jobs,
             data_config,
-            application
+            application,
+            dax_input_files,
+            dax_inter_files,
+            dax_output_files,
+            dax_total_files
         ) VALUES (
             %(id)s,
             %(ts)s,
@@ -583,7 +587,11 @@ def store_planner_metrics(data):
             %(reg_jobs)s,
             %(total_jobs)s,
             %(data_config)s,
-            %(application)s
+            %(application)s,
+            %(dax_input_files)s,
+            %(dax_inter_files)s,
+            %(dax_output_files)s,
+            %(dax_total_files)s
         )""", data)
 
 def store_planner_errors(data):
