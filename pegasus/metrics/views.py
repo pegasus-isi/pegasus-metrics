@@ -184,7 +184,7 @@ def planner_trends():
     form = forms.TrendForm(request.args)
     form.validate()
     intervals = form.get_monthly_intervals()
-
+    print "Getting monthly trends"
     trend = []
     for i in range(len(intervals)-1):
         newPlans = db.get_metrics_by_version(intervals[i+1], intervals[i])

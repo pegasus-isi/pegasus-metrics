@@ -97,37 +97,6 @@ class PeriodForm(Form):
     def get_end(self):
         return getEndTime(int(self.yearEnd.data), int(self.monthEnd.data))
 
-# We might not need this form anymore, but just in case it'll remain in the code to prevent
-# any surprise errors from occurring
-class LimitForm(Form):
-    limit = SelectField(choices=[
-        ('50', '50'),
-        ('100','100'),
-        ('200', '200'),
-        ('all', 'all')
-    ])
-
-    def __init__(self, *args, **kwargs):
-        kwargs['limit'] = session.get('limit', 50)
-        Form.__init__(self, *args, **kwargs)
-
-    def validate_limit(self, field):
-        valid = [choice[0] for choice in field.choices]
-        if field.data not in valid:
-            invalid = field.data
-            field.data = field.default
-            field.errors = []
-            field.errors.append("Invalid limit '%s'" % invalid)
-            field.errors.append("Using '%s' instead" % field.default)
-
-        session["limit"] = field.data
-
-    def get_limit(self):
-        limit = self.limit.data
-        if limit is None or limit == "None":
-            limit = 50
-        return limit
-
 class MapForm(PeriodForm):
     pins = SelectField(choices=[
         ('hostname', 'Top Planner Hosts'),
@@ -154,61 +123,23 @@ class MapForm(PeriodForm):
             pins = 'hostname'
         return pins
 
-class TrendForm(Form):
-    trend = SelectField(choices=[
-        ('3', 'Last Three Months'),
-        ('6', 'Last Six Months'),
-        ('12', 'Last Year')
-    ])
-
+class TrendForm(PeriodForm):
     def __init__(self, *args, **kwargs):
-        kwargs['trend'] = session.get('trend', '3')
-
-        Form.__init__(self, *args, **kwargs)
-
-    def validate_trend(self, field):
-        valid = [choice[0] for choice in field.choices]
-        if field.data not in valid:
-            invalid = field.data
-            field.data = field.default
-            field.errors = []
-            field.errors.append("Invalid trend '%s'" % invalid)
-            field.errors.append("Using '%s' instead" % field.default)
-
-        session["trend"] = field.data
+        PeriodForm.__init__(self, *args, **kwargs)
 
     def get_monthly_intervals(self):
         monthlyIntervals = [self.get_end()]
 
-        trend = int(self.trend.data)
+        endYear = int(self.yearEnd.data)
+        endMonth = int(self.monthEnd.data)
+        while getStartTime(endYear,endMonth) > self.get_start():
+            print self.get_end()
+            monthlyIntervals.append(getStartTime(endYear,endMonth))
 
-        today = datetime.date.today()
-        endYear = today.year
-        endMonth = today.month
-        for i in range(trend):
-            monthlyIntervals.append((datetime.date(endYear, endMonth, 1) - epoch).days * daysToSeconds)
             endMonth = endMonth - 1
             if endMonth == 0:
                 endMonth = 12
                 endYear = endYear - 1
+        monthlyIntervals.append(self.get_start())
 
         return monthlyIntervals
-
-    def get_start(self):
-        today = datetime.date.today()
-
-        trend = int(self.trend.data)
-        if trend is None or trend == "None":
-            trend = 3
-
-        startYear = today.year
-        startMonth = today.month - trend
-        if startMonth < 1:
-            startMonth = startMonth + 12
-            startYear = startYear - 1
-
-        return getStartTime(startYear, startMonth)
-
-    def get_end(self):
-        today = datetime.date.today()
-        return getEndTime(today.year, today.month)
