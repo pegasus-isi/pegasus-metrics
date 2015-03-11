@@ -64,7 +64,6 @@ def store_raw_data(ts, remote_addr, data):
 
 def count_raw_data(start=0, end=0):
     with cursor() as cur:
-        print "SELECT count(*) as count FROM raw_data WHERE ts>=%s AND ts <= %s", [start, end]
         cur.execute("SELECT count(*) as count FROM raw_data WHERE ts>=%s AND ts <= %s", [start, end])
         return cur.fetchone()['count']
 

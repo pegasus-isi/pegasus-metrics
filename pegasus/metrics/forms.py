@@ -133,7 +133,6 @@ class TrendForm(PeriodForm):
         endYear = int(self.yearEnd.data)
         endMonth = int(self.monthEnd.data)
         while getStartTime(endYear,endMonth) > self.get_start():
-            print self.get_end()
             monthlyIntervals.append(getStartTime(endYear,endMonth))
 
             endMonth = endMonth - 1

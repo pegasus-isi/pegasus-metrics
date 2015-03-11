@@ -5,7 +5,7 @@ except ImportError:
 import logging
 import time
 import requests
-from flask import request, render_template, redirect, url_for, flash
+from flask import request, render_template, redirect, url_for, flash, session
 
 from pegasus.metrics import app, db, loader, forms
 
@@ -33,7 +33,9 @@ def inject_date():
 
 @app.route('/')
 def index():
-    form = forms.PeriodForm(formdata=request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     start = form.get_start()
     end = form.get_end()
@@ -92,7 +94,9 @@ def recent_errors():
         totalCount, filteredCount, errors = db.get_recent_errors(**table_args)
         return render_template('recent_errors.json', table_args=table_args, count=totalCount, filtered=filteredCount, errors=errors)
 
-    form = forms.PeriodForm(formdata=request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('recent_errors.html', form=form)
 
@@ -102,7 +106,10 @@ def top_errors():
         table_args = __get_datatables_args()
         totalCount, filteredCount, errors = db.get_top_errors(**table_args)
         return render_template('top_errors.json', table_args=table_args, count=totalCount, filtered=filteredCount, errors=errors)
-    form = forms.PeriodForm(request.args)
+
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('top_errors.html', form=form)
 
@@ -113,7 +120,9 @@ def top_domains():
         totalCount, filteredCount, domains = db.get_top_domains(**table_args)
         return render_template('top_domains.json', table_args=table_args, count=totalCount, filtered=filteredCount, domains=domains)
 
-    form = forms.PeriodForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('top_domains.html', form=form)
 
@@ -124,7 +133,9 @@ def top_hosts():
         totalCount, filteredCount, hosts = db.get_top_hosts(**table_args)
         return render_template('top_hosts.json', table_args=table_args, count=totalCount, filtered=filteredCount, hosts=hosts)
 
-    form = forms.PeriodForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('top_hosts.html', form=form)
 
@@ -163,15 +174,18 @@ def top_applications():
         totalCount, filteredCount, applications = db.get_top_applications(**table_args)
         return render_template('top_applications.json', table_args=table_args, count=totalCount, filtered=filteredCount, applications=applications)
 
-    form = forms.PeriodForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('top_applications.html', form=form)
 
 @app.route('/planner/map')
 def map_metrics():
-    form = forms.MapForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.MapForm(formdata=session['formdata'])
     form.validate()
-    #limit = form.get_limit()
     start = form.get_start()
     end = form.get_end()
     pins = form.get_pins()
@@ -181,10 +195,11 @@ def map_metrics():
                            locations=locations)
 @app.route('/planner/trends')
 def planner_trends():
-    form = forms.TrendForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.TrendForm(formdata=session['formdata'])
     form.validate()
     intervals = form.get_monthly_intervals()
-    print "Getting monthly trends"
     trend = []
     for i in range(len(intervals)-1):
         newPlans = db.get_metrics_by_version(intervals[i+1], intervals[i])
@@ -202,7 +217,9 @@ def top_application_runs():
         totalCount, filteredCount, applications = db.get_top_application_runs(**table_args)
         return render_template('top_application_runs.json', table_args=table_args, count=totalCount, filtered=filteredCount, applications=applications)
 
-    form = forms.PeriodForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('top_application_runs.html', form=form)
 
@@ -212,7 +229,10 @@ def recent_downloads():
         table_args = __get_datatables_args()
         totalCount, filteredCount, downloads = db.get_recent_downloads(**table_args)
         return render_template('recent_downloads.json', table_args=table_args, count=totalCount, filtered=filteredCount, downloads=downloads)
-    form = forms.PeriodForm(formdata=request.args)
+
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     form.validate()
     return render_template('recent_downloads.html', form=form)
 
@@ -223,12 +243,16 @@ def popular_downloads():
         totalCount, filteredCount, downloads = db.get_popular_downloads(**table_args)
         return render_template('popular_downloads.json', table_args=table_args, count=totalCount, filtered=filteredCount, downloads=downloads)
 
-    form = forms.PeriodForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.PeriodForm(formdata=session['formdata'])
     return render_template('popular_downloads.html', form=form)
 
 @app.route('/downloads/trends')
 def download_trends():
-    form = forms.TrendForm(request.args)
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.TrendForm(formdata=session['formdata'])
     form.validate()
     intervals = form.get_monthly_intervals()
 
