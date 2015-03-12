@@ -139,14 +139,14 @@ def store_invalid_data(id, error=None):
 
 def get_top_hosts(**table_args):
     columns = [(True, "hostname"), (False, "workflows"), (False, "tasks"), (False, "jobs")]
-    queryClause = "select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    queryClause = "select hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs, remote_addr from planner_metrics where "
     groupByClause = " group by hostname "
     orderByClause = " order by workflows desc "
     return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
 
 def get_top_domains(**table_args):
     columns = [(True, "domain"), (False, "workflows"), (False, "tasks"), (False, "jobs")]
-    queryClause = "select domain, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    queryClause = "select domain, remote_addr, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
     groupByClause = " group by domain "
     orderByClause = " order by workflows desc "
     return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)
@@ -423,7 +423,7 @@ def get_locations(dataset, start, end):
                             "FROM planner_metrics m LEFT JOIN locations l ON m.remote_addr = l.ip "
                             "WHERE m.ts >= %s AND m.ts <= %s GROUP BY l.ip ORDER BY l.city, m.ts DESC limit 100", [start, end])
         elif dataset == "hostname":
-            cur.execute("select h.hostname, l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
+            cur.execute("select h.hostname, l.ip, l.city, l.region_name, l.country_code, l.latitude, l.longitude, h.count from locations l, "
                         "(select remote_addr, hostname, count(*) count from planner_metrics where ts >= %s and ts <= %s group by hostname order by count desc) h "
                         "where l.ip = h.remote_addr limit 100", [start, end])
         results = cur.fetchall()

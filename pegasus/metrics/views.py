@@ -209,6 +209,11 @@ def planner_trends():
                            intervals=intervals,
                            trend=trend)
 
+@app.route('/locations/<ipaddr>')
+def location_metric(ipaddr):
+    print "hello!"
+    location = db.get_location(ipaddr)
+    return render_template('location.html', location=location)
 
 @app.route('/runs/topapplications')
 def top_application_runs():

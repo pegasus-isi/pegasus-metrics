@@ -44,6 +44,7 @@
     {% for domain in top_domains: %}
     <tr>
         <td>{{domain["domain"] }}</td>
+        <td><a href='{{url_for("location_metric", ipaddr=domain["remote_addr"])}}'>{{domain["remote_addr"]}}</a></td>
         <td class="right">{{domain["workflows"] | decimal}}</td>
         <td class="right">{{domain["tasks"] | decimal}}</td>
         <td class="right">{{domain["jobs"] | decimal}}</td>
@@ -59,7 +60,7 @@
     <tr><th>Host</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for host in top_hosts: %}
     <tr>
-        <td>{{host["hostname"]}}</td>
+        <td><a href='{{url_for("location_metric", ipaddr=host["remote_addr"])}}'>{{host["hostname"]}}</a></td>
         <td class="right">{{host["workflows"] | decimal}}</td>
         <td class="right">{{host["tasks"] | decimal}}</td>
         <td class="right">{{host["jobs"] | decimal}}</td>

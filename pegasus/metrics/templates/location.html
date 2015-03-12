@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block body %}
+<h3>Location</h3>
+<div class="widget">
+    <table>
+        <tr><th>City</th><td>{{location["city"]}}</td>
+        <tr><th>Region</th><td>{{location["region_name"]}} ({{location["region_code"]}})</td>
+        <tr><th>Country</th><td>{{location["country_name"]}} ({{location["country_code"]}})</td>
+        <tr><th>Postal Code</th><td>{{location["zipcode"]}}</td>
+        <tr><th>Area Code</th><td>{{location["metrocode"]}}</td>
+        <tr><th>Latitude</th><td>{{location["latitude"]}}</td>
+        <tr><th>Longitude</th><td>{{location["longitude"]}}</td>
+    </table>
+</div>
+<div id="map"></div>
+
+<script type="text/javascript">
+    var latitude = {{location["latitude"] | float}};
+    var longitude = {{location["longitude"] | float}};
+    var mapOptions = {
+        center: { lat: latitude, lng: longitude},
+        zoom: 9,
+        minZoom : 1,
+        maxZoom : 10
+    };
+    var map = new google.maps.Map(document.getElementById('map'),mapOptions);
+
+
+    var newLatLng = new google.maps.LatLng(latitude, longitude);
+    var newMarker = new google.maps.Marker({
+        position : newLatLng,
+        title : "{{location["city"]}}, {{location["region_name"]}}, {{location["country_code"]}}"
+    });
+    newMarker.setMap(map);
+
+</script>
+{% endblock %}

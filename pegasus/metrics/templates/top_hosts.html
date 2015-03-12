@@ -23,7 +23,11 @@
         "aoColumns": [
             {
                 "sClass" : "nowrap",
-                "asSorting": [ "desc", "asc" ]
+                "asSorting": [ "desc", "asc" ],
+                "mRender" : function(data, type, full) {
+                    url = "{{url_for('location_metric', ipaddr=full) }}" + full["remote_addr"];
+                    return "<a href='" + url + "'>" + data + "</a>";
+                }
             },
             {
                 "sClass" : "right",

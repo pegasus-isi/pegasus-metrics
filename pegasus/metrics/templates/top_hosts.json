@@ -6,7 +6,7 @@
     {% if hosts %}
         {% for i in range(0,hosts|count)%}
             {
-                "0" : {{ hosts[i]['hostname']|tojson|safe }}, "1" : {{ hosts[i]['workflows']|decimal|tojson|safe }},"2" : {{ hosts[i]['tasks']|decimal|tojson|safe }}, "3" : {{ hosts[i]['jobs']|decimal|tojson|safe }}
+                "0" : {{ hosts[i]['hostname']|tojson|safe }}, "1" : {{ hosts[i]['workflows']|decimal|tojson|safe }},"2" : {{ hosts[i]['tasks']|decimal|tojson|safe }}, "3" : {{ hosts[i]['jobs']|decimal|tojson|safe }}, "remote_addr" :{{ hosts[i]['remote_addr']|tojson|safe }}
             }
             {% if i + 1 != hosts|count %}
                 ,
@@ -14,7 +14,7 @@
         {% endfor %}
     {% else %}
         {
-            "0" : "No Data", "1" : "No Data", "2" : "No Data","3" : "No Data"
+            "0" : "No Data", "1" : "No Data", "2" : "No Data","3" : "No Data", "remote_addr" : "No Data"
         }
     {% endif %}
 

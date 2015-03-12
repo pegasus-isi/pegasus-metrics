@@ -27,7 +27,7 @@
                 contentDetails = "{{location['ip']}}: <a href='{{url_for("download_metric",objid=location["id"])}}'>Click here to view download details.</a>";
             }
             else if ('{{form.get_pins()}}' == 'hostname') {
-                contentDetails = "<h2>Host Name: {{location['hostname']}}</h2>";
+                contentDetails = "<h2>Host Name: {{location['hostname']}}</h2><br/><a href='{{url_for("location_metric",ipaddr=location["ip"])}}'>Click here to view location details.</a>";
             }
             else {
                 contentDetails = "Error getting pin type"
