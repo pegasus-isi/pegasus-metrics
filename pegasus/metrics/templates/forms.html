@@ -8,19 +8,6 @@
 </div>
 {%- endmacro %}
 
-{% macro limit_form(form) -%}
-<div id="filterform">
-    <form method="get" style="float: left;">
-        Limit results count to {{form.limit()}}
-        {% if form.limit.errors %}
-        <span class="form_error">{{ ". ".join(form.limit.errors) }}</span>
-        {% endif %}
-        <input type="submit" value="Update"/>
-    </form>
-    <div style="float: right;">Showing {{form.get_limit()}} of the latest results</div>
-</div>
-{%- endmacro %}
-
 {% macro map_form(form) -%}
 <div id="filterform">
     <form method="get" style="float: left;">
@@ -43,5 +30,25 @@
         <input type="submit" value="Update"/>
     </form>
     <div style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</div>
+</div>
+{%- endmacro %}
+
+{% macro histogram_form(form) -%}
+<div id="filterform">
+    <form method="get" style="float:left;">
+        <p>
+        Show distribution of workflows based on {{form.jobOrFile()}} with type
+        {% if form.jobOrFile.data == "job" %}
+            {{form.jobType()}}.
+        {% else %}
+            {{form.fileType()}}.
+        {% endif %}
+        </p>
+        <p>Between the values {{form.min()}} and {{form.max()}}.</p>
+        <p>From the start of {{form.monthStart()}} / {{form.yearStart()}} to the end of {{form.monthEnd()}} / {{form.yearEnd()}}</p>
+        <input type="submit" value="Update"/>
+
+    </form>
+    <div style="float: right;"><p>Showing number of workflows with {{form.get_metric()}} counts between {{form.get_min()}} and {{form.get_max()}} <p/>that were run between {{form.get_start() | timestamp}} and {{form.get_end() | timestamp}}</div>
 </div>
 {%- endmacro %}

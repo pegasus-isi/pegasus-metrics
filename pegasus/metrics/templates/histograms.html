@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% import 'forms.html' as forms %}
+{% block body %}
+<h2>Histograms Showing Job/Files for Workflows</h2>
+{{ forms.histogram_form(form) }}
+<br/>
+<canvas id="histogram" width="1000px" height="500"></canvas>
+<script type="text/javascript">
+    // If we don't do this, then we have to manually click the submit button to select the
+    // new metric to use, WTForms does not allow us to dynamically change what fields show
+    // up or hide without calling submit
+    $("#jobOrFile").on("change", function() {
+        this.form.submit();
+    });
+
+    var plans = {{ trend | tojson | safe}};
+    console.log("hello");
+    var color = [0,0,170]; // RGB
+    var colorString = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",";
+    var formattedData =  [{
+        'label' : "workflow count",
+        'fillColor' : colorString + "0.2)",
+        'strokeColor' : colorString + "1)",
+        'highlightFill' : colorString + "0.75)",
+        'highlightStroke' : colorString + "1)",
+        'data' : plans
+    }];
+
+    var intervals = {{intervals | tojson | safe}};
+    var labels = [];
+    for(var i = 1; i < intervals.length; i++) {
+        labels.push(intervals[i-1] + " - " + (intervals[i] - 1));
+    }
+
+    var histogramData = {
+        'labels' : labels,
+        'datasets' : formattedData
+    };
+    var ctx = document.getElementById("histogram").getContext("2d");
+    var myNewChart = new Chart(ctx).Bar(histogramData);
+</script>
+{% endblock %}

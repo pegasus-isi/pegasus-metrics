@@ -434,6 +434,12 @@ def get_location(ip_addr):
         cur.execute("SELECT * FROM locations WHERE ip = %s", [ip_addr])
         return cur.fetchone()
 
+def get_workflow_count_by_field(field, min, max, start, end):
+    with cursor() as cur:
+        query = "SELECT count(*) FROM planner_metrics WHERE %s >= %s and %s < %s and ts >= %s and ts <= %s" % (field,min,field,max,start,end)
+        cur.execute(query)
+        return int(cur.fetchone()["count(*)"])
+
 def store_location(data):
     if 'latitude' not in data or \
         'longitude' not in data or \

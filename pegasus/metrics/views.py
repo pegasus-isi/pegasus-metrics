@@ -209,6 +209,24 @@ def planner_trends():
                            intervals=intervals,
                            trend=trend)
 
+@app.route('/planner/histograms')
+def histograms():
+    if request.args or 'formdata' not in session:
+        session['formdata'] = request.args
+    form = forms.HistogramForm(formdata=session['formdata'])
+    form.validate()
+    field = form.get_metric()
+    start = form.get_start()
+    end = form.get_end()
+    intervals = form.get_intervals()
+    data = []
+    for i in range(1, len(intervals)):
+        data.append(db.get_workflow_count_by_field(field, intervals[i-1], intervals[i], start, end))
+    return render_template('histograms.html',
+                           form=form,
+                           trend=data,
+                           intervals=intervals)
+
 @app.route('/locations/<ipaddr>')
 def location_metric(ipaddr):
     print "hello!"

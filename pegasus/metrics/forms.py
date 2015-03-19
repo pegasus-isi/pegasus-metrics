@@ -142,3 +142,64 @@ class TrendForm(PeriodForm):
         monthlyIntervals.append(self.get_start())
 
         return monthlyIntervals
+
+class HistogramForm(PeriodForm):
+
+    jobOrFile = SelectField(choices=[
+        ('job', 'Job'),
+        ('file', 'File')
+    ])
+
+    fileType = SelectField(choices=[
+        ('dax_input_files', 'DAX Input Files'),
+        ('dax_inter_files', 'DAX Inter Files'),
+        ('dax_output_files', 'DAX Output Files'),
+        ('dax_total_files', 'DAX Total Files')
+    ])
+
+    jobType = SelectField(choices=[
+        ('chmod_jobs', 'Chmod Jobs'),
+        ('inter_tx_jobs', 'Inner TX Jobs'),
+        ('compute_jobs', 'Compute Jobs'),
+        ('cleanup_jobs', 'Cleanup Jobs'),
+        ('dax_jobs', 'DAX Jobs'),
+        ('dag_jobs', 'DAG Jobs'),
+        ('so_tx_jobs', 'SO TX Jobs'),
+        ('si_tx_jobs', 'SI TX Jobs'),
+        ('create_dir_jobs', 'Create Dir Jobs'),
+        ('clustered_jobs', 'Clustered Jobs'),
+        ('reg_jobs', 'REG Jobs'),
+        ('total_jobs', 'Total Jobs')
+    ])
+
+    min = IntegerField()
+    max = IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        kwargs['min'] = 0
+        kwargs['max'] = 1000
+        kwargs['jobOrFile'] = session.get('jobOrFile', 'job')
+        kwargs['jobType'] = session.get('jobType', 'total_jobs')
+        kwargs['fileType'] = session.get('fileType', 'dax_total_files')
+
+        PeriodForm.__init__(self, *args, **kwargs)
+
+    def get_intervals(self):
+        intervalCount = 10 #Change this to change hoe many bars we want
+        intervalDifference = (self.max.data - self.min.data) / intervalCount
+        intervals = []
+        for i in range(self.min.data, self.max.data, intervalDifference):
+            intervals.append(i)
+        intervals.append(self.max.data)
+        return intervals
+
+    def get_metric(self):
+        if self.jobOrFile.data == 'job':
+            return self.jobType.data
+        return self.fileType.data
+
+    def get_min(self):
+        return self.min.data
+
+    def get_max(self):
+        return self.max.data
