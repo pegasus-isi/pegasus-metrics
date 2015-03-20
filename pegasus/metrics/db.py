@@ -146,7 +146,7 @@ def get_top_hosts(**table_args):
 
 def get_top_domains(**table_args):
     columns = [(True, "domain"), (False, "workflows"), (False, "tasks"), (False, "jobs")]
-    queryClause = "select domain, remote_addr, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
+    queryClause = "select domain, hostname, count(*) workflows, sum(total_tasks) tasks, sum(total_jobs) jobs from planner_metrics where "
     groupByClause = " group by domain "
     orderByClause = " order by workflows desc "
     return queryBuilder(queryClause, groupByClause, orderByClause, *columns, **table_args)

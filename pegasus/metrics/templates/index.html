@@ -43,8 +43,11 @@
     <tr><th>Domain</th><th>Workflows</th><th>Tasks</th><th>Jobs</th></tr>
     {% for domain in top_domains: %}
     <tr>
-        <td>{{domain["domain"] }}</td>
-        <td><a href='{{url_for("location_metric", ipaddr=domain["remote_addr"])}}'>{{domain["remote_addr"]}}</a></td>
+        {% if domain["hostname"] == domain["domain"] %}
+            <td><a href='{{url_for("location_metric", ipaddr=domain["domain"])}}'>{{domain["domain"]}}</a></td>
+        {% else %}
+            <td>{{domain["domain"] }}</td>
+        {% endif %}
         <td class="right">{{domain["workflows"] | decimal}}</td>
         <td class="right">{{domain["tasks"] | decimal}}</td>
         <td class="right">{{domain["jobs"] | decimal}}</td>

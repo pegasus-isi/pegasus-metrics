@@ -23,14 +23,13 @@
         "aoColumns": [
             {
                 "sClass" : "nowrap",
-                "asSorting": [ "desc", "asc" ]
-            },
-            {
-                "sClass" : "nowrap",
-                "asSorting" : ["desc", "asc" ],
+                "asSorting": [ "desc", "asc" ],
                 "mRender" : function(data, type, full) {
-                    url = "{{url_for('location_metric', ipaddr=full) }}" + data;
-                    return "<a href='" + url + "'>" + data + "</a>";
+                    if(full["hostname"] == data) {
+                        url = "{{url_for('location_metric', ipaddr=full) }}" + data;
+                        return "<a href='" + url + "'>" + data + "</a>";
+                    }
+                    return data
                 }
             },
             {

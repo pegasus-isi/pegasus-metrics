@@ -6,7 +6,7 @@
     {% if domains %}
         {% for i in range(0,domains|count)%}
             {
-                "0" : {{ domains[i]['domain']|tojson|safe }}, "1" : {{ domains[i]['remote_addr']|decimal|tojson|safe }}, "2" : {{ domains[i]['workflows']|decimal|tojson|safe }}, "3" : {{ domains[i]['tasks']|decimal|tojson|safe }}, "4" : {{ domains[i]['jobs']|decimal|tojson|safe }}
+                "0" : {{ domains[i]['domain']|tojson|safe }}, "1" : {{ domains[i]['workflows']|decimal|tojson|safe }}, "2" : {{ domains[i]['tasks']|decimal|tojson|safe }}, "3" : {{ domains[i]['jobs']|decimal|tojson|safe }}, "hostname" : {{ domains[i]['hostname']|decimal|tojson|safe }}
             }
             {% if i + 1 != domains|count %}
                 ,
@@ -14,7 +14,7 @@
         {% endfor %}
     {% else %}
         {
-            "0" : "No Data", "1" : "No Data", "2" : "No Data","3" : "No Data","4" : "No Data"
+            "0" : "No Data", "1" : "No Data", "2" : "No Data", "3" : "No Data", "hostname" : "No Data"
         }
     {% endif %}
 
