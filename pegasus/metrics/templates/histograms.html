@@ -4,7 +4,10 @@
 <h2>Histograms Showing Job/Files for Workflows</h2>
 {{ forms.histogram_form(form) }}
 <br/>
-<canvas id="histogram" width="1000px" height="500"></canvas>
+<div>
+    <span style="vertical-align: middle">Workflow Count</span>
+    <canvas id="histogram" width="1000px" height="500" style="vertical-align: middle"></canvas>
+</div>
 <script type="text/javascript">
     // If we don't do this, then we have to manually click the submit button to select the
     // new metric to use, WTForms does not allow us to dynamically change what fields show
@@ -27,9 +30,10 @@
     }];
 
     var intervals = {{intervals | tojson | safe}};
+    var metric = {{form.get_metric() | tojson | safe}};
     var labels = [];
     for(var i = 1; i < intervals.length; i++) {
-        labels.push(intervals[i-1] + " - " + (intervals[i] - 1));
+        labels.push(intervals[i-1] + " - " + (intervals[i] - 1) + " " +  metric);
     }
 
     var histogramData = {
