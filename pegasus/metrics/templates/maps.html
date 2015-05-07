@@ -75,9 +75,9 @@
 
         function closeToEachOther(latLng1, latLng2) {
             var MAX_DIFF = 0.00001;
-            if(Math.abs(latLng1.k - latLng2.k) > MAX_DIFF)
+            if(Math.abs(latLng1.lat() - latLng2.lat()) > MAX_DIFF)
                 return false;
-            if(Math.abs(latLng1.D - latLng2.D) > MAX_DIFF)
+            if(Math.abs(latLng1.lng() - latLng2.lng()) > MAX_DIFF)
                 return false;
             return true;
         }
