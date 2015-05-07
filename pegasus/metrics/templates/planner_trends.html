@@ -27,22 +27,35 @@
         [255,0,0],
         [255,0,255],
         [255,255,0],
-        [0,255,0],
-        [0,255,255],
-        [0,0,255],
-        [62,19,86],
-        [255,125,0],
-        [125,255,0],
-        [0,255,125],
-        [0,125,255],
-        [125,0,255],
+        [255,125,125],
         [255,0,125],
+        [125,255,0],
+        [125,0,255],
+        [125,255,255],
+        [125,255,125],
+        [125,125,255],
+        [125,125,125],
+        [125,125,0],
+        [125,0,125],
+        [125,0,0],
+        [62,19,86],
+        [0,255,0],
+        [0,0,255],
+        [0,255,255],
+        [0,125,255],
+        [0,125,125],
+        [0,125,0],
+        [0,0,125],
+        [0,0,0]
     ];
     // For some reason Javascript Date doesn't give the month in string form, so just use this array
     var monthNames = [ "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December" ];
 
     function getNewDataSet(label, index) {
+        if(index >= colors.length) {
+            alert('Not enough colors for the number of trends present, please reduce your time range or add more colors');
+        }
         var color = colors[index];
         var colorString = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",";
         return {
@@ -71,7 +84,7 @@
                     }
                 }
                 // Create a new trendline
-                if(newData && unformattedData[i][j].version.search('cvs') == -1 && unformattedData[i][j].version.search('shado') == -1) {
+                if(newData) {
                     var newDataSet = getNewDataSet(unformattedData[i][j].version, dataSetCount++);
                     // Generate html legend
                     $("#"+legendElementID).append("<tr><td><div style='width:20px;height:20px;background-color:" + newDataSet.pointColor + "'></div></td><td>" + newDataSet.label + "</td></p>");
