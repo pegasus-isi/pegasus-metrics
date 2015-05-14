@@ -26,7 +26,7 @@
 {% macro trend_form(form) -%}
 <div id="filterform">
     <form method="get" style="float: left;">
-        Show trends from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd()}} / {{form.yearEnd()}}
+        Show top 10 trends from start of {{form.monthStart()}} / {{form.yearStart()}} to end of {{form.monthEnd()}} / {{form.yearEnd()}}
         <input type="submit" value="Update"/>
     </form>
     <div style="float: right;">Showing {{form.get_start() | timestamp}} to {{form.get_end() | timestamp }}</div>

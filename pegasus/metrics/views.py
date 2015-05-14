@@ -229,7 +229,6 @@ def histograms():
 
 @app.route('/locations/<ipaddr>')
 def location_metric(ipaddr):
-    print "hello!"
     location = db.get_location(ipaddr)
     return render_template('location.html', location=location)
 
