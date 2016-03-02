@@ -60,6 +60,9 @@ create table planner_metrics (
     dax_total_files INTEGER  UNSIGNED,
     data_config VARCHAR(15),
     application VARCHAR(256),
+    uses_pmc BOOLEAN,
+    planner_args TEXT,
+    deleted_tasks INTEGER UNSIGNED,
     PRIMARY KEY (id),
     FOREIGN KEY (id) REFERENCES raw_data(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

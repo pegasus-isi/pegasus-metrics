@@ -562,7 +562,10 @@ def store_planner_metrics(data):
             dax_input_files,
             dax_inter_files,
             dax_output_files,
-            dax_total_files
+            dax_total_files,
+            uses_pmc,
+            planner_args,
+            deleted_tasks
         ) VALUES (
             %(id)s,
             %(ts)s,
@@ -597,7 +600,10 @@ def store_planner_metrics(data):
             %(dax_input_files)s,
             %(dax_inter_files)s,
             %(dax_output_files)s,
-            %(dax_total_files)s
+            %(dax_total_files)s,
+            %(uses_pmc)s,
+            %(planner_args)s,
+            %(deleted_tasks)s
         )""", data)
 
 def store_planner_errors(data):

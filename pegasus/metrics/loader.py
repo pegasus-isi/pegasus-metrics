@@ -261,6 +261,15 @@ def process_planner_metrics(data):
     if "remote_addr" in data:
         process_location(data["remote_addr"])
 
+    if "uses_pmc" not in data:
+        data["uses_pmc"] = None
+
+    if "planner_args" not in data:
+        data["planner_args"] = None
+
+    if "deleted_tasks" not in data:
+        data["deleted_tasks"] = None
+
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):

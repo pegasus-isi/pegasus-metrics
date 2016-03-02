@@ -2,12 +2,14 @@
     "remote_addr" : "104.32.177.85",
     "version": "4.2.0cvs",
     "data_config": "nonsharedfs",
-    "wf_uuid": "620fe96a-048d-47e8-9000-e8fc347db65e",
+    "wf_uuid": "620fe96a-048d-47e8-9000-e8fc347db65h",
     "start_time": "1356053279.248",
     "root_wf_uuid": "e8a888c1-0e49-4c24-afb1-72d7d5c0ff22",
     "client": "pegasus-plan",
     "end_time": "1356053280.673",
     "duration": 1.425,
+    "planner_args": "coolbeans",
+    "uses_pmc": true,
     "wf_metrics": {
         "dax_tasks": 0,
         "chmod_jobs": 0,
@@ -24,7 +26,8 @@
         "si_tx_jobs": 4,
         "reg_jobs": 0,
         "total_tasks": 4,
-        "total_jobs": 9
+        "total_jobs": 9,
+        "deleted_tasks": 100
     },
     "type": "metrics",
     "exitcode": 0
