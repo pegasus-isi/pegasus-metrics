@@ -7,9 +7,15 @@ except ImportError:
 import MySQLdb as mysql
 from MySQLdb.cursors import DictCursor
 import warnings
+import threading
 
 from pegasus.metrics import app
-from pegasus.metrics import ctx
+
+# This is a thread local for storing the database connection. We use this
+# instead of flask.g because flask.g does not work outside a flask request
+# and we need this to work for database migrations, reloading of data, and
+# unit tests.
+ctx = threading.local()
 
 class WithCursor(DictCursor):
     def __enter__(self):
@@ -19,7 +25,7 @@ class WithCursor(DictCursor):
         self.close()
 
 def connect():
-    if "db" in dir(ctx):
+    if hasattr(ctx, "db"):
         return
     warnings.filterwarnings('error', category=mysql.Warning)
     ctx.db = mysql.connect(host=app.config["DBHOST"],
@@ -31,15 +37,15 @@ def connect():
                            use_unicode=True)
 
 def commit():
-    if "db" in dir(ctx):
+    if hasattr(ctx, "db"):
         ctx.db.commit()
 
 def rollback():
-    if "db" in dir(ctx):
+    if hasattr(ctx, "db"):
         ctx.db.rollback()
 
 def close():
-    if "db" in dir(ctx):
+    if hasattr(ctx, "db"):
         ctx.db.close()
         del ctx.db
 

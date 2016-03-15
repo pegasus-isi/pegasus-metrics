@@ -4,8 +4,6 @@ import logging
 import threading
 from flask import Flask
 
-ctx = threading.local()
-
 app = Flask(__name__)
 
 app.config.from_envvar("PEGASUS_METRICS_CONFIG")
