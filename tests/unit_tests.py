@@ -3,7 +3,7 @@ import unittest
 import MySQLdb as mysql
 import ast
 
-from pegasus.metrics import app, ctx, db
+from pegasus.metrics import app, db
 
 __author__ = 'dcbriggs'
 
@@ -19,16 +19,11 @@ class MetricsTestCase(unittest.TestCase):
         app.config["DBUSER"] = 'pegasus'
         app.config["DBPASS"] = 'pegasus'
         app.config['DBNAME'] = 'test_metrics'
-
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-        db.connect(host=app.config["DBHOST"],
-                        port=app.config["DBPORT"],
-                        user=app.config["DBUSER"],
-                        passwd=app.config["DBPASS"],
-                        db="")
-        with ctx.db.cursor() as cur:
+        db.connect()
+        with db.cursor() as cur:
             create_db = "create database if not exists %s " % (app.config["DBNAME"])
             cur.execute(create_db)
             select_db = "use %s " % (app.config['DBNAME'])
@@ -42,14 +37,10 @@ class MetricsTestCase(unittest.TestCase):
 
 
     def tearDown(self):
-        db.connect(host=app.config["DBHOST"],
-                   port=app.config["DBPORT"],
-                   user=app.config["DBUSER"],
-                   passwd=app.config["DBPASS"],
-                   db="")
-        with ctx.db.cursor() as cur:
+        with db.cursor() as cur:
             drop_db = "drop database if exists %s" % (app.config["DBNAME"])
             cur.execute(drop_db)
+        db.close()
 
     def test_index_html(self):
         rv = self.app.get('/')
@@ -60,12 +51,7 @@ class MetricsTestCase(unittest.TestCase):
             rv = self.app.post('/metrics', data=data, headers={'Content-Type' : 'application/json'})
             assert rv.data == ''
 
-            db.connect(host=app.config["DBHOST"],
-                       port=app.config["DBPORT"],
-                       user=app.config["DBUSER"],
-                       passwd=app.config["DBPASS"],
-                       db=app.config["DBNAME"])
-            with ctx.db.cursor() as cur:
+            with db.cursor() as cur:
                 # The test data should be added to only the raw_data, planner_metrics, and locations tables
                 cur.execute('select count(*) from raw_data')
                 rawDataCount = int(cur.fetchone()['count(*)'])
@@ -155,13 +141,7 @@ class MetricsTestCase(unittest.TestCase):
             for dataPoint in rawData:
                 self.app.post('/metrics', data=dataPoint['data'], headers={'Content-Type' : 'application/json'})
 
-        db.connect(host=app.config["DBHOST"],
-                   port=app.config["DBPORT"],
-                   user=app.config["DBUSER"],
-                   passwd=app.config["DBPASS"],
-                   db=app.config["DBNAME"])
-
-        with ctx.db.cursor() as cur:
+        with db.cursor() as cur:
             rv = self.app.get('/planner/topdomains?start_time=1355952000&end_time=1425168000', headers={'X-Requested-With' : 'XMLHttpRequest'})
             domainData =  ast.literal_eval(rv.data)
             assert domainData['iTotalRecords'] == 1

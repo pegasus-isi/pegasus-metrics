@@ -1,5 +1,0 @@
-#!python
-from pegasus.metrics import server
-
-server.main()
-

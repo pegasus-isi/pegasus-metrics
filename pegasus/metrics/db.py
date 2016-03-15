@@ -8,6 +8,7 @@ import MySQLdb as mysql
 from MySQLdb.cursors import DictCursor
 import warnings
 
+from pegasus.metrics import app
 from pegasus.metrics import ctx
 
 class WithCursor(DictCursor):
@@ -17,40 +18,30 @@ class WithCursor(DictCursor):
     def __exit__(self, type, value, traceback):
         self.close()
 
-def add_options(parser):
-    "Add database command-line options to parser"
-    parser.add_option("-H", "--host", dest="host", action="store",
-            help="Database hostname", default="localhost")
-    parser.add_option("-P", "--port", dest="port", action="store", type="int",
-            help="Database port", default=3306)
-    parser.add_option("-u", "--user", dest="user", action="store", 
-            help="Database username", default="pegasus")
-    parser.add_option("-p", "--passwd", dest="passwd", action="store",
-            help="Database password", default=None)
-    parser.add_option("-D", "--db", dest="db", action="store",
-            help="Database name", default="pegasus_metrics")
-
-def connect(host="localhost", port=3306, user="pegasus", passwd="pegasus", db="pegasus_metrics"):
+def connect():
     if "db" in dir(ctx):
         return
     warnings.filterwarnings('error', category=mysql.Warning)
-    ctx.db = mysql.connect(host=host,
-                           port=port,
-                           user=user,
-                           passwd=passwd,
-                           db=db,
+    ctx.db = mysql.connect(host=app.config["DBHOST"],
+                           port=app.config["DBPORT"],
+                           user=app.config["DBUSER"],
+                           passwd=app.config["DBPASS"],
+                           db=app.config["DBNAME"],
                            cursorclass=WithCursor,
                            use_unicode=True)
 
 def commit():
-    ctx.db.commit()
+    if "db" in dir(ctx):
+        ctx.db.commit()
 
 def rollback():
-    ctx.db.rollback()
+    if "db" in dir(ctx):
+        ctx.db.rollback()
 
 def close():
-    ctx.db.close()
-    del ctx.db
+    if "db" in dir(ctx):
+        ctx.db.close()
+        del ctx.db
 
 def cursor():
     return ctx.db.cursor()
@@ -70,7 +61,7 @@ def count_raw_data(start=0, end=0):
 def each_raw_data(ids=None):
     with cursor() as cur:
         query = "SELECT id, ts, remote_addr, data FROM raw_data"
-        if ids is not None:
+        if ids:
             query += " WHERE id in %s"
             cur.execute(query, [ids])
         else:

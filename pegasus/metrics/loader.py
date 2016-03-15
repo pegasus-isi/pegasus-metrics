@@ -27,6 +27,10 @@ def reprocess_raw_data():
 
 def reprocess_invalid_data():
     ids = db.get_invalid_ids()
+
+    if len(ids) == 0:
+        return 0
+
     db.delete_invalid_data()
 
     i = 0
@@ -344,37 +348,3 @@ def process_planner_error(data):
     }
 
     db.store_planner_errors(error)
-
-def main():
-    parser = optparse.OptionParser()
-
-    db.add_options(parser)
-
-    parser.add_option("-a", "--all", action="store_true", default=False, dest="all",
-            help="Reprocess all raw metrics (default: only reprocess invalid metrics")
-
-    (opts, args) = parser.parse_args()
-
-    if len(args) > 0:
-        parser.error("Invalid argument")
-
-    if opts.passwd is None:
-        opts.passwd = getpass("Database password: ")
-
-    try:
-        db.connect(host=opts.host,
-                   port=opts.port,
-                   user=opts.user,
-                   passwd=opts.passwd,
-                   db=opts.db)
-        if opts.all:
-            reprocess_raw_data()
-        else:
-            reprocess_invalid_data()
-        db.commit()
-    except:
-        db.rollback()
-        raise
-    finally:
-        db.close()
-

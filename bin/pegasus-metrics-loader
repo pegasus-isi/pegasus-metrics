@@ -1,6 +1,0 @@
-#!python
-
-from pegasus.metrics import loader
-
-loader.main()
-
