@@ -61,8 +61,6 @@ Create a new site in your Apache configuration that looks something like this:
         ErrorLog ${APACHE_LOG_DIR}/pegasus_metrics_error.log
         LogLevel info
 
-        SetEnv PEGASUS_METRICS_CONFIG /path/to/pegasus-metrics/config.py
-
         WSGIDaemonProcess metrics.pegasus.isi.edu user=www-data group=www-data processes=1 threads=25
         WSGIProcessGroup metrics.pegasus.isi.edu
         WSGIScriptAlias / /var/www/pegasus-metrics/pegasus_metrics.wsgi
