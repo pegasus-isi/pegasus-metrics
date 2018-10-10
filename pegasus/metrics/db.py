@@ -54,7 +54,7 @@ def cursor():
 
 def store_raw_data(ts, remote_addr, data):
     with cursor() as cur:
-        cur.execute("INSERT INTO raw_data (ts, remote_addr, data) VALUES (%s, %s, %s)", 
+        cur.execute("INSERT INTO raw_data (ts, remote_addr, data) VALUES (%s, %s, %s)",
                 [ts, remote_addr, json.dumps(data)])
 
     return ctx.db.insert_id()
@@ -562,7 +562,8 @@ def store_planner_metrics(data):
             dax_total_files,
             uses_pmc,
             planner_args,
-            deleted_tasks
+            deleted_tasks,
+            dax_api
         ) VALUES (
             %(id)s,
             %(ts)s,
@@ -600,12 +601,13 @@ def store_planner_metrics(data):
             %(dax_total_files)s,
             %(uses_pmc)s,
             %(planner_args)s,
-            %(deleted_tasks)s
+            %(deleted_tasks)s,
+            %(dax_api)s
         )""", data)
 
 def store_planner_errors(data):
     with cursor() as cur:
-        cur.execute("""INSERT INTO planner_errors (id, error, hash) 
+        cur.execute("""INSERT INTO planner_errors (id, error, hash)
                        VALUES (%(id)s, %(error)s, %(hash)s)""", data)
 
 def store_dagman_metrics(data):

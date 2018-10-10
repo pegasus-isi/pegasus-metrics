@@ -274,6 +274,9 @@ def process_planner_metrics(data):
     if "deleted_tasks" not in data:
         data["deleted_tasks"] = None
 
+    if "dax_api" not in data:
+        data["dax_api"] = None
+
     db.store_planner_metrics(data)
 
 def process_dagman_metrics(data):
