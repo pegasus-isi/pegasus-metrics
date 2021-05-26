@@ -323,10 +323,7 @@ def store_metrics():
     
     # Read and parse the data
     try:
-        raw = request.stream.read(length)
-        if not request.stream.is_exhausted:
-            return "Invalid Content-Length", 400
-        data = json.loads(raw)
+        data = request.json
     except Exception, e:
         log.error("Error parsing JSON object: %s", e)
         return "Error parsing JSON object", 400
