@@ -23,7 +23,7 @@ def yesno_filter(boolean):
 def decimal_filter(num):
     if num is None:
         return "0"
-    if isinstance(num, basestring):
+    if isinstance(num, str):
         return num
     return locale.format("%d", num, True)
 
@@ -31,7 +31,7 @@ def decimal_filter(num):
 def float_filter(num):
     if num is None:
         return "0.0"
-    if isinstance(num, basestring):
+    if isinstance(num, str):
         return num
     return locale.format("%0.2f", num, True)
 

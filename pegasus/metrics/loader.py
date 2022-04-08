@@ -131,7 +131,7 @@ def _geolocate(host, ipaddr, timeout):
             if type(location[key]) == unicode:
                 location[key] = location[key].encode('utf-8')
         return location
-    except Exception, e:
+    except Exception as e:
         log.exception(e)
         log.warn("Error getting location for %s from %s" % (ipaddr, host))
 
