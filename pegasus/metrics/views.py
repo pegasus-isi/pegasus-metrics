@@ -324,7 +324,7 @@ def store_metrics():
     # Read and parse the data
     try:
         data = request.json
-    except Exception, e:
+    except Exception as e:
         log.error("Error parsing JSON object: %s", e)
         return "Error parsing JSON object", 400
     
@@ -354,7 +354,7 @@ def store_metrics():
     try:
         data["id"] = db.store_raw_data(ts, remote_addr, data)
         db.commit()
-    except Exception, e:
+    except Exception as e:
         log.error("Error storing JSON data: %s", e)
         db.rollback()
         return "Error storing JSON data", 500
@@ -363,7 +363,7 @@ def store_metrics():
     try:
         loader.process_raw_data(data)
         db.commit()
-    except Exception, e:
+    except Exception as e:
         log.error("Error processing JSON data: %s", e)
         db.rollback()
     

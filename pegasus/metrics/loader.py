@@ -76,7 +76,7 @@ def get_hostname_domain(ipaddr):
             domain = hostname[hostname.find(".")+1:]
 
         return hostname, domain
-    except Exception, e:
+    except Exception as e:
         log.warning("%s: %s" % (e, ipaddr))
         return ipaddr, ipaddr
 
@@ -110,7 +110,7 @@ def process_raw_data(data):
             error = "Unknown client/data type: %s/%s" % (client, dtype)
             log.warn(error)
             db.store_invalid_data(data["id"], error)
-    except Exception, e:
+    except Exception as e:
         log.warn(data["id"])
         log.exception(e)
         db.store_invalid_data(data["id"], repr(e))
@@ -222,7 +222,7 @@ def process_planner_metrics(data):
     # are using the old string formats
     datefmt = "%b %d, %Y %H:%M:%S %p"
     start_time = data["start_time"]
-    if isinstance(start_time, basestring):
+    if isinstance(start_time, str):
         if start_time[0] in "0123456789":
             data["start_time"] = float(start_time)
         else:
@@ -231,7 +231,7 @@ def process_planner_metrics(data):
             data["start_time"] = ts
 
     end_time = data["end_time"]
-    if isinstance(end_time, basestring):
+    if isinstance(end_time, str):
         if end_time[0] in "0123456789":
             data["end_time"] = float(end_time)
         else:
