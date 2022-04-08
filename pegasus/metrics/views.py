@@ -9,6 +9,7 @@ import time
 import requests
 from flask import flash, redirect, render_template, request, session, url_for
 from pegasus.metrics import app, db, forms, loader
+from werkzeug.datastructures import MultiDict
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def inject_date():
 def index():
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     start = form.get_start()
     end = form.get_end()
@@ -100,7 +101,7 @@ def recent_errors():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("recent_errors.html", form=form)
 
@@ -120,7 +121,7 @@ def top_errors():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("top_errors.html", form=form)
 
@@ -140,7 +141,7 @@ def top_domains():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("top_domains.html", form=form)
 
@@ -160,7 +161,7 @@ def top_hosts():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("top_hosts.html", form=form)
 
@@ -223,7 +224,7 @@ def top_applications():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("top_applications.html", form=form)
 
@@ -232,7 +233,7 @@ def top_applications():
 def map_metrics():
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.MapForm(obj=session["formdata"])
+    form = forms.MapForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     start = form.get_start()
     end = form.get_end()
@@ -245,7 +246,7 @@ def map_metrics():
 def planner_trends():
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.TrendForm(obj=session["formdata"])
+    form = forms.TrendForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     intervals = form.get_monthly_intervals()
     trend = []
@@ -261,7 +262,7 @@ def planner_trends():
 def histograms():
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.HistogramForm(obj=session["formdata"])
+    form = forms.HistogramForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     field = form.get_metric()
     start = form.get_start()
@@ -302,7 +303,7 @@ def top_application_runs():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("top_application_runs.html", form=form)
 
@@ -322,7 +323,7 @@ def recent_downloads():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     return render_template("recent_downloads.html", form=form)
 
@@ -342,7 +343,7 @@ def popular_downloads():
 
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.PeriodForm(obj=session["formdata"])
+    form = forms.PeriodForm(formdata=to_multi_dict(session["formdata"]))
     return render_template("popular_downloads.html", form=form)
 
 
@@ -350,7 +351,7 @@ def popular_downloads():
 def download_trends():
     if request.args or "formdata" not in session:
         session["formdata"] = request.args
-    form = forms.TrendForm(obj=session["formdata"])
+    form = forms.TrendForm(formdata=to_multi_dict(session["formdata"]))
     form.validate()
     intervals = form.get_monthly_intervals()
 
@@ -519,3 +520,13 @@ def __get_datatables_args():
                 table_args["sSortDir_" + i] = request.args.get("sSortDir_" + i)
 
     return table_args
+
+
+def to_multi_dict(d):
+    """
+    Convert a Flask request object to a MultiDict
+    """
+    if d is not None and not isinstance(d, MultiDict):
+        return MultiDict([(k, v) for k, v in d.items()])
+    else:
+        return d
