@@ -76,6 +76,15 @@ def reprocess():
     return redirect(request.referrer or url_for("index"))
 
 
+@app.route("/reprocess/invalid", methods=["POST"])
+def reprocess_invalid():
+    i = loader.reprocess_invalid_data()
+    db.commit()
+    flash("Reprocessed %d objects successfully" % i)
+
+    return redirect(request.referrer or url_for("index"))
+
+
 @app.route("/invalid")
 def invalid():
     objects = db.get_invalid_data()
