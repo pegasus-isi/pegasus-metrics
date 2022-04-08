@@ -2,18 +2,21 @@ try:
     import json
 except ImportError:
     import simplejson as json
-import requests
-import time
+
+import hashlib
 import logging
 import optparse
-import socket
-import hashlib
 import re
+import socket
+import time
 from getpass import getpass
-from repoze.lru import lru_cache
+
+import requests
 from pegasus.metrics import db
+from repoze.lru import lru_cache
 
 log = logging.getLogger("pegasus.metrics.loader")
+
 
 def reprocess_raw_data():
     db.delete_processed_data()
@@ -24,6 +27,7 @@ def reprocess_raw_data():
         process_raw_data(data)
 
     return i
+
 
 def reprocess_invalid_data():
     ids = db.get_invalid_ids()
@@ -40,6 +44,7 @@ def reprocess_invalid_data():
 
     return i
 
+
 @lru_cache(1024, timeout=3600)
 def get_hostname_domain(ipaddr):
     if ipaddr is None:
@@ -53,14 +58,13 @@ def get_hostname_domain(ipaddr):
         hostname = socket.gethostbyaddr(ipaddr)[0]
         log.debug("%s is %s" % (ipaddr, hostname))
 
-
         # Count the number of dots in the hostname
-        dots = len([x for x in hostname if x=='.'])
+        dots = len([x for x in hostname if x == "."])
 
         # This is a list of tlds for which a second-level domain
         # has no meaning. This is not all of them, just the ones
         # we are likely to encounter.
-        tlds_wo_2nd_level = [".uk", ".il", ".nz", ".au", ".edu.pk", ".ac.in",".edu.in"]
+        tlds_wo_2nd_level = [".uk", ".il", ".nz", ".au", ".edu.pk", ".ac.in", ".edu.in"]
 
         # Require 2 dots for tlds without second-level, 1 otherwise
         if any(hostname.endswith(tld) for tld in tlds_wo_2nd_level):
@@ -73,21 +77,22 @@ def get_hostname_domain(ipaddr):
             domain = hostname
         else:
             # The domain is everything after the first dot
-            domain = hostname[hostname.find(".")+1:]
+            domain = hostname[hostname.find(".") + 1 :]
 
         return hostname, domain
     except Exception as e:
         log.warning("%s: %s" % (e, ipaddr))
         return ipaddr, ipaddr
 
+
 def process_raw_data(data):
     try:
         # Decode mappings
         for key in data:
-            if type(data[key]) == unicode:
-                data[key] = data[key].encode('utf-8')
+            if type(data[key]) == str:
+                data[key] = data[key].encode("utf-8")
         # Get the hostname and domain
-        #print data["id"]
+        # print data["id"]
         ipaddr = data["remote_addr"]
         hostname, domain = get_hostname_domain(ipaddr)
         data["hostname"] = hostname
@@ -121,15 +126,17 @@ def _geolocate(host, ipaddr, timeout):
         r = requests.get("http://%s/json/%s" % (host, ipaddr), timeout=timeout)
 
         if r.status_code < 200 or r.status_code >= 300:
-            log.warn("Request to %s for %s returned failure: %s" \
-                     % (host, ipaddr, r.status_code))
+            log.warn(
+                "Request to %s for %s returned failure: %s"
+                % (host, ipaddr, r.status_code)
+            )
             return None
 
-        r.encoding = 'utf-8'
+        r.encoding = "utf-8"
         location = json.loads(r.text)
         for key in location:
-            if type(location[key]) == unicode:
-                location[key] = location[key].encode('utf-8')
+            if type(location[key]) == str:
+                location[key] = location[key].encode("utf-8")
         return location
     except Exception as e:
         log.exception(e)
@@ -139,9 +146,11 @@ def _geolocate(host, ipaddr, timeout):
 
 
 def geolocate(ipaddr):
-    if ipaddr.startswith("192.168.") or \
-       ipaddr.startswith("10.") or \
-       ipaddr == "127.0.0.1":
+    if (
+        ipaddr.startswith("192.168.")
+        or ipaddr.startswith("10.")
+        or ipaddr == "127.0.0.1"
+    ):
         log.warning("Skipping local address %s" % ipaddr)
         return None
 
@@ -184,16 +193,15 @@ def process_download(data):
             data[key] = None
 
     # Convert missing and empty mappings to None
-    nullify('name')
-    nullify('email')
-    nullify('organization')
-    nullify('app_domain')
-    nullify('app_description')
-    nullify('howheard')
-    nullify('howhelp')
-    nullify('oldfeatures')
-    nullify('newfeatures')
-
+    nullify("name")
+    nullify("email")
+    nullify("organization")
+    nullify("app_domain")
+    nullify("app_description")
+    nullify("howheard")
+    nullify("howhelp")
+    nullify("oldfeatures")
+    nullify("newfeatures")
 
     # If the filename has a version string, then extract it
     # Always extract the longest string that looks like a version
@@ -209,6 +217,7 @@ def process_download(data):
         process_location(data["remote_addr"])
 
     db.store_download(data)
+
 
 def process_planner_metrics(data):
     if "wf_uuid" not in data:
@@ -275,8 +284,9 @@ def process_planner_metrics(data):
         data["deleted_tasks"] = None
 
     data["dax_api"] = data.get("wf_api", data.get("dax_api", None))
-    
+
     db.store_planner_metrics(data)
+
 
 def process_dagman_metrics(data):
     if "parent_dagman_id" not in data or len(data["parent_dagman_id"]) == 0:
@@ -295,6 +305,7 @@ def process_dagman_metrics(data):
         process_location(data["remote_addr"])
 
     db.store_dagman_metrics(data)
+
 
 def hash_error(error):
     # XXX We assume it is a Java stacktrace for now
@@ -329,8 +340,8 @@ def hash_error(error):
         if lines[i].startswith("Caused by: "):
             cause = lines[i].split(":")[1]
             md.update(cause)
-            if i+1 < len(lines):
-                md.update(lines[i+1])
+            if i + 1 < len(lines):
+                md.update(lines[i + 1])
             else:
                 log.warn("No location for cause in stack trace:\n%s" % error)
 
@@ -338,15 +349,12 @@ def hash_error(error):
 
     return errhash
 
+
 def process_planner_error(data):
     objid = data["id"]
     message = data["error"]
     errhash = hash_error(message)
 
-    error = {
-        "id": objid,
-        "error": message,
-        "hash": errhash
-    }
+    error = {"id": objid, "error": message, "hash": errhash}
 
     db.store_planner_errors(error)
