@@ -38,13 +38,13 @@ def migrate():
             else:
                 log.error("Error getting location for %s: Status %s" % (addr, r.status_code))
                 exit(1)
-        except Exception as e:
+        except Exception, e:
             log.error("Error getting location for %s" % addr)
             log.exception(e)
             exit(1)
 
         for key in location:
-            if type(location[key]) == str:
+            if type(location[key]) == unicode:
                 location[key] = location[key].encode('utf-8')
 
         if 'latitude' not in location or \

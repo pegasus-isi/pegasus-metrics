@@ -31,12 +31,12 @@ def migrate():
            "howhelp": r["howhelp"]
         }
 
-        print(r["did"],r["filename"])
+        print r["did"],r["filename"]
 
         # Post it to the metrics server
         resp = requests.post(url, data=json.dumps(d), headers={'content-type': 'application/json'})
         if resp.status_code != 202:
-            print("ERROR:", resp.text)
+            print "ERROR:", resp.text
             break
 
     cur.close()

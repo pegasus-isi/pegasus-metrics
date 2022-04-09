@@ -536,6 +536,6 @@ def to_multi_dict(d):
     Convert a Flask request object to a MultiDict
     """
     if d is not None and not isinstance(d, MultiDict):
-        return MultiDict([(k, v) for k, v in list(d.items())])
+        return MultiDict([(k, v) for k, v in d.items()])
     else:
         return d
