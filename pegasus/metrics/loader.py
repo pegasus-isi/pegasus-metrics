@@ -322,15 +322,15 @@ def hash_error(error):
     # If there is no colon, then just assume there was no message
     colon = lines[0].find(":")
     if colon > 0:
-        md.update(lines[0][0:colon])
+        md.update(lines[0][0:colon].encode("utf-8"))
     else:
-        md.update(lines[0])
+        md.update(lines[0].encode("utf-8"))
 
     # The line where the exception was thrown should be the first one starting with "at"
     location_found = False
     for l in lines[1:]:
         if l.lstrip().startswith("at "):
-            md.update(l)
+            md.update(l.encode("utf-8"))
             location_found = True
             break
     if not location_found:
@@ -340,9 +340,9 @@ def hash_error(error):
     for i in range(0, len(lines)):
         if lines[i].startswith("Caused by: "):
             cause = lines[i].split(":")[1]
-            md.update(cause)
+            md.update(cause.encode("utf-8"))
             if i + 1 < len(lines):
-                md.update(lines[i + 1])
+                md.update(lines[i + 1].encode("utf-8"))
             else:
                 log.warn("No location for cause in stack trace:\n%s" % error)
 
@@ -353,7 +353,7 @@ def hash_error(error):
 
 def process_planner_error(data):
     objid = data["id"]
-    message = data["error"]
+    message = data["error"].decode()
     errhash = hash_error(message)
 
     error = {"id": objid, "error": message, "hash": errhash}
