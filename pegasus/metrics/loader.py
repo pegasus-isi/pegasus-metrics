@@ -99,8 +99,8 @@ def process_raw_data(data):
         data["domain"] = domain
 
         # Process metrics according to type
-        client = data["client"]
-        dtype = data["type"]
+        client = data["client"].decode()
+        dtype = data["type"].decode()
         if (client, dtype) == ("pegasus-plan", "metrics"):
             process_planner_metrics(data)
         elif (client, dtype) == ("pegasus-plan", "error"):
@@ -146,6 +146,7 @@ def _geolocate(host, ipaddr, timeout):
 
 
 def geolocate(ipaddr):
+    ipaddr = ipaddr.decode()
     if (
         ipaddr.startswith("192.168.")
         or ipaddr.startswith("10.")
