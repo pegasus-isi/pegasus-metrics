@@ -88,9 +88,6 @@ def get_hostname_domain(ipaddr):
 def process_raw_data(data):
     try:
         # Decode mappings
-        for key in data:
-            if type(data[key]) == str:
-                data[key] = data[key].encode("utf-8")
         # Get the hostname and domain
         # print data["id"]
         ipaddr = data["remote_addr"]
@@ -99,8 +96,8 @@ def process_raw_data(data):
         data["domain"] = domain
 
         # Process metrics according to type
-        client = data["client"].decode()
-        dtype = data["type"].decode()
+        client = data["client"]
+        dtype = data["type"]
         if (client, dtype) == ("pegasus-plan", "metrics"):
             process_planner_metrics(data)
         elif (client, dtype) == ("pegasus-plan", "error"):
@@ -134,9 +131,6 @@ def _geolocate(host, ipaddr, timeout):
 
         r.encoding = "utf-8"
         location = json.loads(r.text)
-        for key in location:
-            if type(location[key]) == str:
-                location[key] = location[key].encode("utf-8")
         return location
     except Exception as e:
         log.exception(e)
@@ -146,7 +140,6 @@ def _geolocate(host, ipaddr, timeout):
 
 
 def geolocate(ipaddr):
-    ipaddr = ipaddr.decode()
     if (
         ipaddr.startswith("192.168.")
         or ipaddr.startswith("10.")
