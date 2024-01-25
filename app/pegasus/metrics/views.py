@@ -97,7 +97,7 @@ def invalid():
 
 @app.route("/planner/recenterrors")
 def recent_errors():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, errors = db.get_recent_errors(**table_args)
         return render_template(
@@ -117,7 +117,7 @@ def recent_errors():
 
 @app.route("/planner/toperrors")
 def top_errors():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, errors = db.get_top_errors(**table_args)
         return render_template(
@@ -137,7 +137,7 @@ def top_errors():
 
 @app.route("/planner/topdomains")
 def top_domains():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, domains = db.get_top_domains(**table_args)
         return render_template(
@@ -157,7 +157,7 @@ def top_domains():
 
 @app.route("/planner/tophosts")
 def top_hosts():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, hosts = db.get_top_hosts(**table_args)
         return render_template(
@@ -177,7 +177,7 @@ def top_hosts():
 
 @app.route("/planner/errorsbyhash/<errhash>")
 def error_hash(errhash):
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, errors = db.get_errors_by_hash(**table_args)
         return render_template(
@@ -200,7 +200,7 @@ def planner_metric(objid):
 
 @app.route("/planner/recentapplications")
 def recent_applications():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, applications = db.get_recent_applications(
             **table_args
@@ -220,7 +220,7 @@ def recent_applications():
 
 @app.route("/planner/topapplications")
 def top_applications():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, applications = db.get_top_applications(**table_args)
         return render_template(
@@ -297,7 +297,7 @@ def location_metric(ipaddr):
 
 @app.route("/runs/topapplications")
 def top_application_runs():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, applications = db.get_top_application_runs(
             **table_args
@@ -319,7 +319,7 @@ def top_application_runs():
 
 @app.route("/downloads/recent")
 def recent_downloads():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, downloads = db.get_recent_downloads(**table_args)
         return render_template(
@@ -339,7 +339,7 @@ def recent_downloads():
 
 @app.route("/downloads/popular")
 def popular_downloads():
-    if request.is_xhr:
+    if request.accept_mimetypes.best == 'application/json':
         table_args = __get_datatables_args()
         totalCount, filteredCount, downloads = db.get_popular_downloads(**table_args)
         return render_template(

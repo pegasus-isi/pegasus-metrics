@@ -120,7 +120,7 @@ def process_raw_data(data):
 
 def _geolocate(host, ipaddr, timeout):
     try:
-        r = requests.get("http://%s/json/%s" % (host, ipaddr), timeout=timeout)
+        r = requests.get("https://%s/geoip/%s" % (host, ipaddr), timeout=timeout)
 
         if r.status_code < 200 or r.status_code >= 300:
             log.warn(
@@ -131,6 +131,14 @@ def _geolocate(host, ipaddr, timeout):
 
         r.encoding = "utf-8"
         location = json.loads(r.text)
+        # remap fields to the old model
+        location['country_code'] = location['country']
+        location['region_code'] = ''
+        if 'stateprovCode' in location:
+            location['region_code'] = location['stateprovCode']
+        location['region_name'] = ''
+        if 'stateprov' in location:
+            location['region_name'] = location['stateprov']
         return location
     except Exception as e:
         log.exception(e)
@@ -155,7 +163,7 @@ def geolocate(ipaddr):
             log.warning("Skipping local address %s" % ipaddr)
             return None
 
-    hosts = [("gaul.isi.edu:8192", 0.5), ("freegeoip.net", 30)]
+    hosts = [("data.isi.edu", 30)]
     for host, timeout in hosts:
         location = _geolocate(host, ipaddr, timeout)
         if location is not None:
