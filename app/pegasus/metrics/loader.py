@@ -133,6 +133,7 @@ def _geolocate(host, ipaddr, timeout):
         location = json.loads(r.text)
         # remap fields to the old model
         location['country_code'] = location['country']
+        location['country_name'] = location['country']
         location['region_code'] = ''
         if 'stateprovCode' in location:
             location['region_code'] = location['stateprovCode']
@@ -167,6 +168,8 @@ def geolocate(ipaddr):
     for host, timeout in hosts:
         location = _geolocate(host, ipaddr, timeout)
         if location is not None:
+            # also need the ip later
+            location['ip'] = ipaddr
             return location
 
     log.error("Unable to get location for %s" % ipaddr)
